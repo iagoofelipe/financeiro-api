@@ -1,0 +1,40 @@
+body {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+main {
+    width: -webkit-fill-available;
+    height: -webkit-fill-available;
+}
+
+.home-nav-logo {
+    width: 30px;
+    height: 30px;
+}
+
+.home-nav {
+    width: 290px;
+
+    .nav-link svg, .nav-link label {
+        color: var(--subtitle-color);
+        stroke: var(--subtitle-color);
+        font-weight: 500;
+        font-size: 11pt;
+    }
+}
+
+.home-nav-title {
+    color: black;
+    font-size: 13pt;
+}
+
+.home-card-top {
+    .title {
+        font-size: 1.5rem;
+        color: var(--subtitle-color);
+    }
+}
+
+/* CONTENT NAVBAR - Registries */

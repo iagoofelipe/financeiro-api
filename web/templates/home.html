@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block body %}
+
+<nav class="card d-flex home-nav flex-column p-3 shadow-sm">
+    <div class="d-flex align-items-center justify-content-between">
+        <a href="/" class="d-flex align-items-center text-decoration-none text-black">
+            <img src="{% static 'imgs/logo.svg' %}" alt="logo" class="me-2 home-nav-logo">
+            <p class="mb-0 home-nav-title">Financeiro</p>
+        </a>
+        <button class="btn p-1">
+            <img src="{% static 'imgs/icons/open-panel-filled.svg' %}">
+        </button>
+    </div>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="mb-1">
+            <a href="/home/nav-dash" class="nav-link ps-2" name="Dashboards">
+                <!-- <img src="{% static 'imgs/icons/dashboard.svg' %}" alt="dashboard-icon" class="home-nav-icon me-2"> -->
+                {% include 'icons/dashboard.svg' %}
+                <label class="ms-2">Dashboards</label>
+            </a>
+        </li>
+        <li class="mb-1">
+            <a href="/home/nav-regs" class="nav-link ps-2" name="Registros">
+                <!-- <img src="{% static 'imgs/icons/table.svg' %}" alt="table-icon" class="home-nav-icon me-2"> -->
+                {% include 'icons/table.svg' %}
+                <label class="ms-2">Registros</label>
+            </a>
+        </li>
+        <li class="mb-1">
+            <a href="/home/nav-cards" class="nav-link ps-2" name="Cartões e Faturas">
+                <!-- <img src="{% static 'imgs/icons/credit-card.svg' %}" alt="card-icon" class="home-nav-icon me-2"> -->
+                {% include 'icons/credit-card.svg' %}
+                <label class="ms-2">Cartões e Faturas</label>
+            </a>
+        </li>
+    </ul>
+    <hr>
+    <ul class="nav nav-pills flex-column">
+        <li class="mb-1">
+            <a class="nav-link ps-2" name="Sair">
+                <!-- <img src="{% static 'imgs/icons/logout.svg' %}" alt="logout-icon" class="home-nav-icon me-2"> -->
+                {% include 'icons/logout.svg' %}
+                <label class="ms-2">Sair</label>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<main class="ms-3">
+    <div class="card d-flex flex-column p-3 mb-3 shadow-sm home-card-top">
+        <p class="title m-0" id="home-title"></p>
+    </div>
+    <div id="home-content"></div>
+</main>
+
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'scripts/ui/home.js' %}"></script>
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'styles/home.css' %}">
+{% endblock %}
