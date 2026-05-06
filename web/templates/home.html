@@ -17,22 +17,19 @@
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
         <li class="mb-1">
-            <a href="/home/nav-dash" class="nav-link ps-2" name="Dashboards">
-                <!-- <img src="{% static 'imgs/icons/dashboard.svg' %}" alt="dashboard-icon" class="home-nav-icon me-2"> -->
+            <a class="nav-link ps-2" name="Dashboards">
                 {% include 'icons/dashboard.svg' %}
                 <label class="ms-2">Dashboards</label>
             </a>
         </li>
         <li class="mb-1">
-            <a href="/home/nav-regs" class="nav-link ps-2" name="Registros">
-                <!-- <img src="{% static 'imgs/icons/table.svg' %}" alt="table-icon" class="home-nav-icon me-2"> -->
+            <a class="nav-link ps-2" name="Registros">
                 {% include 'icons/table.svg' %}
                 <label class="ms-2">Registros</label>
             </a>
         </li>
         <li class="mb-1">
-            <a href="/home/nav-cards" class="nav-link ps-2" name="Cartões e Faturas">
-                <!-- <img src="{% static 'imgs/icons/credit-card.svg' %}" alt="card-icon" class="home-nav-icon me-2"> -->
+            <a class="nav-link ps-2" name="Cartões e Faturas">
                 {% include 'icons/credit-card.svg' %}
                 <label class="ms-2">Cartões e Faturas</label>
             </a>
@@ -41,8 +38,19 @@
     <hr>
     <ul class="nav nav-pills flex-column">
         <li class="mb-1">
+            <a class="nav-link ps-2" name="Configurações">
+                {% include 'icons/gear-fill.svg' %}
+                <label class="ms-2">Configurações</label>
+            </a>
+        </li>
+        <li class="mb-1">
+            <a class="nav-link ps-2" name="Usuário e Conta">
+                {% include 'icons/person-fill.svg' %}
+                <label class="ms-2">Iago Carvalho</label>
+            </a>
+        </li>
+        <li>
             <a class="nav-link ps-2" name="Sair">
-                <!-- <img src="{% static 'imgs/icons/logout.svg' %}" alt="logout-icon" class="home-nav-icon me-2"> -->
                 {% include 'icons/logout.svg' %}
                 <label class="ms-2">Sair</label>
             </a>
@@ -51,16 +59,19 @@
 </nav>
 
 <main class="ms-3 d-flex flex-column">
-    <div class="card d-flex flex-column p-3 mb-3 shadow-sm home-card-top">
+    <div class="card d-flex flex-row p-3 mb-3 shadow-sm home-card-top justify-content-between">
         <p class="title m-0" id="home-title"></p>
+        <div class="d-flex flex-row">
+            <button class="btn btn-outline border-0 ms-2 p-0"><i class="bi bi-bell-fill"></i></button>
+        </div>
     </div>
-    <div id="home-content" class="h-100"></div>
+    <div id="home-content" class="h-100 overflow-auto"></div>
 </main>
 
 {% endblock %}
 
 {% block script %}
-<script src="{% static 'scripts/ui/home.js' %}"></script>
+<script type="module" src="{% static 'scripts/ui/home.js' %}"></script>
 {% endblock %}
 
 {% block style %}

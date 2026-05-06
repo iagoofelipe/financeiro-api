@@ -17,11 +17,17 @@ main {
 .home-nav {
     width: 290px;
 
-    .nav-link svg, .nav-link label {
+    /* .nav-link svg, .nav-link label */ 
+    .nav-link * {
         color: var(--subtitle-color);
         stroke: var(--subtitle-color);
         font-weight: 500;
         font-size: 11pt;
+    }
+
+    .nav-link svg {
+        height: 25px;
+        width: 25px;
     }
 }
 
@@ -30,20 +36,15 @@ main {
     font-size: 13pt;
 }
 
-.home-card-top {
-    .title {
-        font-size: 1.5rem;
-        color: var(--subtitle-color);
-    }
+#home-title {
+    color: var(--subtitle-color);
 }
 
 /* CONTENT NAVBAR - Registries */
 .card-transaction-desc {
     color: var(--subtitle-color);
 
-    p {
-        margin: 0 1rem 0 .5rem;
-        font-size: 1rem;
+    label {
         font-weight: 500;
     }
 }
@@ -87,6 +88,11 @@ main {
 
 .table tbody tr:last-child td {
     border: none;
+}
+
+#reg-transactions {
+    display: grid;
+    row-gap: 1rem;
 }
 
 /* Estilo customizado para as Badges (Status) */
