@@ -38,3 +38,61 @@ main {
 }
 
 /* CONTENT NAVBAR - Registries */
+.card-transaction-desc {
+    color: var(--subtitle-color);
+
+    p {
+        margin: 0 1rem 0 .5rem;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+}
+
+.bg-atrasado {
+    background-color: #f5a7a7;
+    color: #721c24;
+}
+
+.bg-pendente {
+    background-color: #a7d9f5;
+    color: #0c5460;
+}
+
+.bg-contabilizado {
+    background-color: #9EEEC7;
+    color: #4A705E;
+}
+
+.table {
+    border: var(--bs-card-border-width) solid var(--bs-card-border-color);
+    border-radius: var(--bs-card-border-radius);
+    overflow: hidden;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.table thead th {
+    background-color: #f8f9fa;
+    font-weight: 500;
+    padding: 15px;
+}
+.table tbody td {
+    vertical-align: middle;
+    padding: 15px;
+    color: #666;
+}
+.table tbody tr td:first-child {
+    font-weight: bold;
+    color: #000;
+}
+
+.table tbody tr:last-child td {
+    border: none;
+}
+
+/* Estilo customizado para as Badges (Status) */
+.badge-custom {
+    padding: 8px 16px;
+    border-radius: 8px; /* Cantos menos arredondados que a pill padrão */
+    font-weight: 500;
+    display: inline-block;
+}

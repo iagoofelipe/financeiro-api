@@ -14,12 +14,40 @@
     background-color: var(--bs-border-color);
 }
 
-.title {
+.title, .title-1 {
     font-weight: 500;
     font-size: 1.25rem;
+}
+
+.title-2 {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.title-3 {
+    color: #8D8D8D;
+    font-size: .9rem;
+    font-weight: 400;
 }
 
 .btn-outline {
     color: var(--subtitle-color);
     border: .5px solid var(--bs-border-color);
+
+    i {
+        font-size: 15pt;
+    }
+}
+
+.btn-rotate i, .btn-rotate-full i {
+    transition: transform 0.5s ease;
+    display: inline-block;
+}
+
+.btn-rotated i {
+    transform: rotate(180deg);
+}
+
+.btn-rotated-full i {
+    transform: rotate(360deg);
 }

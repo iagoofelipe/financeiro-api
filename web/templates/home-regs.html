@@ -1,4 +1,4 @@
-<div class="card d-flex flex-column p-3 shadow-sm">
+<div class="card d-flex flex-column p-3 shadow-sm h-100">
     <div class="d-flex flex-row align-items-center justify-content-between">
         <p class="title m-0">Transações</p>
         <div class="d-flex flex-row">
@@ -6,8 +6,9 @@
                 <button type="button" class="btn btn-outline">Jan 26</button>
                 <!-- <input type="date" class="form-control" placeholder="Jan 26"> -->
                 <div class="btn-group" role="group">
-                    <button id="btnGroupDrop1" type="button" class="btn btn-outline dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    Mensal
+                    <button id="btnGroupDrop1" type="button" class="btn btn-outline dropdown-toggle"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        Mensal
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                         <li><a class="dropdown-item" href="#">Mensal</a></li>
@@ -15,8 +16,66 @@
                     </ul>
                 </div>
             </div>
-            <button class="btn btn-outline ms-3"><i class="bi bi-plus-lg"></i></button>
-            <button class="btn btn-outline ms-3"><i class="bi bi-arrow-clockwise"></i></button>
+            <button class="btn btn-outline ms-2"><i class="bi bi-plus-lg"></i></button>
+            <button class="btn btn-outline btn-rotate-full ms-2"><i class="bi bi-arrow-clockwise"></i></button>
         </div>
     </div>
-</div>
+
+    <!-- TODO: gerado automaticamente a partir da API -->
+    <div class="card card-transaction mt-3 p-3">
+        <div class="d-flex flex-row align-items-center justify-content-between">
+            <div>
+                <p class="title mb-2">Pessoais</p>
+                <div class="d-flex flex-row card-transaction-desc">
+                    <i class="bi bi-plus-circle-fill"></i>
+                    <p>R$ 3.150</p>
+                    <i class="bi bi-dash-circle-fill"></i>
+                    <p>R$ 57,40</p>
+                    <p>1 Atrasado</p>
+                    <p>1 Pendente</p>
+                    <p>2 Contabilizados</p>
+                </div>
+            </div>
+            <button class="btn btn-outline btn-rotate collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#transaction-content-1" aria-expanded="true" aria-controls="transaction-content-1">
+                <i class="bi bi-chevron-up"></i>
+            </button>
+        </div>
+        <div class="collapse show" id="transaction-content-1">
+            <hr>
+            <div class="d-flex justify-content-between align-items-center">
+                <label class="title-2">Entradas</label>
+                <label class="title-3">alterado há 1 dia atrás</label>
+            </div>
+
+            <div class="table-responsive mt-3">
+                <table class="table m-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Título</th>
+                            <th scope="col">Valor</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Data de Ocorrência</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Salário</td>
+                            <td>R$ 3.000</td>
+                            <td><span class="badge-custom bg-atrasado">Atrasado</span></td>
+                            <td>07 Jan 26</td>
+                        </tr>
+                        <tr>
+                            <td>Aula Teclado</td>
+                            <td>R$ 150</td>
+                            <td><span class="badge-custom bg-pendente">Pendente</span></td>
+                            <td>10 Jan 26</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>

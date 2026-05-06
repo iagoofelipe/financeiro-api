@@ -58,7 +58,9 @@ class HomeView
         // alterando conteúdo
         let url = jbtn.prop('href');
         $('#home-content').load(url, () => {
-            console.log('Conteúdo da aba carregado!');
+            $('#home-content .btn-rotate').click((evt) => $(evt.currentTarget).toggleClass('btn-rotated'));
+            $('#home-content .btn-rotate-full').click((evt) => $(evt.currentTarget).toggleClass('btn-rotated-full'));
         });
+
     }
 }
