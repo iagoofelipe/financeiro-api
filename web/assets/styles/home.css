@@ -16,19 +16,26 @@ main {
 
 .home-nav {
     width: 290px;
+}
 
-    /* .nav-link svg, .nav-link label */ 
-    .nav-link * {
-        color: var(--subtitle-color);
-        stroke: var(--subtitle-color);
-        font-weight: 500;
-        font-size: 11pt;
-    }
+.home-nav .nav-link * {
+    color: var(--subtitle-color);
+    stroke: var(--subtitle-color);
+    font-weight: 500;
+    font-size: 11pt;
+}
 
-    .nav-link svg {
-        height: 25px;
-        width: 25px;
-    }
+.home-nav .nav-link svg {
+    height: 25px;
+    width: 25px;
+}
+
+.nav-link-active {
+    background-color: var(--primary-color);
+}
+
+.nav-link-active * {
+    color: white !important;
 }
 
 .home-nav-title {
@@ -71,16 +78,19 @@ main {
     border-collapse: separate;
     border-spacing: 0;
 }
+
 .table thead th {
     background-color: #f8f9fa;
     font-weight: 500;
     padding: 15px;
 }
+
 .table tbody td {
     vertical-align: middle;
     padding: 15px;
     color: #666;
 }
+
 .table tbody tr td:first-child {
     font-weight: bold;
     color: #000;
@@ -95,10 +105,20 @@ main {
     row-gap: 1rem;
 }
 
+.reg-transactions {
+    width: stretch;
+}
+
+.reg-details {
+    min-width: 400px;
+    width: 20%;
+}
+
 /* Estilo customizado para as Badges (Status) */
 .badge-custom {
     padding: 8px 16px;
-    border-radius: 8px; /* Cantos menos arredondados que a pill padrão */
+    border-radius: 8px;
+    /* Cantos menos arredondados que a pill padrão */
     font-weight: 500;
     display: inline-block;
 }

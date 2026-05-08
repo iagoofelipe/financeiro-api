@@ -1,0 +1,19 @@
+<div class="card p-3" id="{CONTAINER_ID}">
+    <div class="d-flex flex-row align-items-center justify-content-between">
+        <div>
+            <p class="title mb-2">{TITLE}</p>
+            <div class="d-flex flex-row align-items-center card-transaction-desc">
+                <img src="/static/imgs/icons/money-recive.svg" class="me-1" title="total de entradas" style="width: 22px; height: 22px;">
+                <label title="total de entradas" class="title-3 me-3">{TOTAL_INPUTS}</label>
+                <img src="/static/imgs/icons/money-send.svg" class="me-1" title="total de saídas" style="width: 22px; height: 22px;">
+                <label class="title-3 me-3" title="total de saídas">{TOTAL_OUTPUTS}</label>
+                {DESC_STATUS}
+            </div>
+        </div>
+        <button id="{BTN_COLLAPSE_ID}" class="btn border-0 p-0 btn-rotate" type="button" data-bs-toggle="collapse"
+            data-bs-target="#{TABLES_CONTAINER_ID}" aria-expanded="false" aria-controls="{TABLES_CONTAINER_ID}">
+            <i class="bi bi-chevron-up rotate"></i>
+        </button>
+    </div>
+    <div class="collapse" id="{TABLES_CONTAINER_ID}"></div>
+</div>

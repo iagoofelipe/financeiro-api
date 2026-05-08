@@ -16,10 +16,24 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
+from django.http import HttpRequest, HttpResponseBadRequest, HttpResponseNotFound
+from django.template.exceptions import TemplateDoesNotExist
+
+def templates(request:HttpRequest):
+    data = request.GET.dict()
+    try:
+        template = data.pop('template')
+        return render(request, template, data)
+    except KeyError:
+        return HttpResponseBadRequest('parameter template required')
+    except TemplateDoesNotExist:
+        return HttpResponseNotFound(f'template "{template}" not found')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', lambda r: redirect('/home')),
+    path('templates/', templates, name='templates'),
     path('home/', include('apps.home.urls')),
+    path('test/', lambda r: render(r, 'home/regs/index.html'))
 ]

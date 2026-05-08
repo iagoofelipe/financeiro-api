@@ -1,24 +1,18 @@
 import RegistryView from "./registries.js";
+import DashboardView from "./dashboards.js";
+import CreditCardView from "./cards.js";
 
-$(() => {
+$(async () => {
     let home_view = new HomeView();
-    home_view.init();
 });
-
-const URLS = {
-    'Dashboards': '/home/nav-dash',
-    'Registros': '/home/nav-regs',
-    'Cartões e Faturas': '/home/nav-cards',
-};
-
 
 class HomeView
 {
-    #currentNavBtn = undefined;
-    #currentTitle = '';
+    #currentNavBtn;
+    #regview;
+    #dashview;
+    #cardsview;
     #initialNavBtn;
-    #regview = new RegistryView();
-
 
     constructor() {
         // configurando nav-btns
@@ -29,61 +23,56 @@ class HomeView
         }
 
         this.#initialNavBtn = nav_btns[1];
+        this.#set_animations();
 
-        // configurando animações
-        $(document).on('click', '.btn-rotate', (evt) => $(evt.currentTarget).toggleClass('btn-rotated'));
-        $(document).on('click', '.btn-rotate-full', (evt) => $(evt.currentTarget).toggleClass('btn-rotated-full'));
-    }
-    
-    init() {
+        this.#regview = new RegistryView();
+        this.#dashview = new DashboardView();
+        this.#cardsview = new CreditCardView();
+        
         $(this.#initialNavBtn).click();
-
-        // let table = new Table({parentId: '#home-content', columns: ['Col1', 'Col2', 'Col3']});
     }
 
     async #navBtn_clicked(evt) {
         evt.preventDefault();
+
         let jbtn = $(evt.currentTarget);
-        
-        
         let title = jbtn.prop('name');
-        let url = URLS[title];
 
-        // bloqueando clicks múltiplos em uma mesma nav
-        // if (this.#currentTitle == title) {
-        //     return;
-        // }
+        // atualizando conteúdo
+        const parent = '#home-content';
+        switch (title) {
+        case 'Dashboards':
+            await this.#dashview.setContent(parent);
+            break;
 
-        if (!url) { // TODO: o evento deve ser processado separadamente
-            console.log('unbinded nav event:', title);
+        case 'Registros':
+            await this.#regview.setContent(parent);
+            break;
+
+        case 'Cartões e Faturas':
+            await this.#cardsview.setContent(parent);
+            break;
+
+        default:
+            console.log('nav option unset', title);
             return;
         }
+        
+        $('#home-title').text(title); // atualizando título
+        this.#update_nav_button(jbtn); // atualizando botão selecionado
+    }
 
+    #set_animations() {
+        $(document).on('click', '.btn-rotate', (evt) => $(evt.currentTarget).toggleClass('btn-rotated'));
+        $(document).on('click', '.btn-rotate-full', (evt) => $(evt.currentTarget).toggleClass('btn-rotated-full'));
+    }
+
+    #update_nav_button(jbtn) {
         if (this.#currentNavBtn) {
-            this.#currentNavBtn.removeClass('shadow');
-            this.#currentNavBtn.css('background-color', '');
-            this.#currentNavBtn.children().css('color', '');
+            this.#currentNavBtn.removeClass('nav-link-active');
         }
-        
-        this.#currentTitle = title;
+
         this.#currentNavBtn = jbtn;
-        this.#currentNavBtn.addClass('shadow');
-        jbtn.css('background-color', 'var(--primary-color)');
-        jbtn.children().css('color', 'white');
-
-        // exibindo título
-        $('#home-title').text(title);
-
-        // alterando conteúdo
-        const parent = '#home-content';
-        
-        if (title == 'Registros') {
-            await this.#regview.updateContent(parent);
-        } else {
-            const content = await $.get(url);
-            $(parent).html(content);
-        }
-        
-        
+        this.#currentNavBtn.addClass('nav-link-active');
     }
 }

@@ -1,13 +1,5 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
+from django.http import HttpRequest
 
-def index(request):
-    return render(request, 'home.html')
-
-def dash(request):
-    return render(request, 'home-dash.html')
-
-def regs(request):
-    return render(request, 'home-regs.html')
-
-def cards(request):
-    return render(request, 'home-cards.html')
+def index(request:HttpRequest):
+    return render(request, 'home/index.html')
