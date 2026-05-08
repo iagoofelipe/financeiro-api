@@ -24,37 +24,7 @@
 
         <hr>
         <!-- Conteúdo gerado via JS -->
-        <div id="reg-transactions"></div>
+        <div class="content" id="{CONTENT_ID}"></div>
     </div>
-    <div class="card p-3 shadow-sm ms-3 reg-details" id="{CARD_DETAILS_ID}">
-        <div class="d-flex justify-content-between align-items-center">
-            <p class="m-0 title-2">Televisão (2/8)</p>
-            <div class="d-flex">
-                <button class="btn btn-outline ms-3">{% include 'icons/plus.svg' %}</button>
-                <button class="btn btn-outline ms-3"><i class="bi bi-pencil-square"></i></button>
-                <button class="btn btn-outline ms-3" onclick="$('#{CARD_DETAILS_ID}').hide()">{% include 'icons/panel-right-filled.svg' %}</button>
-            </div>
-        </div>
-        <p class="m-0 fw-semibold">Tipo</p>
-        <p>Saída Cartão</p>
-        <p class="m-0 fw-semibold">Valor</p>
-        <p>R$ 187,41</p>
-        <p class="m-0 fw-semibold">Responsável</p>
-        <p>Brunna Carvalho</p>
-        <p class="m-0 fw-semibold">Data de Ocorrência</p>
-        <p>20 Jan 26, 08h10</p>
-        <p class="m-0 fw-semibold">Descrição</p>
-        <p>Televisão parcelada</p>
-        <p class="m-0 fw-semibold">Status</p>
-        <span class="badge-custom bg-contabilizado">Contabilizado</span>
-        <hr>
-        <p class="m-0 fw-semibold">Cartão</p>
-        <p>Nubank</p>
-        <p class="m-0 fw-semibold">Fatura</p>
-        <p>Jan 26</p>
-        <p class="m-0 fw-semibold">Parcela</p>
-        <p>2 de 8</p>
-        <p class="m-0 fw-semibold">Valor Total</p>
-        <p>R$ 1.499,28</p>
-    </div>
+    <div id="{CARD_DETAILS_ID}"></div>
 </div>

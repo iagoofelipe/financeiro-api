@@ -1,12 +1,20 @@
-export default class CreditCardView {
+export default class CreditCardView extends EventTarget {
     static templates = {};
     static templates_set = false;
 
-    async setContent(parent) {
-        if (!CreditCardView.templates_set)
-            await CreditCardView.loadTemplates();
+    #jquery;
 
-        $(parent).html(CreditCardView.templates.BODY);
+    constructor(jquery) {
+        super();
+
+        this.#jquery = jquery;
+    }
+
+    static async create(parent) {
+        await this.loadTemplates();
+        let jquery = $(parent).html(this.#template_body());
+
+        return new CreditCardView(jquery);
     }
 
     static async loadTemplates() {
@@ -15,6 +23,10 @@ export default class CreditCardView {
             return;
         
         this.templates_set = true;
-        CreditCardView.templates.BODY = await $.get('/templates', {template: 'home/cards.html'});
+        this.templates.BODY = await $.get('/templates', {template: 'home/cards.html'});
+    }
+
+    static #template_body() {
+        return this.templates.BODY;
     }
 }

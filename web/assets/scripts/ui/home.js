@@ -9,9 +9,6 @@ $(async () => {
 class HomeView
 {
     #currentNavBtn;
-    #regview;
-    #dashview;
-    #cardsview;
     #initialNavBtn;
 
     constructor() {
@@ -25,10 +22,6 @@ class HomeView
         this.#initialNavBtn = nav_btns[1];
         this.#set_animations();
 
-        this.#regview = new RegistryView();
-        this.#dashview = new DashboardView();
-        this.#cardsview = new CreditCardView();
-        
         $(this.#initialNavBtn).click();
     }
 
@@ -42,15 +35,15 @@ class HomeView
         const parent = '#home-content';
         switch (title) {
         case 'Dashboards':
-            await this.#dashview.setContent(parent);
+            let dashview = await DashboardView.create(parent);
             break;
 
         case 'Registros':
-            await this.#regview.setContent(parent);
+            let regview = await RegistryView.create(parent);
             break;
 
         case 'Cartões e Faturas':
-            await this.#cardsview.setContent(parent);
+            let cardsview = await CreditCardView.create(parent);
             break;
 
         default:
@@ -63,6 +56,7 @@ class HomeView
     }
 
     #set_animations() {
+        // TODO: tornar em singleton
         $(document).on('click', '.btn-rotate', (evt) => $(evt.currentTarget).toggleClass('btn-rotated'));
         $(document).on('click', '.btn-rotate-full', (evt) => $(evt.currentTarget).toggleClass('btn-rotated-full'));
     }

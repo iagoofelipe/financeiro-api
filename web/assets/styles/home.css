@@ -100,13 +100,13 @@ main {
     border: none;
 }
 
-#reg-transactions {
-    display: grid;
-    row-gap: 1rem;
-}
-
 .reg-transactions {
     width: stretch;
+}
+
+.reg-transactions .content {
+    display: grid;
+    row-gap: 1rem;
 }
 
 .reg-details {
