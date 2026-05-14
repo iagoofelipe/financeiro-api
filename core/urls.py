@@ -35,5 +35,6 @@ urlpatterns = [
     path('', lambda r: redirect('/home')),
     path('templates/', templates, name='templates'),
     path('home/', include('apps.home.urls')),
-    path('test/', lambda r: render(r, 'home/regs/index.html'))
+    path('test/', lambda r: render(r, 'home/regs/index.html')),
+    path('api/', include('apps.api.urls')),
 ]
