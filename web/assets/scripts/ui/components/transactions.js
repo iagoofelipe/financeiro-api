@@ -41,8 +41,8 @@ export class TransactionCardView extends EventTarget {
                 tables_container: crypto.randomUUID(),
                 btn_collapse: crypto.randomUUID(),
             },
-            inputs = transactions.values.filter(obj => obj.typeIn),
-            outputs = transactions.values.filter(obj => !obj.typeIn),
+            inputs = transactions.values.filter(obj => obj.type_in),
+            outputs = transactions.values.filter(obj => !obj.type_in),
             info = {
                 inputs: inputs,
                 outputs: outputs,
@@ -64,7 +64,7 @@ export class TransactionCardView extends EventTarget {
                 row.title,
                 number_to_coin_format(row.value),
                 get_status_html_by_name(row.status),
-                row.occurranceDate
+                row.occurrance
             ]); // garantindo ordem dos dados
         });
 
@@ -87,8 +87,8 @@ export class TransactionCardView extends EventTarget {
                 row.title,
                 number_to_coin_format(row.value),
                 get_status_html_by_name(row.status),
-                row.occurranceDate,
-                row.card ?? ''
+                row.occurrance,
+                row.card_name ?? ''
             ]); // garantindo ordem dos dados
         });
 
@@ -109,10 +109,10 @@ export class TransactionCardView extends EventTarget {
     tableInputs() { return this.#table_in; }
     tableOutputs() { return this.#table_out; }
 
-    #on_table_rowSelected(typeIn, evt) {
+    #on_table_rowSelected(type_in, evt) {
         let data = {
             transactionId: evt.detail.id,
-            typeIn: typeIn,
+            type_in: type_in,
         };
         this.dispatchEvent(new CustomEvent(TransactionCardView.EVENTS.TRANSACTION_SELECTED, {detail: data}));
     }
@@ -205,13 +205,13 @@ export class TransactionDetailsView extends EventTarget {
 
     setData(transaction, show) {
         $('#'+this.#ids.FIELD_TITLE).text(transaction.title);
-        $('#'+this.#ids.FIELD_TYPE).text(transaction.typeIn? 'Entrada' : 'Saída');
+        $('#'+this.#ids.FIELD_TYPE).text(transaction.type_in? 'Entrada' : 'Saída');
         $('#'+this.#ids.FIELD_VALUE).text(number_to_coin_format(transaction.value));
         $('#'+this.#ids.FIELD_OWNER).text('');
-        $('#'+this.#ids.FIELD_OCCURRENCE).text(transaction.occurranceDate);
+        $('#'+this.#ids.FIELD_OCCURRENCE).text(transaction.occurrance);
         $('#'+this.#ids.FIELD_DESCRIPTION).text(transaction.description);
         $('#'+this.#ids.FIELD_STATUS).html(get_status_html_by_name(transaction.status));
-        $('#'+this.#ids.FIELD_CARD).text(transaction.card ?? '');
+        $('#'+this.#ids.FIELD_CARD).text(transaction.card_name ?? '');
 
         if (show ?? true)
             this.#jquery.show();

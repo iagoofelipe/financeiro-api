@@ -1,6 +1,7 @@
 import RegistryView from "./registries.js";
 import DashboardView from "./dashboards.js";
 import CreditCardView from "./cards.js";
+import RegistriesAPI from "../api/regs.js";
 
 $(async () => {
     let home_view = new HomeView();

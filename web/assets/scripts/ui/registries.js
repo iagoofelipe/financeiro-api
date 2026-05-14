@@ -1,110 +1,6 @@
 import { TransactionCardView, TransactionDetailsView } from "./components/transactions.js";
 import Table from "./components/table.js";
-
-const ARRAY_TRANSACTIONS = [
-    {
-        "title": "Pessoais",
-        "input_last_update": "alterado há 1 dia atrás",
-        "output_last_update": "alterado há 3 dia atrás",
-        "values": [
-            {
-                "id": "32c5153e94-5f4e23a3773bbff2",
-                "title": "Aula Teclado",
-                "value": 150,
-                "status": "PENDING",
-                "occurranceDate": "10 Jan 26",
-                "description": "",
-                "typeIn": true
-            },
-            {
-                "id": "32c5153ebd-b56d86c08ea51ddf",
-                "title": "Salário",
-                "value": 3000,
-                "status": "LATE",
-                "occurranceDate": "07 Jan 26",
-                "description": "",
-                "typeIn": true
-            },
-            {
-                "id": "32c5153ec1-97a83016e8dcb6ed",
-                "title": "Venda Skins CS",
-                "value": 550.34,
-                "status": "OK",
-                "occurranceDate": "01 Jan 26",
-                "description": "Skin Romanov",
-                "typeIn": true
-            },
-            {
-                "id": "32c5153ec4-ccbbc8c2ad7490a1",
-                "title": "Netflix",
-                "value": 20.9,
-                "status": "OK",
-                "occurranceDate": "28 Dez 25",
-                "description": "",
-                "card": "Nubank",
-                "typeIn": false
-            },
-            {
-                "id": "32c5153ec6-e16195c05c71c568",
-                "title": "Almoço",
-                "value": 23,
-                "status": "OK",
-                "occurranceDate": "29 Dez 25",
-                "description": "Almoço no BK com Peixoto",
-                "typeIn": false
-            }
-        ]
-    },
-    {
-        "title": "Brunna Carvalho",
-        "input_last_update": "alterado há 5 dia atrás",
-        "output_last_update": "alterado há pouco",
-        "values": [
-            {
-                "id": "32c5153edb-693eb0b67ad7888d",
-                "title": "Violão",
-                "value": 300,
-                "status": "LATE",
-                "occurranceDate": "07 Jan 26",
-                "description": "",
-                "typeIn": true
-            },
-            {
-                "id": "32c5153edd-9a2b4b85ca87717f",
-                "title": "Televisão (2/8)",
-                "value": 187.41,
-                "status": "PENDING",
-                "occurranceDate": "08 Jan 26",
-                "description": "",
-                "typeIn": true
-            },
-            {
-                "id": "32c5153ee0-a1f2f35095f1a961",
-                "title": "Pizza",
-                "value": 44,
-                "status": "PENDING",
-                "occurranceDate": "25 Dez 25",
-                "description": "",
-                "card": "Nubank",
-                "typeIn": false
-            },
-            {
-                "id": "32c5153ee2-c6bfcef0dd057eb4",
-                "title": "Televisão (2/8)",
-                "value": 187.41,
-                "status": "OK",
-                "occurranceDate": "20 Jan 26, 08h10",
-                "description": "",
-                "card": "Nubank",
-                "typeIn": false
-            }
-        ]
-    }
-]
-
-let _transactions_by_id = {};
-ARRAY_TRANSACTIONS.forEach(t => t.values.forEach(v => _transactions_by_id[v.id] = v));
-const TRANSACTIONS_BY_ID = _transactions_by_id;
+import RegistriesAPI from "../api/regs.js";
 
 export default class RegistryView extends EventTarget {
     static templates = {};
@@ -113,14 +9,16 @@ export default class RegistryView extends EventTarget {
     #jquery;
     #content_id;
     #detailsview;
+    #transactions_by_id;
     #cards = [];
     #cardSelected = undefined;
 
-    constructor(jquery, content_id, detailsview) {
+    constructor(jquery, content_id, detailsview, transactions_by_id) {
         super();
         this.#jquery = jquery;
         this.#content_id = content_id;
         this.#detailsview = detailsview;
+        this.#transactions_by_id = transactions_by_id;
 
         detailsview.addEventListener(TransactionDetailsView.EVENTS.HIDE, (evt) => {
             if (!this.#cardSelected)
@@ -142,11 +40,29 @@ export default class RegistryView extends EventTarget {
             card_details_id = crypto.randomUUID(),
             jquery = $(parent).html(this.#template_body(card_details_id, content_id)),
             detailsview = await TransactionDetailsView.create('#'+card_details_id, false),
-            instance = new RegistryView(jquery, content_id, detailsview);
+            transactions_api = await RegistriesAPI.query({}),
+            transactions = {},
+            transactions_by_id = {};
 
-        for (const index in ARRAY_TRANSACTIONS)
-            await instance.addCard(ARRAY_TRANSACTIONS[index]);
-        
+        transactions_api.forEach(t => {
+            let responsable = t.responsable_name ?? 'Pessoais';
+            if (!(responsable in transactions)) {
+                transactions[responsable] = {
+                    title: responsable,
+                    input_last_update: 'atualizado há poucos segundos',
+                    output_last_update: 'atualizado há poucos segundos',
+                    values: [],
+                };
+            }
+
+            transactions[responsable].values.push(t);
+            transactions_by_id[t.id] = t;
+        });
+
+        let instance = new RegistryView(jquery, content_id, detailsview, transactions_by_id);
+        for (const k in transactions)
+            await instance.addCard(transactions[k]);
+
         return instance;
     }
 
@@ -169,7 +85,7 @@ export default class RegistryView extends EventTarget {
         }
 
         this.#cardSelected = evt.target;
-        this.showDetails(TRANSACTIONS_BY_ID[evt.detail.transactionId]);
+        this.showDetails(this.#transactions_by_id[evt.detail.transactionId]);
     }
 
     static #template_body(card_details_id, content_id) {

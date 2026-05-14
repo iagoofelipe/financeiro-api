@@ -1,6 +1,6 @@
 from django.db import models
+from django.conf import settings
 
-from ..users.models import User
 from ..invoices.models import Invoice
 from ..responsables.models import Responsable
 
@@ -20,19 +20,21 @@ class Registry(models.Model):
     description = models.CharField(max_length=100, null=True, default=None)
     date_ref = models.DateField()
     type_in = models.BooleanField(default=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, null=True, default=None)
     responsable = models.ForeignKey(Responsable, on_delete=models.CASCADE, null=True, default=None)
 
     def to_dto(self):
         return {
+            'id': self.id,
             'title': self.title,
             'value': self.value,
-            'status': self.status,
-            'occurrance': self.occurrance.strftime('%Y-%m-%d %H:%M'),
+            'status': self.STATUS[self.status],
+            'occurrance': self.occurrance.strftime('%d/%m/%y %Hh%M'),
             'description': self.description,
             'date_ref': self.date_ref.strftime('%Y-%m'),
-            'user_id': self.user.id,
+            'type_in': self.type_in,
+            # 'user_id': self.user.id,
             'card_name': self.invoice.card.name if self.invoice else None,
             'card_id': self.invoice.card.id if self.invoice else None,
             'invoice_ref': self.invoice.date_reference.strftime('%Y-%m') if self.invoice else None,
