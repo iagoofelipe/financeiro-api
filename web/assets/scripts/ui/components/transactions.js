@@ -27,10 +27,10 @@ export class TransactionCardView extends EventTarget {
         this.#table_out = table_out;
 
         // vinculando eventos
-        table_in.addEventListener(Table.EVENTS.ROW_CLICKED, (evt) => this.#on_table_rowSelected(true, evt));
-        table_out.addEventListener(Table.EVENTS.ROW_CLICKED, (evt) => this.#on_table_rowSelected(false, evt));
+        if (table_in) table_in.addEventListener(Table.EVENTS.ROW_CLICKED, (evt) => this.#on_table_rowSelected(true, evt));
+        if (table_out) table_out.addEventListener(Table.EVENTS.ROW_CLICKED, (evt) => this.#on_table_rowSelected(false, evt));
 
-        table_in.bindTable(table_out); // quando um for selecionado, o outro é desselecionado
+        if (table_in && table_out) table_in.bindTable(table_out); // quando um for selecionado, o outro é desselecionado
     }
 
     static async create(transactions, parent) {
@@ -53,54 +53,60 @@ export class TransactionCardView extends EventTarget {
                 sum_outputs: outputs.reduce((prev, obj) => prev + obj.value ?? 0, 0),
             },
             jquery = $(this.#template_body(ids, transactions, info)).appendTo(parent),
-            parent_tables = $('#' + ids.tables_container);
+            parent_tables = $('#' + ids.tables_container),
+            table_in = undefined,
+            table_out = undefined;
 
         // gerando tabela de Entradas
-        $(this.#template_table_title('Entradas', transactions.input_last_update)).appendTo(parent_tables);
-        let input_values = [];
-        info.inputs.forEach(row => {
-            input_values.push([
-                row.id,
-                row.title,
-                number_to_coin_format(row.value),
-                get_status_html_by_name(row.status),
-                row.occurrance
-            ]); // garantindo ordem dos dados
-        });
-
-        // inserindo tabela
-        let table_in = await Table.create({
-            parent: parent_tables,
-            flags: Table.FLAGS.ROW_SELECTABLE,
-            columns: ['ID', 'Título', 'Valor', 'Status', 'Data de Ocorrência'],
-            data: input_values,
-            indexId: 0,
-            indexHiddenColumns: [0],
-        });
+        if (info.inputs.length > 0) {
+            $(this.#template_table_title('Entradas', transactions.input_last_update)).appendTo(parent_tables);
+            let input_values = [];
+            info.inputs.forEach(row => {
+                input_values.push([
+                    row.id,
+                    row.title,
+                    number_to_coin_format(row.value),
+                    get_status_html_by_name(row.status),
+                    row.occurrance
+                ]); // garantindo ordem dos dados
+            });
+    
+            // inserindo tabela
+            table_in = await Table.create({
+                parent: parent_tables,
+                flags: Table.FLAGS.ROW_SELECTABLE,
+                columns: ['ID', 'Título', 'Valor', 'Status', 'Data de Ocorrência'],
+                data: input_values,
+                indexId: 0,
+                indexHiddenColumns: [0],
+            });
+        }
 
         // gerando tabela de Saídas
-        $(this.#template_table_title('Saídas', transactions.output_last_update)).appendTo(parent_tables);
-        let output_values = [];
-        info.outputs.forEach(row => {
-            output_values.push([
-                row.id,
-                row.title,
-                number_to_coin_format(row.value),
-                get_status_html_by_name(row.status),
-                row.occurrance,
-                row.card_name ?? ''
-            ]); // garantindo ordem dos dados
-        });
-
-        // inserindo tabela
-        let table_out = await Table.create({
-            parent: parent_tables,
-            flags: Table.FLAGS.ROW_SELECTABLE,
-            columns: ['ID', 'Título', 'Valor', 'Status', 'Data de Ocorrência', 'Cartão'],
-            data: output_values,
-            indexId: 0,
-            indexHiddenColumns: [0],
-        });
+        if (info.outputs.length > 0) {
+            $(this.#template_table_title('Saídas', transactions.output_last_update)).appendTo(parent_tables);
+            let output_values = [];
+            info.outputs.forEach(row => {
+                output_values.push([
+                    row.id,
+                    row.title,
+                    number_to_coin_format(row.value),
+                    get_status_html_by_name(row.status),
+                    row.occurrance,
+                    row.card_name ?? ''
+                ]); // garantindo ordem dos dados
+            });
+    
+            // inserindo tabela
+            table_out = await Table.create({
+                parent: parent_tables,
+                flags: Table.FLAGS.ROW_SELECTABLE,
+                columns: ['ID', 'Título', 'Valor', 'Status', 'Data de Ocorrência', 'Cartão'],
+                data: output_values,
+                indexId: 0,
+                indexHiddenColumns: [0],
+            });
+        }
 
         return new TransactionCardView(transactions, info, ids, jquery, table_in, table_out);
     }
@@ -118,8 +124,8 @@ export class TransactionCardView extends EventTarget {
     }
 
     unselect() {
-        this.#table_in.unselect();
-        this.#table_out.unselect();
+        if(this.#table_in) this.#table_in.unselect();
+        if(this.#table_out) this.#table_out.unselect();
     }
 
     static async loadTemplates() {
@@ -204,14 +210,24 @@ export class TransactionDetailsView extends EventTarget {
     }
 
     setData(transaction, show) {
-        $('#'+this.#ids.FIELD_TITLE).text(transaction.title);
-        $('#'+this.#ids.FIELD_TYPE).text(transaction.type_in? 'Entrada' : 'Saída');
-        $('#'+this.#ids.FIELD_VALUE).text(number_to_coin_format(transaction.value));
-        $('#'+this.#ids.FIELD_OWNER).text('');
-        $('#'+this.#ids.FIELD_OCCURRENCE).text(transaction.occurrance);
-        $('#'+this.#ids.FIELD_DESCRIPTION).text(transaction.description);
-        $('#'+this.#ids.FIELD_STATUS).html(get_status_html_by_name(transaction.status));
-        $('#'+this.#ids.FIELD_CARD).text(transaction.card_name ?? '');
+        $(`#${this.#ids.FIELD_TITLE} .text`).text(transaction.title);
+        $(`#${this.#ids.FIELD_TYPE} .text`).text(transaction.type_in? 'Entrada' : 'Saída');
+        $(`#${this.#ids.FIELD_VALUE} .text`).text(number_to_coin_format(transaction.value));
+        $(`#${this.#ids.FIELD_OWNER} .text`).text(transaction.responsable_name ?? 'Pessoais');
+        $(`#${this.#ids.FIELD_OCCURRENCE} .text`).text(transaction.occurrance);
+        $(`#${this.#ids.FIELD_DESCRIPTION} .text`).text(transaction.description);
+        $(`#${this.#ids.FIELD_STATUS} .text`).html(get_status_html_by_name(transaction.status));
+        $(`#${this.#ids.FIELD_CARD} .text`).text(transaction.card_name ?? '');
+
+        Object.keys(this.#ids).filter(v => v.startsWith('FIELD')).forEach(k => {
+            let id = this.#ids[k];
+            let obj = $(`#${id}`);
+            
+            if ($(`#${id} .text`).text())
+                obj.show();
+            else
+                obj.hide();
+        });
 
         if (show ?? true)
             this.#jquery.show();

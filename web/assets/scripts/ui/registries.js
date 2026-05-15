@@ -1,6 +1,7 @@
 import { TransactionCardView, TransactionDetailsView } from "./components/transactions.js";
 import Table from "./components/table.js";
 import RegistriesAPI from "../api/regs.js";
+import { number_to_coin_format } from "../tools/utils.js";
 
 export default class RegistryView extends EventTarget {
     static templates = {};
@@ -35,14 +36,9 @@ export default class RegistryView extends EventTarget {
             this.templates_set = true;
         }
 
-        let
-            content_id = crypto.randomUUID(),
-            card_details_id = crypto.randomUUID(),
-            jquery = $(parent).html(this.#template_body(card_details_id, content_id)),
-            detailsview = await TransactionDetailsView.create('#'+card_details_id, false),
+        let total_inputs = 0, total_outputs = 0,
             transactions_api = await RegistriesAPI.query({}),
-            transactions = {},
-            transactions_by_id = {};
+            transactions = {}, transactions_by_id = {};
 
         transactions_api.forEach(t => {
             let responsable = t.responsable_name ?? 'Pessoais';
@@ -57,9 +53,21 @@ export default class RegistryView extends EventTarget {
 
             transactions[responsable].values.push(t);
             transactions_by_id[t.id] = t;
+
+            // contagens e somas
+            if (t.type_in)
+                total_inputs += t.value;
+            else
+                total_outputs += t.value;
         });
 
-        let instance = new RegistryView(jquery, content_id, detailsview, transactions_by_id);
+        let
+            content_id = crypto.randomUUID(),
+            card_details_id = crypto.randomUUID(),
+            jquery = $(parent).html(this.#template_body(total_inputs, total_outputs, card_details_id, content_id)),
+            detailsview = await TransactionDetailsView.create('#'+card_details_id, false),
+            instance = new RegistryView(jquery, content_id, detailsview, transactions_by_id);
+
         for (const k in transactions)
             await instance.addCard(transactions[k]);
 
@@ -88,9 +96,12 @@ export default class RegistryView extends EventTarget {
         this.showDetails(this.#transactions_by_id[evt.detail.transactionId]);
     }
 
-    static #template_body(card_details_id, content_id) {
+    static #template_body(total_inputs, total_outputs, card_details_id, content_id) {
         return this.templates.BODY
-            .replaceAll('{CARD_DETAILS_ID}', card_details_id)
-            .replaceAll('{CONTENT_ID}', content_id);
+            .replaceAll('{TOTAL_INPUTS}', number_to_coin_format(total_inputs))
+            .replaceAll('{TOTAL_OUTPUTS}', number_to_coin_format(total_outputs))
+            // .replaceAll('{DESC_STATUS}', desc_status)
+            .replaceAll('{CONTENT_ID}', content_id)
+            .replaceAll('{CARD_DETAILS_ID}', card_details_id);
     }
 }

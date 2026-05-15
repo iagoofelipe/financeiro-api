@@ -2,7 +2,12 @@
     <div class="card d-flex flex-column p-3 shadow-sm reg-transactions overflow-auto">
         <div class="d-flex flex-row align-items-center justify-content-between">
             <p class="title m-0">Transações</p>
-            <div class="d-flex flex-row">
+            <div class="d-flex flex-row align-items-center">
+                <img src="/static/imgs/icons/money-recive.svg" class="me-1" title="total de entradas" style="width: 22px; height: 22px;">
+                <label title="total de entradas" class="title-3 me-3">{TOTAL_INPUTS}</label>
+                <img src="/static/imgs/icons/money-send.svg" class="me-1" title="total de saídas" style="width: 22px; height: 22px;">
+                <label class="title-3" title="total de saídas">{TOTAL_OUTPUTS}</label>
+                <p class="v-line">
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-outline">Jan 26</button>
                     <!-- <input type="date" class="form-control" placeholder="Jan 26"> -->

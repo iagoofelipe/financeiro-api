@@ -9,9 +9,19 @@
 }
 
 .h-line {
-    width: 100%;
+    width: stretch;
     height: .5px;
-    background-color: var(--bs-border-color);
+    background-color: #000;
+    opacity: .25;
+    margin: 1rem 0;
+}
+
+.v-line {
+    width: .5px;
+    height: stretch;
+    background-color: #000;
+    opacity: .25;
+    margin: 0 1rem;
 }
 
 .title, .title-1 {
