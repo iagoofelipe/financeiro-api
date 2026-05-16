@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block body %}
+
+<nav class="card d-flex home-nav flex-column p-3 shadow-sm">
+    <div class="d-flex align-items-center justify-content-between">
+        <a href="/" class="d-flex align-items-center text-decoration-none text-black">
+            <img src="{% static 'imgs/logo.svg' %}" alt="logo" class="me-2 home-nav-logo">
+            <p class="mb-0 home-nav-title">Financeiro</p>
+        </a>
+        <button class="btn p-1">
+            <img src="{% static 'imgs/icons/panel-left-filled.svg' %}" width="20" height="20">
+        </button>
+    </div>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="mb-1">
+            <a class="nav-link ps-2" name="Dashboards">
+                {% include 'icons/dashboard.svg' %}
+                <label class="ms-2">Dashboards</label>
+            </a>
+        </li>
+        <li class="mb-1">
+            <a class="nav-link ps-2" name="Registros">
+                {% include 'icons/table.svg' %}
+                <label class="ms-2">Registros</label>
+            </a>
+        </li>
+        <li class="mb-1">
+            <a class="nav-link ps-2" name="Cartões e Faturas">
+                {% include 'icons/credit-card.svg' %}
+                <label class="ms-2">Cartões e Faturas</label>
+            </a>
+        </li>
+    </ul>
+    <hr>
+    <ul class="nav nav-pills flex-column">
+        <li class="mb-1">
+            <a class="nav-link ps-2" name="Configurações">
+                {% include 'icons/gear-fill.svg' %}
+                <label class="ms-2">Configurações</label>
+            </a>
+        </li>
+        <li class="mb-1">
+            <a class="nav-link ps-2" name="Usuário e Conta">
+                {% include 'icons/person-fill.svg' %}
+                <label class="ms-2">Iago Carvalho</label>
+            </a>
+        </li>
+        <li>
+            <a class="nav-link ps-2" name="Sair">
+                {% include 'icons/logout.svg' %}
+                <label class="ms-2">Sair</label>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<main class="ms-3 d-flex flex-column">
+    <div class="card d-flex flex-row p-3 mb-3 shadow-sm home-card-top justify-content-between">
+        <p class="title m-0" id="home-title"></p>
+        <div class="d-flex flex-row">
+            <button class="btn btn-outline border-0 ms-2 p-0"><i class="bi bi-bell-fill"></i></button>
+        </div>
+    </div>
+    <div id="home-content" class="h-100 overflow-auto"></div>
+</main>
+
+{% endblock %}
+
+{% block script %}
+<script type="module" src="{% static 'v2/scripts/home.js' %}"></script>
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'v2/styles/home.css' %}">
+{% endblock %}

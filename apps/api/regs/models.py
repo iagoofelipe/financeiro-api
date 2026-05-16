@@ -5,6 +5,7 @@ from ..invoices.models import Invoice
 from ..responsables.models import Responsable
 
 __all__ = ('Registry', )
+MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
 class Registry(models.Model):
     STATUS = {
@@ -30,7 +31,8 @@ class Registry(models.Model):
             'title': self.title,
             'value': self.value,
             'status': self.STATUS[self.status],
-            'occurrance': self.occurrance.strftime('%d/%m/%y %Hh%M'),
+            'occurrance': self.occurrance.strftime('%Y-%m-%d %H:%M'),
+            'occurrance_formatted': self.occurrance.strftime('%d {MONTH} %y, %Hh%M').replace('{MONTH}', MONTHS[self.occurrance.month-1]),
             'description': self.description,
             'date_ref': self.date_ref.strftime('%Y-%m'),
             'type_in': self.type_in,

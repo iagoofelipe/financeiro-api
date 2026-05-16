@@ -1,0 +1,54 @@
+<div class="container-regs d-flex flex-row h-100">
+    <div class="card d-flex flex-column p-3 shadow-sm reg-transactions overflow-auto">
+        <div class="d-flex flex-row align-items-center justify-content-between">
+            <p class="title m-0">Transações</p>
+            <div class="d-flex flex-row align-items-center">
+                <img src="/static/imgs/icons/money-recive.svg" class="me-1" title="total de entradas" style="width: 22px; height: 22px;">
+                <label title="total de entradas" class="total-inputs title-3 me-3">R$ 0,00</label>
+                <img src="/static/imgs/icons/money-send.svg" class="me-1" title="total de saídas" style="width: 22px; height: 22px;">
+                <label class="total-outputs title-3 me-3" title="total de saídas">R$ 0,00</label>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline">Jan 26</button>
+                    <!-- <input type="date" class="form-control" placeholder="Jan 26"> -->
+                    <div class="btn-group" role="group">
+                        <button id="btnGroupDrop1" type="button" class="btn btn-outline dropdown-toggle"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Mensal
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                            <li><a class="dropdown-item" href="#">Mensal</a></li>
+                            <li><a class="dropdown-item" href="#">Semanal</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <button class="btn btn-outline ms-3">{% include 'icons/plus.svg' %}</button>
+                <button class="btn btn-outline btn-rotate-full ms-3">{% include 'icons/refresh.svg' %}</button>
+            </div>
+        </div>
+        <hr>
+        {% for transaction in transactions %}
+        <div class="card p-3 mb-3">
+            <div class="d-flex flex-row align-items-center justify-content-between">
+                <div>
+                    <p class="title mb-2">{{ transaction.title }}</p>
+                    <div class="d-flex flex-row align-items-center card-transaction-desc">
+                        <img src="/static/imgs/icons/money-recive.svg" class="me-1" title="total de entradas" style="width: 22px; height: 22px;">
+                        <label title="total de entradas" class="title-3 me-3">{{ transaction.sum_inputs }}</label>
+                        <img src="/static/imgs/icons/money-send.svg" class="me-1" title="total de saídas" style="width: 22px; height: 22px;">
+                        <label class="title-3 me-3" title="total de saídas">{TOTAL_OUTPUTS}</label>
+                        <label class="title-3 me-3">0 Atrasados</label>
+                        <label class="title-3 me-3">1 Pendente</label>
+                        <label class="title-3 me-3">2 Contabilizados</label>
+                    </div>
+                </div>
+                <button id="{BTN_COLLAPSE_ID}" class="btn border-0 p-0 btn-rotate" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#{TABLES_CONTAINER_ID}" aria-expanded="false" aria-controls="{TABLES_CONTAINER_ID}">
+                    <i class="bi bi-chevron-up rotate"></i>
+                </button>
+            </div>
+            <div class="collapse" id="{TABLES_CONTAINER_ID}"></div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="details"></div>
+</div>

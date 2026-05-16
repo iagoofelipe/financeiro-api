@@ -37,4 +37,5 @@ urlpatterns = [
     path('home/', include('apps.home.urls')),
     path('test/', lambda r: render(r, 'home/regs/index.html')),
     path('api/', include('apps.api.urls')),
+    path('v2/home/', include('web.apps.home2.urls')),
 ]

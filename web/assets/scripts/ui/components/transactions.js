@@ -67,7 +67,7 @@ export class TransactionCardView extends EventTarget {
                     row.title,
                     number_to_coin_format(row.value),
                     get_status_html_by_name(row.status),
-                    row.occurrance
+                    row.occurrance_formatted
                 ]); // garantindo ordem dos dados
             });
     
@@ -92,7 +92,7 @@ export class TransactionCardView extends EventTarget {
                     row.title,
                     number_to_coin_format(row.value),
                     get_status_html_by_name(row.status),
-                    row.occurrance,
+                    row.occurrance_formatted,
                     row.card_name ?? ''
                 ]); // garantindo ordem dos dados
             });
@@ -147,7 +147,7 @@ export class TransactionCardView extends EventTarget {
             };
 
         for (const text in desc_aux)
-            desc_status += `<label class="title-3 me-3">${desc_aux[text]} ${text}${desc_aux[text] > 1 ? 's' : ''}</label>`;
+            desc_status += `<label class="title-3 me-3">${desc_aux[text]} ${text}${desc_aux[text] == 1 ? '' : 's'}</label>`;
 
         return this.templates.BODY
             .replaceAll('{CONTAINER_ID}', ids.container)
@@ -213,8 +213,8 @@ export class TransactionDetailsView extends EventTarget {
         $(`#${this.#ids.FIELD_TITLE} .text`).text(transaction.title);
         $(`#${this.#ids.FIELD_TYPE} .text`).text(transaction.type_in? 'Entrada' : 'Saída');
         $(`#${this.#ids.FIELD_VALUE} .text`).text(number_to_coin_format(transaction.value));
-        $(`#${this.#ids.FIELD_OWNER} .text`).text(transaction.responsable_name ?? 'Pessoais');
-        $(`#${this.#ids.FIELD_OCCURRENCE} .text`).text(transaction.occurrance);
+        $(`#${this.#ids.FIELD_OWNER} .text`).text(transaction.responsable_name);
+        $(`#${this.#ids.FIELD_OCCURRENCE} .text`).text(transaction.occurrance_formatted);
         $(`#${this.#ids.FIELD_DESCRIPTION} .text`).text(transaction.description);
         $(`#${this.#ids.FIELD_STATUS} .text`).html(get_status_html_by_name(transaction.status));
         $(`#${this.#ids.FIELD_CARD} .text`).text(transaction.card_name ?? '');
