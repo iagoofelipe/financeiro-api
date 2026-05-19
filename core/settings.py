@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9kv%f^t$!vfokdh^va(ge$hop-m2@x^&-*92qculgbw2#!$ja3'
+SECRET_KEY = 'django-insecure-i5=iryh3pjq9a6&*(4e^-&n&)x$7o&o65-qt!*prs=s0-i0k6&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -39,9 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'apps.home',
     'apps.api',
-    'web.apps.home2',
 ]
 
 REST_FRAMEWORK = {
@@ -68,7 +66,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ BASE_DIR / 'web/templates', BASE_DIR / "web/assets/imgs", ],
+        'DIRS': [ BASE_DIR / 'web/templates', BASE_DIR / "web/assets/imgs" ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

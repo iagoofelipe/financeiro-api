@@ -16,26 +16,31 @@ main {
 
 .home-nav {
     width: 290px;
-}
 
-.home-nav .nav-link * {
-    color: var(--subtitle-color);
-    stroke: var(--subtitle-color);
-    font-weight: 500;
-    font-size: 11pt;
-}
+    .nav-link {
+        
+        * {
+            cursor: pointer;
+            color: var(--subtitle-color);
+            stroke: var(--subtitle-color);
+            font-weight: 500;
+            font-size: 11pt;
+        }
 
-.home-nav .nav-link svg {
-    height: 25px;
-    width: 25px;
+        svg {
+            height: 25px;
+            width: 25px;
+        }
+    }
+
 }
 
 .nav-link-active {
     background-color: var(--primary-color);
-}
 
-.nav-link-active * {
-    color: white !important;
+    * {
+        color: white !important;
+    }
 }
 
 .home-nav-title {

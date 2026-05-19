@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block body %}
+
+{% csrf_token %}
+
+<input type="text" placeholder="Usuário" id="inp-username">
+<input type="password" name="Senha" id="inp-password">
+<button id="btn-login">Login</button>
+
+{% endblock %}
+
+{% block script %}
+<script type="module" src="{% static 'scripts/login.js' %}"></script>
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'styles/login.css' %}">
+{% endblock %}

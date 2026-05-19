@@ -1,0 +1,138 @@
+<div class="container-regs d-flex flex-row h-100">
+    <div class="card d-flex flex-column p-3 shadow-sm reg-transactions overflow-auto">
+        <div class="d-flex flex-row align-items-center justify-content-between">
+            <p class="title m-0">Transações</p>
+            <div class="d-flex flex-row align-items-center">
+                <img src="/static/imgs/icons/money-recive.svg" class="me-1" title="total de entradas" style="width: 22px; height: 22px;">
+                <label title="total de entradas" class="total-inputs title-3 me-3">{{ sum_inputs }}</label>
+                <img src="/static/imgs/icons/money-send.svg" class="me-1" title="total de saídas" style="width: 22px; height: 22px;">
+                <label class="total-outputs title-3 me-3" title="total de saídas">{{ sum_outputs }}</label>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline">Jan 26</button>
+                    <!-- <input type="date" class="form-control" placeholder="Jan 26"> -->
+                    <div class="btn-group" role="group">
+                        <button id="btnGroupDrop1" type="button" class="btn btn-outline dropdown-toggle"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Mensal
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                            <li><a class="dropdown-item" href="#">Mensal</a></li>
+                            <li><a class="dropdown-item" href="#">Semanal</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <button class="btn btn-outline ms-3">{% include 'icons/plus.svg' %}</button>
+                <button class="btn btn-outline btn-rotate-full ms-3">{% include 'icons/refresh.svg' %}</button>
+            </div>
+        </div>
+        <hr class="mb-0">
+        {% for transaction in transactions %}
+        <div class="card p-3 mt-3">
+            <div class="d-flex flex-row align-items-center justify-content-between">
+                <div>
+                    <p class="title mb-2">{{ transaction.title }}</p>
+                    <div class="d-flex flex-row align-items-center card-transaction-desc">
+                        <img src="/static/imgs/icons/money-recive.svg" class="me-1" title="total de entradas" style="width: 22px; height: 22px;">
+                        <label title="total de entradas" class="title-3 me-3">{{ transaction.sum_inputs }}</label>
+                        <img src="/static/imgs/icons/money-send.svg" class="me-1" title="total de saídas" style="width: 22px; height: 22px;">
+                        <label class="title-3 me-3" title="total de saídas">{{ transaction.sum_outputs }}</label>
+                        <label class="title-3 me-3">{{ transaction.LATE }}</label>
+                        <label class="title-3 me-3">{{ transaction.PENDING }}</label>
+                        <label class="title-3 me-3">{{ transaction.OK }}</label>
+                    </div>
+                </div>
+                <button id="{{ transaction.container_id }}:btn-collapse" class="btn border-0 p-0 btn-rotate" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#{{ transaction.container_id }}:tables" aria-expanded="false" aria-controls="{{ transaction.container_id }}:tables">
+                    <i class="bi bi-chevron-up rotate"></i>
+                </button>
+            </div>
+            <div class="collapse table-responsive mt-3" id="{{ transaction.container_id }}:tables">
+                <table class="table table-hover m-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" hidden>ID</th>
+                            <th scope="col">Título</th>
+                            <th scope="col">Valor</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Data de Ocorrência</th>
+                            <th scope="col">Cartão</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for title, values in transaction.values.items %}
+                            
+                            {% if values %}
+                            <tr class="ignore-click"><td colspan="100%">{{ title }}</td></tr>
+                            {% for value in values %}
+                            <tr>
+                                <td hidden>{{ value.id }}</td>
+                                <td>{{ value.title }}</td>
+                                <td>{{ value.value_formatted }}</td>
+
+                                <td>
+                                    {% if value.status == "PENDING" %}
+                                    <span class="badge-custom bg-pendente">Pendente</span>
+                                    {% elif value.status == "OK" %}
+                                    <span class="badge-custom bg-contabilizado">Contabilizado</span>
+                                    {% elif value.status == "LATE" %}
+                                    <span class="badge-custom bg-atrasado">Atrasado</span>
+                                    {% else %}
+                                    <span>?</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ value.occurrance_formatted }}</td>
+                                <td>{{ value.card_name }}</td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="card p-3 shadow-sm ms-3 reg-details h-100" id="reg-details" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div id="reg-details-title">
+                <p class="text m-0 title-2"></p>
+            </div>
+            <div class="d-flex">
+                <button class="btn btn-outline ms-3">{% include 'icons/plus.svg' %}</button>
+                <button class="btn btn-outline ms-3"><i class="bi bi-pencil-square"></i></button>
+                <button id="reg-details-btn-hide" class="btn btn-outline ms-3">{% include 'icons/panel-right-filled.svg' %}</button>
+            </div>
+        </div>
+        <div id="reg-details-type">
+            <p class="m-0 fw-semibold">Tipo</p>
+            <p class="text"></p>
+        </div>
+        <div id="reg-details-value">
+            <p class="m-0 fw-semibold">Valor</p>
+            <p class="text"></p>
+        </div>
+        <div id="reg-details-owner">
+            <p class="m-0 fw-semibold">Responsável</p>
+            <p class="text"></p>
+        </div>
+        <div id="reg-details-occurrance">
+            <p class="m-0 fw-semibold">Data de Ocorrência</p>
+            <p class="text">20 Jan 26, 08h10</p>
+        </div>
+        <div id="reg-details-description">
+            <p class="m-0 fw-semibold">Descrição</p>
+            <p class="text">Televisão parcelada</p>
+        </div>
+        <div id="reg-details-status">
+            <p class="m-0 fw-semibold">Status</p>
+            <div class="text"></div>
+        </div>
+        <hr>
+        <div id="reg-details-card">
+            <p class="m-0 fw-semibold">Cartão</p>
+            <p class="text"></p>
+        </div>
+    </div>
+</div>

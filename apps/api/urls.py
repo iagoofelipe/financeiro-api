@@ -1,9 +1,14 @@
-from django.urls import path, include
-from rest_framework.authtoken import views as rest_views
+from django.urls import path
+from rest_framework.authtoken.views import obtain_auth_token
 
 from . import views
 
 urlpatterns = [
-    path('regs/', include('apps.api.regs.urls')),
-    path('auth/', rest_views.obtain_auth_token),
+    # Auth
+    path('auth', obtain_auth_token),
+
+    # Registry
+    path('getRegistries', views.get_registries),
+    path('getRegistry/<int:regid>', views.get_registry),
+    path('addRegistry', views.add_registry),
 ]
