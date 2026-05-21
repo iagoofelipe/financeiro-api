@@ -30,3 +30,14 @@ export function getElementsByXPath(xpath, context = document) {
 
     return array;
 }
+
+export const modal = new bootstrap.Modal('#modal');
+
+export function set_modal(title, html_body, show = true) {
+    $('#modalLabel').text(title);
+    $('#modal .modal-body').html(html_body);
+
+    if (show) {
+        modal.show();
+    }
+}

@@ -46,6 +46,15 @@ class HomeView
         //     let cardsview = await CreditCardView.create(parent);
         //     break;
 
+        case 'Sair':
+            let response = await $.get('/login/logout');
+            if (response.success)
+                window.location.reload();
+            else
+                alert('não foi possível realizar o logout');
+
+            return;
+
         default:
             console.log('nav option unset', title);
             return;

@@ -1,0 +1,36 @@
+body {
+    height: 100vh;
+    background-color: #F5F2EA;
+}
+
+img {
+    height: 80%;
+}
+
+.div-links {
+    color: var(--subtitle-color);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+#login-inputs {
+    background-color: white;
+    border-radius: 1rem;
+    /* width: 400px; */
+
+    .title {
+        font-size: 30pt;
+    }
+
+    .subtitle {
+        font-size: 18pt;
+    }
+}
+
+#btn-login {
+    background-color: var(--primary-color);
+    color: white;
+}

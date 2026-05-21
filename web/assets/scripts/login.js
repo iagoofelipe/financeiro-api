@@ -1,4 +1,4 @@
-import { getCookie } from "./tools/utils.js";
+import { getCookie, modal, set_modal } from "./tools/utils.js";
 
 $(() => {
     $('#btn-login').on('click', on_login);
@@ -9,7 +9,7 @@ async function on_login() {
     const password = $('#inp-password').val();
 
     if (!username || !password) {
-        alert('preencha todos os campos!');
+        set_modal('Validação de Parâmetros', 'preencha todos os campos!');
         return;
     }
 
@@ -32,11 +32,11 @@ async function on_login() {
         console.log('Error', e);
 
         if (e.status == 400) {
-            alert('usuário ou senha incorretos!');
+            set_modal('Autenticação de Usuário', 'usuário ou senha incorretos!');
             return;
         }
         
-        alert('erro inesperado');
+        set_modal('Autenticação de Usuário', 'erro interno inesperado');
         return;
     }
 
