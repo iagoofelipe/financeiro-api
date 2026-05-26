@@ -1,0 +1,23 @@
+{% extends 'login.html' %}
+
+{% load static %}
+
+{% block login_content %}
+<div class="d-grid row-gap-3">
+    <input type="text" class="form-control" placeholder="Usuário" name="username" id="inp-username">
+    <div class="d-flex">
+        <input type="password" class="form-control me-3" placeholder="Senha" name="password" id="inp-password">
+        <input type="password" class="form-control" placeholder="Confirmar Senha" name="password_confirm" id="inp-password-confirm">
+    </div>
+    <input type="email" class="form-control" placeholder="E-mail" name="email" id="inp-email">
+    <div class="d-flex">
+        <input type="text" class="form-control me-3" placeholder="Primeiro Nome" name="first_name" id="inp-first-name">
+        <input type="text" class="form-control" placeholder="Último Nome" name="last_name" id="inp-last-name">
+    </div>
+</div>
+<div class="d-flex div-links">
+    <p class="mb-0 me-1">Já possui uma conta?</p>
+    <a href="/login">acesse aqui</a>
+</div>
+<button class="btn" id="btn-create">criar conta</button>
+{% endblock %}

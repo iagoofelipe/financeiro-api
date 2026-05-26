@@ -14,10 +14,11 @@ def nav_regs(request):
     if not request.user.is_authenticated:
         return HttpResponseNotAllowed()
     
-    regs = registries.get_by_filters(request.user)
+    *_, regs = registries.get_by_filters(request.user)
     transactions_by_responsable = {}
 
     for reg in regs:
+        print(reg)
         responsable = reg.responsable
         if responsable not in transactions_by_responsable:
             transactions_by_responsable[responsable] = {

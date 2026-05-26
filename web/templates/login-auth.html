@@ -1,0 +1,17 @@
+{% extends 'login.html' %}
+
+{% block login_content %}
+<!-- <div class="d-flex div-links">
+    <p class="mb-0 me-1">Problemas de acesso?</p>
+    <a href="#">clique aqui</a>
+</div> -->
+<div class="d-grid row-gap-3">
+    <input type="text" class="form-control" placeholder="Usuário" id="inp-username">
+    <input type="password" class="form-control" placeholder="Senha" name="Senha" id="inp-password">
+</div>
+<div class="d-flex div-links">
+    <p class="mb-0 me-1">Não possui uma conta?</p>
+    <a href="/login/create-account">crie agora</a>
+</div>
+<button class="btn" id="btn-auth">acessar</button>
+{% endblock %}

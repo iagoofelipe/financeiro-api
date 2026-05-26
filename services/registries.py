@@ -6,8 +6,9 @@ if TYPE_CHECKING:
 
 from . import consts
 from apps.api import models
+from apps.api.reg.models import Registry
 
-def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[models.Registry] | None]:
+def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[Registry] | None]:
     """ consulta os registros aplicando os filtros fornecidos. A filtragem segue o padrão de `key__condition` do django """
     # adicionando filtros
     invalid_filters = set(filters) - consts.REGISTRIES_FILTERS
@@ -19,10 +20,10 @@ def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[mode
     if 'status' in filters:
         filters['status'] = filters['status'][0] # necessário pois a base armazena o STATUS apenas como a primeira letra
 
-    return HTTPStatus.OK, '', models.Registry.objects.filter(user=user, **filters).all()
+    return HTTPStatus.OK, '', Registry.objects.filter(user=user, **filters).all()
 
-def get_by_id(user, regid:int) -> tuple[HTTPStatus, str, models.Registry | None]:
-    reg = models.Registry.objects.filter(id=regid).first()
+def get_by_id(user, regid:int) -> tuple[HTTPStatus, str, Registry | None]:
+    reg = Registry.objects.filter(id=regid).first()
     if not reg:
         return HTTPStatus.NOT_FOUND, 'nenhum dado encontrado para o ID fornecido', None
     
@@ -31,7 +32,7 @@ def get_by_id(user, regid:int) -> tuple[HTTPStatus, str, models.Registry | None]
     
     return HTTPStatus.OK, '', reg
 
-def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
+def create(user, **data) -> tuple[HTTPStatus, str, Registry | None]:
     """ cria um novo registro, retorna statuscode, error, object """
     ids_to_query = {
         'invoice_id': dict(obj=None, model=models.Invoice, attr_with_user='self'),
@@ -54,7 +55,7 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
                 return HTTPStatus.FORBIDDEN, f'o ID fornecido em {id_to_query} não é vinculado ao usuário atual', None
 
     try:
-        reg = models.Registry(
+        reg = Registry(
             title=data['title'],
             value=data['value'],
             status=data['status'][0],
@@ -71,4 +72,4 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
 
     reg.save()
     
-    return HTTPStatus.OK, '', models.Registry.objects.get(id=reg.id)
+    return HTTPStatus.OK, '', Registry.objects.get(id=reg.id)

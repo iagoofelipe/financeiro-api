@@ -1,4 +1,5 @@
 from typing import Literal
+from django.http import JsonResponse
 
 SUFFIX_FILTERS_TYPE = {
     'int': {'gt', 'gte', 'lt', 'lte'},
@@ -13,10 +14,18 @@ def make_param_filters(type:Literal['int', 'str'], param:str, include_itself=Tru
 
     return filters
 
-def to_dto_or_msg_error(statuscode:int, msg:str, obj, iterable=False) -> dict | list:
+def response_dto_or_msg_error(statuscode:int, msg:str, obj:object, iterable=False, **json_kwargs):
     if statuscode == 200:
-        return [o.to_dto() for o in obj] if iterable else obj.to_dto()
-    return {'detail': msg}
+        data = [o.to_dto() for o in obj] if iterable else obj.to_dto()
+    else:
+        data = {'detail': msg}
+    return JsonResponse(data, status=statuscode, **json_kwargs)
+
+def response_success_error(statuscode:int, msg:str, success:object):
+    d = {'success': bool(success)}
+    if msg:
+        d['detail'] = msg
+    return JsonResponse(d, status=statuscode)
 
 def format_coin(val:float):
     return f"R$ {val:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
