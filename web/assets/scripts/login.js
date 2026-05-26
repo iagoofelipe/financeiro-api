@@ -1,4 +1,4 @@
-import { getCookie, modal, set_modal } from "./tools/utils.js";
+import { getCookie, modal, MODAL_FLAGS, set_modal } from "./tools/utils.js";
 
 $(() => {
     $('#btn-login').on('click', on_login);
@@ -9,7 +9,7 @@ async function on_login() {
     const password = $('#inp-password').val();
 
     if (!username || !password) {
-        set_modal('Validação de Parâmetros', 'preencha todos os campos!');
+        set_modal('Validação de Parâmetros', 'preencha todos os campos!', true, MODAL_FLAGS.HIDE_HEADER_BTN_CLOSE);
         return;
     }
 
@@ -32,11 +32,11 @@ async function on_login() {
         console.log('Error', e);
 
         if (e.status == 400) {
-            set_modal('Autenticação de Usuário', 'usuário ou senha incorretos!');
+            set_modal('Autenticação de Usuário', 'usuário ou senha incorretos!', true, MODAL_FLAGS.HIDE_HEADER_BTN_CLOSE);
             return;
         }
         
-        set_modal('Autenticação de Usuário', 'erro interno inesperado');
+        set_modal('Autenticação de Usuário', 'erro interno inesperado', true, MODAL_FLAGS.HIDE_HEADER_BTN_CLOSE);
         return;
     }
 

@@ -1,0 +1,46 @@
+<div id="container-new-reg" class="d-grid row-span-3">
+    <p class="title">Novo Registro</p>
+    <div>
+        <span>Título</span>
+        <input type="text" class="form-control" id="inp-title">
+    </div>
+    <div>
+        <span>Valor</span>
+        <input type="number" class="form-control" id="inp-value">
+    </div>
+    <div>
+        <span>Data de Ocorrência</span>
+        <input type="datetime" class="form-control" id="inp-occurrance">
+    </div>
+    <div>
+        <span>Responsável</span>
+        <input type="text" class="form-control" id="inp-responsable">
+    </div>
+    <div>
+        <span>Tipo de Registro</span>
+        <input type="text" class="form-control" id="inp-reg-type">
+    </div>
+    <div>
+        <span>Cartão</span>
+        <input type="text" class="form-control" id="inp-card" value="">
+    </div>
+    <div>
+        <span>Fatura</span>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ default_invoice.title }}</button>
+            <ul class="dropdown-menu">
+                {% for invoice in invoices %}
+                    {% if invoice == default_invoice %}
+                    <li><a class="dropdown-item active" aria-current="true" href="#" id="invoice-option-{{ invoice.id }}">{{ invoice.title }}</a></li>
+                    {% else %}
+                    <li><a class="dropdown-item" href="#" id="invoice-option-{{ invoice.id }}">{{ invoice.title }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="d-grid">
+        <button>cancelar</button>
+        <button>salvar</button>
+    </div>
+</div>

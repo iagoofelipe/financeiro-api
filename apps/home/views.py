@@ -60,3 +60,14 @@ def nav_regs(request):
     }
 
     return render(request, 'partials/home-regs.html', data)
+
+def new_reg(request):
+    default = dict(id=0, title='Jan 26')
+    return render(request, 'partials/new-reg.html', {
+        'invoices': [
+            default,
+            dict(id=1, title='Fev 26'),
+            dict(id=3, title='Mar 26'),
+        ],
+        'default_invoice': default,
+    })

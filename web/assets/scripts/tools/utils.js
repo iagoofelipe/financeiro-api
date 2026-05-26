@@ -33,9 +33,19 @@ export function getElementsByXPath(xpath, context = document) {
 
 export const modal = new bootstrap.Modal('#modal');
 
-export function set_modal(title, html_body, show = true) {
+export const MODAL_FLAGS = {
+    HIDE_TITLE: 1 << 1,
+    HIDE_HEADER_BTN_CLOSE: 1 << 2,
+    HIDE_FOOTER: 1 << 3,
+};
+
+export function set_modal(title, html_body, show = true, flags = 0) {
     $('#modalLabel').text(title);
     $('#modal .modal-body').html(html_body);
+    
+    $('.modal-header').toggle(!(flags & MODAL_FLAGS.HIDE_TITLE));
+    $('.modal-header .btn-close').toggle(!(flags & MODAL_FLAGS.HIDE_HEADER_BTN_CLOSE));
+    $('.modal-footer').toggle(!(flags & MODAL_FLAGS.HIDE_FOOTER));
 
     if (show) {
         modal.show();

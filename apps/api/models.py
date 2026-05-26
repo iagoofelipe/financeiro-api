@@ -63,7 +63,6 @@ class Registry(models.Model):
             'description': self.description,
             'date_ref': self.date_ref.strftime('%Y-%m'),
             'type_in': self.type_in,
-            # 'user_id': self.user.id,
             'card_name': self.invoice.card.name if self.invoice else '',
             'card_id': self.invoice.card.id if self.invoice else None,
             'invoice_ref': self.invoice.date_reference.strftime('%Y-%m') if self.invoice else None,

@@ -9,7 +9,8 @@ from services.tools import to_dto_or_msg_error
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_registries(request:HttpRequest):
-    return JsonResponse([ o.to_dto() for o in registries.get_by_filters(request.user, **request.GET.dict()) ], safe=False)
+    statuscode, error, obj = registries.get_by_filters(request.user, **request.GET.dict())
+    return JsonResponse(to_dto_or_msg_error(statuscode, error, obj, True), status=statuscode, safe=False)
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])

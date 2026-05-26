@@ -1,17 +1,25 @@
-from . import consts
-from apps.api import models
-import http
 from http import HTTPStatus
 
-def get_by_filters(user, **filters):
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from django.db.models import BaseManager
+
+from . import consts
+from apps.api import models
+
+def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[models.Registry] | None]:
     """ consulta os registros aplicando os filtros fornecidos. A filtragem segue o padrão de `key__condition` do django """
     # adicionando filtros
+    invalid_filters = set(filters) - consts.REGISTRIES_FILTERS
+    if invalid_filters:
+        return  HTTPStatus.BAD_REQUEST, f'parâmetros {invalid_filters} inválidos', None
+
     filters = { k: filters[k] for k in set(filters) & consts.REGISTRIES_FILTERS }
 
     if 'status' in filters:
         filters['status'] = filters['status'][0] # necessário pois a base armazena o STATUS apenas como a primeira letra
 
-    return models.Registry.objects.filter(user=user, **filters).all()
+    return HTTPStatus.OK, '', models.Registry.objects.filter(user=user, **filters).all()
 
 def get_by_id(user, regid:int) -> tuple[HTTPStatus, str, models.Registry | None]:
     reg = models.Registry.objects.filter(id=regid).first()
@@ -25,26 +33,25 @@ def get_by_id(user, regid:int) -> tuple[HTTPStatus, str, models.Registry | None]
 
 def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
     """ cria um novo registro, retorna statuscode, error, object """
-    invoice = None
-    responsable = None
+    ids_to_query = {
+        'invoice_id': dict(obj=None, model=models.Invoice, attr_with_user='self'),
+        'responsable_id': dict(obj=None, model=models.Responsable, attr_with_user='card'),
+    }
 
-    if 'invoice_id' in data:
-        invoice = models.Invoice.objects.filter(id=data['invoice_id']).first()
-        
-        if not invoice:
-            return HTTPStatus.BAD_REQUEST, 'nenhuma fatura válida encontrada para o ID fornecido', None
+    for id_to_query, params in ids_to_query.items():
+        if id_to_query not in data:
+            continue
 
-        elif invoice.card.user != user:
-            return HTTPStatus.FORBIDDEN, '', None
-    
-    if 'responsable_id' in data:
-        responsable = models.Responsable.objects.filter(id=data['responsable_id']).first()
-        
-        if not responsable:
-            return HTTPStatus.BAD_REQUEST, 'nenhum responsável encontrado para o ID fornecido', None
-        
-        elif responsable.user != user:
-            return HTTPStatus.FORBIDDEN, '', None
+        obj = params['model'].objects.filter(id=data[id_to_query]).first()
+        attr_with_user = params['attr_with_user']
+
+        if not obj:
+            return HTTPStatus.BAD_REQUEST, f'nenhum id válido encontrado para {id_to_query}', None
+
+        if attr_with_user:
+            obj_with_user = obj if attr_with_user == 'self' else getattr(obj, attr_with_user)
+            if obj_with_user.user != user:
+                return HTTPStatus.FORBIDDEN, f'o ID fornecido em {id_to_query} não é vinculado ao usuário atual', None
 
     try:
         reg = models.Registry(
@@ -56,11 +63,11 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
             date_ref=f'{data['ref_year']}-{str(data['ref_month']).zfill(2)}-01',
             type_in=data['type_in'],
             user=user,
-            invoice=invoice,
-            responsable=responsable,
+            invoice=ids_to_query['invoice_id']['obj'],
+            responsable=ids_to_query['responsable_id']['obj'],
         )
     except KeyError as e:
-        return http.HTTPStatus.BAD_REQUEST, f'missing required param {e}', None
+        return HTTPStatus.BAD_REQUEST, f'missing required param {e}', None
 
     reg.save()
     
