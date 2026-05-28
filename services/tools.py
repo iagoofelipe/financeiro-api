@@ -14,12 +14,15 @@ def make_param_filters(type:Literal['int', 'str'], param:str, include_itself=Tru
 
     return filters
 
-def response_dto_or_msg_error(statuscode:int, msg:str, obj:object, iterable=False, **json_kwargs):
+def response_dto_or_error(statuscode:int, msg:str, obj:object, iterable=False, **json_kwargs):
     if statuscode == 200:
         data = [o.to_dto() for o in obj] if iterable else obj.to_dto()
     else:
         data = {'detail': msg}
     return JsonResponse(data, status=statuscode, **json_kwargs)
+
+def response_obj_or_error(statuscode:int, msg:str, obj:object, safe=True):
+    return JsonResponse(obj if statuscode == 200 else {'detail':msg}, status=statuscode, safe=safe)
 
 def response_success_error(statuscode:int, msg:str, success:object):
     d = {'success': bool(success)}

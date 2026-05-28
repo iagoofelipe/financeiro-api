@@ -30,8 +30,7 @@ export default class Table extends EventTarget {
         if (this.#flags & Table.FLAGS.ROW_SELECTABLE)
             this.#currentSelection.jquery.removeClass('table-active');
         
-        this.#currentSelection.id = null;
-        this.#currentSelection.jquery = null;
+        this.#currentSelection = {};
     }
 
     #emit_row_clicked(evt) {

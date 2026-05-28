@@ -1,4 +1,5 @@
 from http import HTTPStatus
+import datetime as dt
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -20,7 +21,30 @@ def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[Regi
     if 'status' in filters:
         filters['status'] = filters['status'][0] # necessário pois a base armazena o STATUS apenas como a primeira letra
 
-    return HTTPStatus.OK, '', Registry.objects.filter(user=user, **filters).all()
+    occurrance_init = ''
+    occurrance_end = ''
+    if 'occurrance_init' in filters:
+        occurrance_init = filters.pop('occurrance_init')
+
+    if 'ocurrance_end' in filters:
+        occurrance_end = filters.pop('occurrance_end')
+    
+    if occurrance_init or occurrance_end:
+        filters['occurrance__range'] = (occurrance_init, occurrance_end)
+
+    if 'date_ref' not in filters or not filters['date_ref']:
+        filters['date_ref'] = dt.date.today().strftime('%Y-%m-01')
+
+    regs = Registry.objects \
+        .filter(user=user, **filters) \
+        .order_by('-occurrance') \
+        .all()
+
+    return HTTPStatus.OK, '', regs
+
+def get_date_references(user):
+    date_refs = Registry.objects.filter(user=user).values_list('date_ref', flat=True).distinct().order_by()
+    return [ {'value': v.strftime('%Y-%m-%d'), 'formatted': v.strftime('{MONTH} %y').replace('{MONTH}', consts.MONTHS[v.month-1])} for v in date_refs ]
 
 def get_by_id(user, regid:int) -> tuple[HTTPStatus, str, Registry | None]:
     reg = Registry.objects.filter(id=regid).first()

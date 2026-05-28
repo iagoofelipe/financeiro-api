@@ -67,7 +67,7 @@ class HomeView
     #set_animations() {
         // TODO: tornar em singleton
         $(document).on('click', '.btn-rotate', (evt) => $(evt.currentTarget).toggleClass('btn-rotated'));
-        $(document).on('click', '.btn-rotate-full', (evt) => $(evt.currentTarget).toggleClass('btn-rotated-full'));
+        // $(document).on('click', '.btn-rotate-full', (evt) => $(evt.currentTarget).toggleClass('btn-rotated-full'));
     }
 
     #update_nav_button(jbtn) {

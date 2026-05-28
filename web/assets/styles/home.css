@@ -40,6 +40,7 @@ main {
 
     * {
         color: white !important;
+        stroke: white !important;
     }
 }
 
@@ -55,10 +56,6 @@ main {
 /* CONTENT NAVBAR - Registries */
 .card-transaction-desc {
     color: var(--subtitle-color);
-
-    label {
-        font-weight: 500;
-    }
 }
 
 .bg-atrasado {
@@ -126,4 +123,10 @@ main {
     /* Cantos menos arredondados que a pill padrão */
     font-weight: 500;
     display: inline-block;
+}
+
+.reg-transactions svg {
+    height: 22px;
+    width: 22px;
+    color: var(--subtitle-color);
 }

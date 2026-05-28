@@ -11,9 +11,9 @@ class Card(models.Model):
 
 
 class Invoice(models.Model):
-    date_reference = models.DateField()
-    closing_day = models.IntegerField()
-    due_day = models.IntegerField()
+    date_ref = models.DateField()
+    closing_date = models.DateField()
+    due_date = models.DateField()
     limit = models.FloatField()
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
 

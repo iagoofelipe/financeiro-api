@@ -1,11 +1,14 @@
 from django.db import models
 from services.tools import format_coin
 from django.conf import settings
+import datetime as dt
 
 from apps.api.models import Invoice, Responsable
+from services.consts import MONTHS
+
+CURRENT_YEAR = dt.date.today().year
 
 class Registry(models.Model):
-    MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
     STATUS = {
         'P': 'PENDING',
         'O': 'OK',
@@ -30,6 +33,9 @@ class Registry(models.Model):
         return f'<Registry id={self.id} title="{self.title}">'
 
     def to_dto(self):
+        d = self.occurrance
+        occurrance_formatted = d.strftime(f'%d {MONTHS[d.month-1]}{' %y' if d.year != CURRENT_YEAR else ''}, %Hh{'%M' if d.minute else ''}')
+        
         return {
             'id': self.id,
             'title': self.title,
@@ -37,13 +43,13 @@ class Registry(models.Model):
             'value_formatted': format_coin(self.value),
             'status': self.STATUS[self.status],
             'occurrance': self.occurrance.strftime('%Y-%m-%d %H:%M'),
-            'occurrance_formatted': self.occurrance.strftime('%d {MONTH} %y, %Hh%M').replace('{MONTH}', self.MONTHS[self.occurrance.month-1]),
+            'occurrance_formatted': occurrance_formatted,
             'description': self.description,
             'date_ref': self.date_ref.strftime('%Y-%m'),
             'type_in': self.type_in,
             'card_name': self.invoice.card.name if self.invoice else '',
             'card_id': self.invoice.card.id if self.invoice else None,
-            'invoice_ref': self.invoice.date_reference.strftime('%Y-%m') if self.invoice else None,
+            'invoice_ref': self.invoice.date_ref.strftime('%Y-%m') if self.invoice else None,
             'invoice_id': self.invoice.id if self.invoice else None,
             'responsable_name': self.responsable.name if self.responsable else '',
             'responsable_id': self.responsable.id if self.responsable else None,

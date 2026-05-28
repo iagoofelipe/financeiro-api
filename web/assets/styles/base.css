@@ -39,10 +39,14 @@ body {
     font-weight: 500;
 }
 
-.title-3 {
+.title-3, .title-3-bold {
     color: #8D8D8D;
     font-size: .9rem;
     font-weight: 400;
+}
+
+.title-3-bold {
+    font-weight: 500;
 }
 
 .btn, .btn-outline {
@@ -71,7 +75,7 @@ body {
     padding: .5rem;
 }
 
-.btn-rotate *, .btn-rotate-full * {
+.btn-rotate * {
     transition: transform 0.5s ease;
     display: inline-block;
 }
@@ -80,6 +84,6 @@ body {
     transform: rotate(180deg);
 }
 
-.btn-rotated-full * {
-    transform: rotate(360deg);
+.dropdown-item:active, .dropdown-item.active {
+    background-color: var(--primary-color);
 }
