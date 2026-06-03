@@ -1,7 +1,7 @@
 {% for transaction in transactions %}
 <div id="sum-inputs-hidden" hidden>{{ sum_inputs }}</div>
 <div id="sum-outputs-hidden" hidden>{{ sum_outputs }}</div>
-<div class="card p-3 mt-3">
+<div class="card p-3 {% if forloop.counter != 1 %} mt-3 {% endif %}">
     <div class="d-flex flex-row align-items-center justify-content-between">
         <div>
             <p class="title mb-2">{{ transaction.title }}</p>

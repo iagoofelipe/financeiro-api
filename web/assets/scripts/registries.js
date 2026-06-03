@@ -47,6 +47,7 @@ export default class RegistryView extends EventTarget {
         $("#reg-details-occurrance .text").text(reg.occurrance_formatted ?? '');
         $("#reg-details-description .text").text(reg.description ?? '');
         $("#reg-details-status .text").html(REG_STATUS_HTML[reg.status]);
+        $("#reg-details-card .text").text(reg.card_name ?? '');
         $("#reg-details-invoice .text").text(reg.invoice_ref_formatted ?? '');
         $("#reg-details-installment .text").text(reg.installment_index? `${reg.installment_index+1} de ${reg.installment_num_items}` : '');
         $("#reg-details-installment-value .text").text(reg.installment_value_formatted ?? '');

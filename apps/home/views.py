@@ -8,7 +8,7 @@ from services.tools import format_coin
 
 @login_required(login_url='/login')
 def index(request):
-    return render(request, 'home.html')
+    return render(request, 'home.html', {'user_name': f'{request.user.first_name} {request.user.last_name}'})
 
 def nav_regs(request):
     if not request.user.is_authenticated:

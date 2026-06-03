@@ -7,9 +7,8 @@ if TYPE_CHECKING:
 
 from . import consts
 from apps.api import models
-from apps.api.reg.models import Registry
 
-def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[Registry] | None]:
+def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[models.Registry] | None]:
     """ consulta os registros aplicando os filtros fornecidos. A filtragem segue o padrão de `key__condition` do django """
     # adicionando filtros
     invalid_filters = set(filters) - consts.REGISTRIES_FILTERS
@@ -35,7 +34,7 @@ def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[Regi
     if 'date_ref' not in filters or not filters['date_ref']:
         filters['date_ref'] = dt.date.today().strftime('%Y-%m-01')
 
-    regs = Registry.objects \
+    regs = models.Registry.objects \
         .filter(user=user, **filters) \
         .order_by('-occurrance') \
         .all()
@@ -43,11 +42,11 @@ def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[Regi
     return HTTPStatus.OK, '', regs
 
 def get_date_references(user):
-    date_refs = Registry.objects.filter(user=user).values_list('date_ref', flat=True).distinct().order_by()
+    date_refs = models.Registry.objects.filter(user=user).values_list('date_ref', flat=True).distinct().order_by()
     return [ {'value': v.strftime('%Y-%m-%d'), 'formatted': v.strftime('{MONTH} %y').replace('{MONTH}', consts.MONTHS[v.month-1])} for v in date_refs ]
 
-def get_by_id(user, regid:int) -> tuple[HTTPStatus, str, Registry | None]:
-    reg = Registry.objects.filter(id=regid).first()
+def get_by_id(user, regid:int) -> tuple[HTTPStatus, str, models.Registry | None]:
+    reg = models.Registry.objects.filter(id=regid).first()
     if not reg:
         return HTTPStatus.NOT_FOUND, 'nenhum dado encontrado para o ID fornecido', None
     
@@ -56,7 +55,7 @@ def get_by_id(user, regid:int) -> tuple[HTTPStatus, str, Registry | None]:
     
     return HTTPStatus.OK, '', reg
 
-def create(user, **data) -> tuple[HTTPStatus, str, Registry | None]:
+def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
     """ cria um novo registro, retorna statuscode, error, object """
     ids_to_query = {
         'invoice_id': dict(obj=None, model=models.Invoice, attr_with_user='self'),
@@ -79,7 +78,7 @@ def create(user, **data) -> tuple[HTTPStatus, str, Registry | None]:
                 return HTTPStatus.FORBIDDEN, f'o ID fornecido em {id_to_query} não é vinculado ao usuário atual', None
 
     try:
-        reg = Registry(
+        reg = models.Registry(
             title=data['title'],
             value=data['value'],
             status=data['status'][0],
@@ -96,4 +95,4 @@ def create(user, **data) -> tuple[HTTPStatus, str, Registry | None]:
 
     reg.save()
     
-    return HTTPStatus.OK, '', Registry.objects.get(id=reg.id)
+    return HTTPStatus.OK, '', models.Registry.objects.get(id=reg.id)

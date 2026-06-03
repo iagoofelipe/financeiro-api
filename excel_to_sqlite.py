@@ -20,6 +20,7 @@ for sheet_name in pd.ExcelFile(filename).sheet_names:
         print(f'sheet "{sheet_name}" skipped')
         continue
 
+    print(f'reading sheet "{sheet_name}"...')
     df = pd.read_excel(filename, sheet_name=sheet_name)
     df_cols = set(df.columns)
 
@@ -27,7 +28,7 @@ for sheet_name in pd.ExcelFile(filename).sheet_names:
         for col in cols & df_cols:
             match typeof:
                 case 'date': df[col] = df[col].dt.strftime('%Y-%m-%d')
-                case 'date': df[col] = df[col].dt.strftime('%Y-%m-%d %H:%M')
+                case 'datetime': df[col] = df[col].dt.strftime('%Y-%m-%d %H:%M')
 
     match sheet_name:
         case 'reg_registry':

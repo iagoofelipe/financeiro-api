@@ -15,43 +15,43 @@
             <img src="{% static 'imgs/icons/panel-left.svg' %}" title="expandir painel" width="20" height="20" class="icon-panel-closed">
         </button>
     </div>
-    <hr>
+    <hr class="hr-ignore-parent-padding">
     <ul class="nav nav-pills flex-column mb-auto">
         <li class="mb-1">
-            <a class="nav-link" name="Dashboards">
+            <a class="nav-link d-flex align-items-center" name="Dashboards">
                 {% include 'icons/dashboard.svg' %}
                 <label class="ms-2">Dashboards</label>
             </a>
         </li>
         <li class="mb-1">
-            <a class="nav-link" name="Registros">
+            <a class="nav-link d-flex align-items-center" name="Registros">
                 {% include 'icons/table.svg' %}
                 <label class="ms-2">Registros</label>
             </a>
         </li>
         <li class="mb-1">
-            <a class="nav-link" name="Cartões e Faturas">
+            <a class="nav-link d-flex align-items-center" name="Cartões e Faturas">
                 {% include 'icons/credit-card.svg' %}
                 <label class="ms-2">Cartões e Faturas</label>
             </a>
         </li>
     </ul>
-    <hr>
+    <hr class="hr-ignore-parent-padding">
     <ul class="nav nav-pills flex-column">
         <li class="mb-1">
-            <a class="nav-link" name="Configurações">
+            <a class="nav-link d-flex align-items-center" name="Configurações">
                 {% include 'icons/gear-fill.svg' %}
                 <label class="ms-2">Configurações</label>
             </a>
         </li>
         <li class="mb-1">
-            <a class="nav-link" name="Usuário e Conta">
+            <a class="nav-link d-flex align-items-center" name="Usuário e Conta">
                 {% include 'icons/person-fill.svg' %}
-                <label class="ms-2">Iago Carvalho</label>
+                <label class="ms-2">{{ user_name }}</label>
             </a>
         </li>
         <li>
-            <a class="nav-link" name="Sair">
+            <a class="nav-link d-flex align-items-center" name="Sair">
                 {% include 'icons/logout.svg' %}
                 <label class="ms-2">Sair</label>
             </a>
