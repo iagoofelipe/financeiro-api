@@ -23,6 +23,7 @@ class HomeView
         this.#set_animations();
 
         $(this.#initialNavBtn).click();
+        $('#btn-nav-collapse').click(this.#on_btnNavCollapse_clicked);
     }
 
     async #navBtn_clicked(evt) {
@@ -77,5 +78,30 @@ class HomeView
 
         this.#currentNavBtn = jbtn;
         this.#currentNavBtn.addClass('nav-link-active');
+    }
+
+    #on_btnNavCollapse_clicked(evt) {
+        // let elements = $('.home-nav .nav-logo, .home-nav label');
+        // const jquery = $(evt.currentTarget);
+
+        $('.home-nav').toggleClass('collapsed');
+
+        // console.log(jquery.ariaExpanded);
+
+        // if (jquery.attr('aria-expanded') == 'true') {
+        //     $('#btn-nav-collapse').attr('aria-expanded', 'false');
+        //     $('#')
+        //     // elements.hide();
+        // } else {
+        //     $('#btn-nav-collapse').attr('aria-expanded', 'true');
+        //     // elements.show();
+        // }
+
+        // toggle icons
+        // let to_show = $('#btn-nav-collapse img[hidden]');
+        // let to_hide = $('#btn-nav-collapse img:not([hidden])');
+
+        // to_hide.prop('hidden', true);
+        // to_show.prop('hidden', false);
     }
 }

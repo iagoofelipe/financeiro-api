@@ -4,9 +4,9 @@
             <p class="title m-0">Transações</p>
             <div class="d-flex flex-row align-items-center">
                 {% include 'icons/money-recive.svg' %}
-                <label id="sum-inputs" title="total de entradas" class="total-inputs title-3-bold me-3 ms-1">{{ sum_inputs }}</label>
+                <label id="sum-inputs" title="total de entradas" class="total-inputs title-3-bold me-3 ms-1">R$ 0,00</label>
                 {% include 'icons/money-send.svg' %}
-                <label id="sum-outputs" class="total-outputs title-3-bold ms-1 me-3" title="total de saídas">{{ sum_outputs }}</label>
+                <label id="sum-outputs" class="total-outputs title-3-bold ms-1 me-3" title="total de saídas">R$ 0,00</label>
                 <div class="btn-group" role="group">
                     <button id="btn-date-ref" type="button" class="btn btn-outline dropdown-toggle"
                         data-bs-toggle="dropdown" aria-expanded="false">
@@ -65,6 +65,26 @@
         <hr>
         <div id="reg-details-card">
             <p class="m-0 fw-semibold">Cartão</p>
+            <p class="text"></p>
+        </div>
+        <div id="reg-details-invoice">
+            <p class="m-0 fw-semibold">Fatura</p>
+            <p class="text"></p>
+        </div>
+        <div id="reg-details-installment">
+            <p class="m-0 fw-semibold">Parcela</p>
+            <p class="text"></p>
+        </div>
+        <div id="reg-details-installment-value">
+            <p class="m-0 fw-semibold">Valor Total</p>
+            <p class="text"></p>
+        </div>
+        <div id="reg-details-paid">
+            <p class="m-0 fw-semibold">Pago</p>
+            <p class="text"></p>
+        </div>
+        <div id="reg-details-pending">
+            <p class="m-0 fw-semibold">Pendente</p>
             <p class="text"></p>
         </div>
     </div>

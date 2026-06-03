@@ -10,8 +10,12 @@ main {
 }
 
 .home-nav-logo {
-    width: 30px;
-    height: 30px;
+    margin-right: auto;
+
+        img {
+        width: 30px;
+        height: 30px;
+    }
 }
 
 .home-nav {
@@ -33,7 +37,23 @@ main {
         }
     }
 
+    .icon-panel-closed {
+        display: none;
+    }
 }
+
+.home-nav.collapsed {
+    width: auto;
+    
+    label, .home-nav-logo, .icon-panel-opened {
+        display: none !important;
+    }
+
+    .icon-panel-closed {
+        display: block;
+    }
+}
+    
 
 .nav-link-active {
     background-color: var(--primary-color);

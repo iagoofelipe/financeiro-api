@@ -42,12 +42,16 @@ export default class RegistryView extends EventTarget {
     setRegistryDetails(reg) {
         $('#reg-details-title .text').text(reg.title);
         $("#reg-details-type .text").text(reg.type_in? 'Entrada' : 'Saída');
-        $("#reg-details-value .text").text(reg.value_formatted);
-        $("#reg-details-owner .text").text(reg.responsable_name);
-        $("#reg-details-occurrance .text").text(reg.occurrance_formatted);
-        $("#reg-details-description .text").text(reg.description);
+        $("#reg-details-value .text").text(reg.value_formatted ?? '');
+        $("#reg-details-owner .text").text(reg.responsable_name ?? '');
+        $("#reg-details-occurrance .text").text(reg.occurrance_formatted ?? '');
+        $("#reg-details-description .text").text(reg.description ?? '');
         $("#reg-details-status .text").html(REG_STATUS_HTML[reg.status]);
-        $("#reg-details-card .text").text(reg.card_name);
+        $("#reg-details-invoice .text").text(reg.invoice_ref_formatted ?? '');
+        $("#reg-details-installment .text").text(reg.installment_index? `${reg.installment_index+1} de ${reg.installment_num_items}` : '');
+        $("#reg-details-installment-value .text").text(reg.installment_value_formatted ?? '');
+        $("#reg-details-paid .text").text(reg.installment_paid_formatted ?? '');
+        $("#reg-details-pending .text").text(reg.installment_pending_formatted ?? '');
 
         $('#reg-details').show();
 
@@ -61,6 +65,9 @@ export default class RegistryView extends EventTarget {
         // let controllers = $('#btn-date-ref, #btn-trans-reload');
         // controllers.prop('disabled', true);
         
+        // limpando cache
+        this.#cache_regs_by_id = {};
+
         const response = await $.get('/home/regs-trans-cards', {date_ref: this.#current_date_ref});
         let jquery = $('#trans-cards').html(response);
         $('#sum-inputs').text($('#sum-inputs-hidden').text());

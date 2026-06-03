@@ -1,17 +1,23 @@
 import pandas as pd
 from sqlalchemy import create_engine
+import sys
 
 engine = create_engine('sqlite:///db.sqlite3')
 
-filename = '.temp/base-2.xlsx'
+filename = '.temp/base.xlsx'
 cols_to_cast = {
     'date': {'date_ref', 'closing_date', 'due_date'},
     'datetime': {'occurrance'},
 }
+all_sheets = '*' in sys.argv
 
 for sheet_name in pd.ExcelFile(filename).sheet_names:
     if type(sheet_name) is not str:
         print('sheet_name must be a valid table string')
+        continue
+
+    if sheet_name not in sys.argv and not all_sheets:
+        print(f'sheet "{sheet_name}" skipped')
         continue
 
     df = pd.read_excel(filename, sheet_name=sheet_name)

@@ -5,31 +5,32 @@
 {% block body %}
 
 <nav class="card d-flex home-nav flex-column p-3 shadow-sm">
-    <div class="d-flex align-items-center justify-content-between">
-        <a href="/" class="d-flex align-items-center text-decoration-none text-black">
-            <img src="{% static 'imgs/logo.svg' %}" alt="logo" class="me-2 home-nav-logo">
+    <div class="d-flex align-items-center justify-content-center">
+        <a href="/" class="home-nav-logo d-flex align-items-center text-decoration-none text-black">
+            <img src="{% static 'imgs/logo.svg' %}" alt="logo" class="me-2">
             <p class="mb-0 home-nav-title">Financeiro</p>
         </a>
-        <button class="btn p-1">
-            <img src="{% static 'imgs/icons/panel-left-filled.svg' %}" width="20" height="20">
+        <button class="btn p-1" id="btn-nav-collapse">
+            <img src="{% static 'imgs/icons/panel-left-filled.svg' %}" title="recolher painel" width="20" height="20" class="icon-panel-opened">
+            <img src="{% static 'imgs/icons/panel-left.svg' %}" title="expandir painel" width="20" height="20" class="icon-panel-closed">
         </button>
     </div>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
         <li class="mb-1">
-            <a class="nav-link ps-2" name="Dashboards">
+            <a class="nav-link" name="Dashboards">
                 {% include 'icons/dashboard.svg' %}
                 <label class="ms-2">Dashboards</label>
             </a>
         </li>
         <li class="mb-1">
-            <a class="nav-link ps-2" name="Registros">
+            <a class="nav-link" name="Registros">
                 {% include 'icons/table.svg' %}
                 <label class="ms-2">Registros</label>
             </a>
         </li>
         <li class="mb-1">
-            <a class="nav-link ps-2" name="Cartões e Faturas">
+            <a class="nav-link" name="Cartões e Faturas">
                 {% include 'icons/credit-card.svg' %}
                 <label class="ms-2">Cartões e Faturas</label>
             </a>
@@ -38,19 +39,19 @@
     <hr>
     <ul class="nav nav-pills flex-column">
         <li class="mb-1">
-            <a class="nav-link ps-2" name="Configurações">
+            <a class="nav-link" name="Configurações">
                 {% include 'icons/gear-fill.svg' %}
                 <label class="ms-2">Configurações</label>
             </a>
         </li>
         <li class="mb-1">
-            <a class="nav-link ps-2" name="Usuário e Conta">
+            <a class="nav-link" name="Usuário e Conta">
                 {% include 'icons/person-fill.svg' %}
                 <label class="ms-2">Iago Carvalho</label>
             </a>
         </li>
         <li>
-            <a class="nav-link ps-2" name="Sair">
+            <a class="nav-link" name="Sair">
                 {% include 'icons/logout.svg' %}
                 <label class="ms-2">Sair</label>
             </a>
