@@ -32,6 +32,7 @@
                     <th scope="col">Status</th>
                     <th scope="col">Data de Ocorrência</th>
                     <th scope="col">Cartão</th>
+                    <th scope="col">Parcela</th>
                 </tr>
             </thead>
             <tbody>
@@ -44,7 +45,6 @@
                         <td hidden>{{ value.id }}</td>
                         <td>{{ value.title }}</td>
                         <td>{{ value.value_formatted }}</td>
-
                         <td>
                             {% if value.status == "PENDING" %}
                             <span class="badge-custom bg-pendente">Pendente</span>
@@ -56,9 +56,9 @@
                             <span>?</span>
                             {% endif %}
                         </td>
-
                         <td>{{ value.occurrance_formatted }}</td>
                         <td>{{ value.card_name }}</td>
+                        <td>{{ value.installment_formatted }}</td>
                     </tr>
                     {% endfor %}
                     {% endif %}

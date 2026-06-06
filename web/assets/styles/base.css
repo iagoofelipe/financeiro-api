@@ -59,7 +59,11 @@ body {
         height: 20px;
         width: 20px;
     }
+}
 
+.btn.primary {
+    background-color: var(--primary-color);
+    color: #ffff;
 }
 
 .hr-ignore-parent-padding {

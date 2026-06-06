@@ -2,7 +2,6 @@ from django.db import models
 from django.conf import settings
 
 from services.tools import format_coin
-from services.consts import MONTHS
 
 class Card(models.Model):
     name = models.CharField(max_length=20)
@@ -42,6 +41,16 @@ class Registry(models.Model):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, null=True, default=None)
     responsable = models.ForeignKey(Responsable, on_delete=models.CASCADE, null=True, default=None)
 
+    @property
+    def installment_formatted(self):
+        item = self.installment_item.first()
+        return f'{item.index+1} de {item.installment.num_items}' if item else ''
+    
+    @property
+    def occurrance_formatted(self):
+        d = self.occurrance
+        return d.strftime(f'%d %b %y{f', %Hh{'%M' if d.minute else ''}' if d.hour or d.minute else ''}')
+
     def __repr__(self):
         return self.__str__()
     
@@ -49,8 +58,6 @@ class Registry(models.Model):
         return f'<Registry id={self.id} title="{self.title}">'
 
     def to_dto(self, complete=True):
-        d = self.occurrance
-        occurrance_formatted = d.strftime(f'%d {MONTHS[d.month-1]} %y{f', %Hh{'%M' if d.minute else ''}' if d.hour or d.minute else ''}')
         data = {
             'id': self.id,
             'title': self.title,
@@ -58,19 +65,20 @@ class Registry(models.Model):
             'value_formatted': format_coin(self.value),
             'status': self.STATUS[self.status],
             'occurrance': self.occurrance.strftime('%Y-%m-%d %H:%M'),
-            'occurrance_formatted': occurrance_formatted,
+            'occurrance_formatted': self.occurrance_formatted,
             'description': self.description,
             'date_ref': self.date_ref.strftime('%Y-%m'),
             'type_in': self.type_in,
             'card_name': self.invoice.card.name if self.invoice else '',
             'responsable_name': self.responsable.name if self.responsable else '',
             'responsable_id': self.responsable.id if self.responsable else None,
+            'installment_formatted': self.installment_formatted,
         }
 
         if complete:
             if self.invoice:
                 data['card_id'] = self.invoice.card.id
-                data['invoice_ref_formatted'] = self.invoice.date_ref.strftime(f'{MONTHS[self.invoice.date_ref.month-1]} %y')
+                data['invoice_ref_formatted'] = self.invoice.date_ref.strftime(f'%b %y')
                 data['invoice_id'] = self.invoice.id
 
             installment_item = self.installment_item.first()

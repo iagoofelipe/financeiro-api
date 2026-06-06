@@ -43,7 +43,14 @@ def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[mode
 
 def get_date_references(user):
     date_refs = models.Registry.objects.filter(user=user).values_list('date_ref', flat=True).distinct().order_by()
-    return [ {'value': v.strftime('%Y-%m-%d'), 'formatted': v.strftime('{MONTH} %y').replace('{MONTH}', consts.MONTHS[v.month-1])} for v in date_refs ]
+    return [ {'value': v.strftime('%Y-%m-%d'), 'formatted': v.strftime('%b %y')} for v in date_refs ]
+
+def get_default_date_reference(user) -> dt.date | None:
+    current = models.Registry.objects.filter(user=user, date_ref=dt.date.today().strftime('%Y-%m-01')).first()
+    if current:
+        return current.date_ref
+    
+    return models.Registry.objects.filter(user=user).values_list('date_ref', flat=True).distinct().order_by().first()
 
 def get_by_id(user, regid:int) -> tuple[HTTPStatus, str, models.Registry | None]:
     reg = models.Registry.objects.filter(id=regid).first()

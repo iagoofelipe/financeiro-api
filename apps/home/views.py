@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotAllowed
 from uuid import uuid4
+import datetime as dt
 
 from services import registries
 from services.tools import format_coin
@@ -16,6 +17,7 @@ def nav_regs(request):
     
     return render(request, 'partials/home-regs.html', {
         'date_references': registries.get_date_references(request.user),
+        'current_ref': registries.get_default_date_reference(request.user).strftime('%b %y')
     })
 
 def reg_trans_cards(request):
