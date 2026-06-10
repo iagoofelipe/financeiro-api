@@ -18,7 +18,8 @@
                         {% endfor %}
                     </ul>
                 </div>
-                <button class="btn btn-outline ms-3" data-bs-toggle="modal" data-bs-target="#modal-new-reg">{% include 'icons/plus.svg' %}</button>
+                <!-- <button class="btn btn-outline ms-3" data-bs-toggle="modal" data-bs-target="#modal-new-reg">{% include 'icons/plus.svg' %}</button> -->
+                <button title="novo registro" id="btn-new-reg" class="btn btn-outline ms-3">{% include 'icons/plus.svg' %}</button>
                 <button title="recarregar" id="btn-trans-reload" class="btn btn-outline ms-3">{% include 'icons/refresh.svg' %}</button>
                 <button title="expandir todos" id="btn-trans-expand" class="btn btn-outline ms-3">{% include 'icons/expand.svg' %}</button>
                 <button title="recolher todos" id="btn-trans-collapse" class="btn btn-outline ms-3">{% include 'icons/collapse.svg' %}</button>
@@ -91,7 +92,7 @@
 </div>
 
 <!-- Modal New Registry -->
-<div class="modal fade" id="modal-new-reg" tabindex="-1" aria-labelledby="modal-new-reg-title" aria-hidden="true">
+<!-- <div class="modal fade" id="modal-new-reg" tabindex="-1" aria-labelledby="modal-new-reg-title" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -114,10 +115,21 @@
         <div>
             <label for="form-new-reg-responsable" class="form-label">Responsável</label>
             <select class="form-select" id="form-new-reg-responsable">
-                <!-- <option value="" disabled selected hidden></option> -->
                 <option value="">Pessoal</option>
                 <option value="1">Brunna</option>
                 <option value="2">João</option>
+            </select>
+        </div>
+        <div>
+            <label for="form-new-reg-type" class="form-label">Tipo de Registro</label>
+            <select class="form-select" id="form-new-reg-type">
+                <option value="" disabled selected hidden></option>
+            </select>
+        </div>
+        <div>
+            <label for="form-new-reg-card" class="form-label">Cartão</label>
+            <select class="form-select" id="form-new-reg-card">
+                <option value="" disabled selected hidden></option>
             </select>
         </div>
       </div>
@@ -127,4 +139,4 @@
       </div>
     </div>
   </div>
-</div>
+</div> -->

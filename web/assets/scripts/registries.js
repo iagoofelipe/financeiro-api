@@ -7,7 +7,10 @@ export default class RegistryView extends EventTarget {
     #jquery;
     #current_date_ref;
     #tables = [];
-    #cache_regs_by_id = {};
+    #cache = {
+        regs_by_id: {},
+        invoices_by_card_id: {},
+    };
     #table_selected = null;
 
     constructor(jquery) {
@@ -21,6 +24,8 @@ export default class RegistryView extends EventTarget {
         $('#btn-trans-reload').on('click', async (e) => await this.updateTransactionCards());
         $('#btn-trans-expand').click(this.expandAllCards);
         $('#btn-trans-collapse').click(this.collapseAllCards);
+        $('#btn-new-reg').click(async (e) => await this.#on_btnNewReg_clicked(e));
+        jquery.on('change', '#inp-card', async (e) => await this.#on_comboCards_changed(e));
 
         this.updateTransactionCards();
         // this.collapseAllCards();
@@ -67,7 +72,8 @@ export default class RegistryView extends EventTarget {
         // controllers.prop('disabled', true);
         
         // limpando cache
-        this.#cache_regs_by_id = {};
+        this.#cache.regs_by_id = {};
+        this.#cache.invoices_by_card_id = {};
 
         const response = await $.get('/home/regs-trans-cards', {date_ref: this.#current_date_ref});
         let jquery = $('#trans-cards').html(response);
@@ -102,7 +108,7 @@ export default class RegistryView extends EventTarget {
     async #on_tableTransaction_rowClicked(evt) {
         let id = evt.detail.id;
 
-        if (!(id in this.#cache_regs_by_id)) {
+        if (!(id in this.#cache.regs_by_id)) {
             let response = await $.get({
                 url: `/api/getRegistry/${id}`,
                 headers: {
@@ -110,7 +116,7 @@ export default class RegistryView extends EventTarget {
                 }
             });
 
-            this.#cache_regs_by_id[id] = response;
+            this.#cache.regs_by_id[id] = response;
         }
 
         if (this.#table_selected && this.#table_selected != evt.target) {
@@ -118,7 +124,7 @@ export default class RegistryView extends EventTarget {
         }
         
         this.#table_selected = evt.target;
-        this.setRegistryDetails(this.#cache_regs_by_id[id]);
+        this.setRegistryDetails(this.#cache.regs_by_id[id]);
     }
 
     async #on_dropdownDateRefItem_clicked(evt) {
@@ -142,4 +148,25 @@ export default class RegistryView extends EventTarget {
     //         $('#btn-trans-expand').show();
     //     }
     // }
+
+    async #on_btnNewReg_clicked(evt) {
+        this.#jquery.html(await $.get('/home/new-reg'));
+    }
+
+    async #on_comboCards_changed(evt) {
+        const id_option = $(evt.currentTarget).val();
+        if (!(id_option in this.#cache.invoices_by_card_id)) {
+            this.#cache.invoices_by_card_id[id_option] = await $.get({
+                url: `/api/getInvoices`,
+                data: {
+                    card_id: id_option,
+                },
+                headers: {
+                    'Authorization': localStorage.getItem('TOKEN_API'),
+                }
+            });
+        }
+
+        console.log('options', this.#cache.invoices_by_card_id[id_option]);
+    }
 }

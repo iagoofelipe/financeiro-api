@@ -2,9 +2,10 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotAllowed
 from uuid import uuid4
-import datetime as dt
 
+from apps.api import models
 from services import registries
+from services import cards
 from services.tools import format_coin
 
 @login_required(login_url='/login')
@@ -34,9 +35,10 @@ def reg_trans_cards(request):
                 'title': reg.responsable.name if reg.responsable else 'Pessoais',
                 'sum_inputs': 0,
                 'sum_outputs': 0,
-                'num_LATE': 0,
-                'num_PENDING': 0,
-                'num_OK': 0,
+                # 'num_LATE': 0,
+                # 'num_PENDING': 0,
+                # 'num_OK': 0,
+                # 'num_ACCOUNTED': 0,
                 'values': {
                     'Entradas': [],
                     'Saídas': [],
@@ -44,8 +46,12 @@ def reg_trans_cards(request):
             }
         
         obj = transactions_by_responsable[reg.responsable]
+        num_status = f'num_{reg.STATUS[reg.status]}'
+        if num_status not in obj:
+            obj[num_status] = 0
+
         obj['sum_inputs' if reg.type_in else 'sum_outputs'] += reg.value
-        obj[f'num_{reg.STATUS[reg.status]}'] += 1
+        obj[num_status] += 1
         obj['values']['Entradas' if reg.type_in else 'Saídas'].append(reg.to_dto())
 
     # formatando dados para exibição
@@ -58,8 +64,8 @@ def reg_trans_cards(request):
         sum_outputs += v['sum_outputs']
         v['sum_outputs'] = format_coin(v['sum_outputs'])
 
-        for status, text in {'LATE': 'Atrasado', 'PENDING': 'Pendente', 'OK': 'Contabilizado'}.items():
-            num_status = v['num_'+status]
+        for status, text in {'LATE': 'Atrasado', 'PENDING': 'Pendente', 'OK': 'Pago', 'ACCOUNTED': 'Contabilizado'}.items():
+            num_status = v.get('num_'+status, 0)
             v[status] = f'{num_status} {text}{'' if num_status == 1 else 's'}' if num_status else ''
 
     # ordenando por título, fixando Pessoais no topo
@@ -75,12 +81,9 @@ def reg_trans_cards(request):
     return render(request, 'partials/home-regs-trans-cards.html', data)
 
 def new_reg(request):
-    default = dict(id=0, title='Jan 26')
+    if not request.user.is_authenticated:
+        return HttpResponseNotAllowed()
+
     return render(request, 'partials/new-reg.html', {
-        'invoices': [
-            default,
-            dict(id=1, title='Fev 26'),
-            dict(id=3, title='Mar 26'),
-        ],
-        'default_invoice': default,
+        'cards': models.Card.objects.filter(user=request.user),
     })

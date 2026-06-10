@@ -11,11 +11,11 @@ from apps.api import models
 def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[models.Registry] | None]:
     """ consulta os registros aplicando os filtros fornecidos. A filtragem segue o padrão de `key__condition` do django """
     # adicionando filtros
-    invalid_filters = set(filters) - consts.REGISTRIES_FILTERS
+    invalid_filters = set(filters) - consts.REGISTRY_FILTERS
     if invalid_filters:
         return  HTTPStatus.BAD_REQUEST, f'parâmetros {invalid_filters} inválidos', None
 
-    filters = { k: filters[k] for k in set(filters) & consts.REGISTRIES_FILTERS }
+    filters = { k: filters[k] for k in set(filters) & consts.REGISTRY_FILTERS }
 
     if 'status' in filters:
         filters['status'] = filters['status'][0] # necessário pois a base armazena o STATUS apenas como a primeira letra

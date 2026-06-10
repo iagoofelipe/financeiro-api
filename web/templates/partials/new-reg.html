@@ -1,12 +1,16 @@
-<div id="container-new-reg" class="d-grid row-span-3">
-    <p class="title">Novo Registro</p>
+<div class="card shadow-sm p-3 d-grid row-gap-3 h-100 overflow-auto">
+    <p class="title m-0">Novo Registro</p>
+    <hr class="hr-ignore-parent-padding m-0">
     <div>
         <span>Título</span>
         <input type="text" class="form-control" id="inp-title">
     </div>
     <div>
         <span>Valor</span>
-        <input type="number" class="form-control" id="inp-value">
+        <div class="input-group">
+            <span class="input-group-text" id="basic-addon1">R$</span>
+            <input type="number" class="form-control" min="0" step="0.01" value="0.00">
+        </div>
     </div>
     <div>
         <span>Data de Ocorrência</span>
@@ -14,33 +18,48 @@
     </div>
     <div>
         <span>Responsável</span>
-        <input type="text" class="form-control" id="inp-responsable">
+        <select class="form-control" id="inp-responsable">
+            <option value="" selected disabled hidden></option>
+        </select>
     </div>
     <div>
         <span>Tipo de Registro</span>
-        <input type="text" class="form-control" id="inp-reg-type">
+        <select class="form-select" id="inp-type">
+            <option>Entrada</option>
+            <option>Entrada Cartão</option>
+            <option>Saída</option>
+            <option>Saída Cartão</option>
+        </select>
     </div>
-    <div>
-        <span>Cartão</span>
-        <input type="text" class="form-control" id="inp-card" value="">
-    </div>
-    <div>
-        <span>Fatura</span>
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ default_invoice.title }}</button>
-            <ul class="dropdown-menu">
-                {% for invoice in invoices %}
-                    {% if invoice == default_invoice %}
-                    <li><a class="dropdown-item active" aria-current="true" href="#" id="invoice-option-{{ invoice.id }}">{{ invoice.title }}</a></li>
-                    {% else %}
-                    <li><a class="dropdown-item" href="#" id="invoice-option-{{ invoice.id }}">{{ invoice.title }}</a></li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
+    <div class="d-flex">
+        <div class="me-3 w-100">
+            <span>Total de Parcelas</span>
+            <input type="number" class="form-control" min="1" step="1" value="1" id="inp-num-installments">
+        </div>
+        <div class="w-100">
+            <span>Parcela Atual</span>
+            <input type="number" class="form-control" min="1" step="1" value="1" id="inp-current-installment">
         </div>
     </div>
-    <div class="d-grid">
-        <button>cancelar</button>
-        <button>salvar</button>
+    <div class="d-flex">
+        <div class="me-3 w-100">
+            <span>Cartão</span>
+            <select class="form-select" id="inp-card">
+                {% for card in cards %}
+                <option value="{{ card.id }}">{{ card.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="w-100">
+            <span>Fatura</span>
+            <select class="form-select" id="inp-invoice">
+                <option value="" selected disabled hidden></option>
+            </select>
+        </div>
+    </div>
+    <hr class="hr-ignore-parent-padding m-0">
+    <div class="d-flex justify-content-end">
+        <button class="btn btn-outline ms-3">cancelar</button>
+        <button class="btn primary ms-3">salvar</button>
     </div>
 </div>

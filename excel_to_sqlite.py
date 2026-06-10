@@ -26,13 +26,13 @@ for sheet_name in pd.ExcelFile(filename).sheet_names:
 
     for typeof, cols in cols_to_cast.items():
         for col in cols & df_cols:
-            match typeof:
-                case 'date': df[col] = df[col].dt.strftime('%Y-%m-%d')
-                case 'datetime': df[col] = df[col].dt.strftime('%Y-%m-%d %H:%M')
-
-    match sheet_name:
-        case 'reg_registry':
-            df['occurrance'] = df['occurrance'].dt.strftime('%Y-%m-%d %H:%M')
+            try:
+                match typeof:
+                    case 'date': df[col] = df[col].dt.strftime('%Y-%m-%d')
+                    case 'datetime': df[col] = df[col].dt.strftime('%Y-%m-%d %H:%M')
+            except Exception as e:
+                print(f'it was not possible to cast column "{col}" as {typeof}')
+                continue
 
     df.to_sql(
         name=sheet_name,

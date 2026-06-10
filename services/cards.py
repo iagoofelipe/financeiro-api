@@ -7,25 +7,24 @@ if TYPE_CHECKING:
 
 from . import consts
 
-def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[models.Invoice] | None]:
+def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[models.Card] | None]:
     """ consulta os cartões aplicando os filtros fornecidos. A filtragem segue o padrão de `key__condition` do django """
     
     # adicionando filtros
-    invalid_filters = set(filters) - consts.INVOICE_FILTERS
+    invalid_filters = set(filters) - consts.CARD_FILTERS
     if invalid_filters:
         return  HTTPStatus.BAD_REQUEST, f'parâmetros {invalid_filters} inválidos', None
 
-    filters = { k: filters[k] for k in set(filters) & consts.INVOICE_FILTERS }
+    filters = { k: filters[k] for k in set(filters) & consts.CARD_FILTERS }
 
-    # TODO: adicionar filtragem por usuário em Card.user
-    return HTTPStatus.OK, '', models.Invoice.objects.filter(**filters).all()
+    return HTTPStatus.OK, '', models.Card.objects.filter(user=user, **filters).all()
 
-def get_by_id(user, id:int) -> tuple[HTTPStatus, str, models.Invoice | None]:
-    obj = models.Invoice.objects.filter(id=id).first()
+def get_by_id(user, cardid:int) -> tuple[HTTPStatus, str, models.Card | None]:
+    obj = models.Card.objects.filter(id=cardid).first()
     if not obj:
         return HTTPStatus.NOT_FOUND, 'nenhum dado encontrado para o ID fornecido', None
     
-    if obj.card.user != user:
+    if obj.user != user:
         return HTTPStatus.METHOD_NOT_ALLOWED, 'permissão de acesso negada', None
     
     return HTTPStatus.OK, '', obj

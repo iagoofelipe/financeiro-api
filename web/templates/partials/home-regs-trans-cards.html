@@ -13,6 +13,7 @@
                 {% if transaction.LATE %}       <label class="title-3-bold me-3">{{ transaction.LATE }}</label>      {% endif %}
                 {% if transaction.PENDING %}    <label class="title-3-bold me-3">{{ transaction.PENDING }}</label>   {% endif %}
                 {% if transaction.OK %}         <label class="title-3-bold me-3">{{ transaction.OK }}</label>        {% endif %}
+                {% if transaction.ACCOUNTED %}  <label class="title-3-bold me-3">{{ transaction.ACCOUNTED }}</label> {% endif %}
             </div>
         </div>
         {% if transaction.values.Entradas or transaction.values.Saídas %}
@@ -49,7 +50,9 @@
                             {% if value.status == "PENDING" %}
                             <span class="badge-custom bg-pendente">Pendente</span>
                             {% elif value.status == "OK" %}
-                            <span class="badge-custom bg-contabilizado">Contabilizado</span>
+                            <span class="badge-custom bg-pago">Pago</span>
+                            {% elif value.status == "ACCOUNTED" %}
+                            <span class="badge-custom bg-pendente">Contabilizado</span>
                             {% elif value.status == "LATE" %}
                             <span class="badge-custom bg-atrasado">Atrasado</span>
                             {% else %}

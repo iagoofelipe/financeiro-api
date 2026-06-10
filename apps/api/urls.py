@@ -3,11 +3,21 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 from . import views
 from .reg import views as reg_views
+from .card import views as card_views
+from .invoice import views as invoice_views
 
 urlpatterns = [
     # Auth
     path('auth', obtain_auth_token),
     path('createAccount', views.create_account),
+
+    # Card
+    path('getCards', card_views.get_cards),
+    path('getCard/<int:cardid>', card_views.get_card),
+
+    # Invoice
+    path('getInvoices', invoice_views.get_invoices),
+    path('getInvoice/<int:id>', invoice_views.get_invoice),
 
     # Registry
     path('getRegistries', reg_views.get_registries),

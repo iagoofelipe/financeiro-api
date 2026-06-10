@@ -16,7 +16,8 @@ export function getCookie(name) {
 
 export const REG_STATUS_HTML = {
     PENDING: '<span class="badge-custom bg-pendente">Pendente</span>',
-    OK: '<span class="badge-custom bg-contabilizado">Contabilizado</span>',
+    ACCOUNTED: '<span class="badge-custom bg-pendente">Contabilizado</span>',
+    OK: '<span class="badge-custom bg-pago">Pago</span>',
     LATE: '<span class="badge-custom bg-atrasado">Atrasado</span>',
 };
 

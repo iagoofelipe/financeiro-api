@@ -9,6 +9,13 @@ class Card(models.Model):
     due_day = models.IntegerField()
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    def to_dto(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'closing_day': self.closing_day,
+            'due_day': self.due_day,
+        }
 
 class Responsable(models.Model):
     name = models.CharField(max_length=30)
@@ -22,12 +29,24 @@ class Invoice(models.Model):
     limit = models.FloatField()
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
 
+    def to_dto(self):
+        return {
+            'id': self.id,
+            'date_ref': self.date_ref,
+            'closing_date': self.closing_date,
+            'due_date': self.due_date,
+            'limit': self.limit,
+            'card_id': self.card.id,
+            'card_name': self.card.name,
+        }
+
 
 class Registry(models.Model):
     STATUS = {
         'P': 'PENDING',
         'O': 'OK',
         'L': 'LATE',
+        'A': 'ACCOUNTED',
     }
 
     title = models.CharField(max_length=100)
