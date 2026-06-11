@@ -25,7 +25,8 @@ export default class RegistryView extends EventTarget {
         $('#btn-trans-expand').click(this.expandAllCards);
         $('#btn-trans-collapse').click(this.collapseAllCards);
         $('#btn-new-reg').click(async (e) => await this.#on_btnNewReg_clicked(e));
-        jquery.on('change', '#inp-card', async () => this.updateNewRegInvoices());
+        jquery.on('change', '#inp-card', () => this.updateNewRegInvoices());
+        jquery.on('change', '#inp-type', async (e) => await this.#on_regType_changed(e));
 
         this.updateTransactionCards();
         // this.collapseAllCards();
@@ -175,6 +176,13 @@ export default class RegistryView extends EventTarget {
         this.#cache.invoices_by_card_id[id_option].forEach(element => {
             $(`<option value="${element.id}">${element.date_ref_formatted}</option>`).appendTo(inp_invoice);
         });
+    }
+
+    async #on_regType_changed(evt) {
+        const jquery_card = $('#div-inp-card');
+        const type = $(evt.currentTarget).val();
+
+        jquery_card.prop('hidden', type != 'in-card' && type != 'out-card');
     }
 
 }
