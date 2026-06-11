@@ -1,5 +1,7 @@
 from apps.api import models
 from http import HTTPStatus
+import datetime as dt
+from dateutil.relativedelta import relativedelta
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -29,3 +31,20 @@ def get_by_id(user, id:int) -> tuple[HTTPStatus, str, models.Invoice | None]:
         return HTTPStatus.METHOD_NOT_ALLOWED, 'permissão de acesso negada', None
     
     return HTTPStatus.OK, '', obj
+
+def get_or_create(card:models.Card, date_ref:dt.date):
+    obj = models.Invoice.objects.filter(card=card, date_ref=date_ref).first()
+    if obj:
+        return obj
+    
+    prev = models.Invoice.objects.filter(card=card, date_ref=date_ref-relativedelta(months=1)).first()
+    obj = models.Invoice(
+        date_ref=date_ref,
+        closing_date=date_ref + dt.timedelta(days=card.closing_day - 1),
+        due_date=date_ref + dt.timedelta(days=card.due_day - 1),
+        limit=prev.limit if prev else 0,
+        card=card,
+    )
+    obj.save()
+
+    return obj

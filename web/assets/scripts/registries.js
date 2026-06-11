@@ -25,7 +25,7 @@ export default class RegistryView extends EventTarget {
         $('#btn-trans-expand').click(this.expandAllCards);
         $('#btn-trans-collapse').click(this.collapseAllCards);
         $('#btn-new-reg').click(async (e) => await this.#on_btnNewReg_clicked(e));
-        jquery.on('change', '#inp-card', async (e) => await this.#on_comboCards_changed(e));
+        jquery.on('change', '#inp-card', async () => this.updateNewRegInvoices());
 
         this.updateTransactionCards();
         // this.collapseAllCards();
@@ -136,6 +136,7 @@ export default class RegistryView extends EventTarget {
         $('#dropdown-date-ref .dropdown-item.active').removeClass('active');
         selected.addClass('active');
         $('#btn-date-ref').text(selected.text());
+
         await this.updateTransactionCards();
     }
 
@@ -151,10 +152,11 @@ export default class RegistryView extends EventTarget {
 
     async #on_btnNewReg_clicked(evt) {
         this.#jquery.html(await $.get('/home/new-reg'));
+        await this.updateNewRegInvoices();
     }
 
-    async #on_comboCards_changed(evt) {
-        const id_option = $(evt.currentTarget).val();
+    async updateNewRegInvoices() {
+        const id_option = $('#inp-card').val();
         if (!(id_option in this.#cache.invoices_by_card_id)) {
             this.#cache.invoices_by_card_id[id_option] = await $.get({
                 url: `/api/getInvoices`,
@@ -167,6 +169,12 @@ export default class RegistryView extends EventTarget {
             });
         }
 
-        console.log('options', this.#cache.invoices_by_card_id[id_option]);
+        let inp_invoice = $('#inp-invoice');
+        inp_invoice.html('');
+
+        this.#cache.invoices_by_card_id[id_option].forEach(element => {
+            $(`<option value="${element.id}">${element.date_ref_formatted}</option>`).appendTo(inp_invoice);
+        });
     }
+
 }

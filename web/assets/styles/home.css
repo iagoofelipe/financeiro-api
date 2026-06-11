@@ -45,7 +45,7 @@ main {
 .home-nav.collapsed {
     width: 96px;
     
-    label, .home-nav-logo, .icon-panel-opened {
+    span, .home-nav-logo, .icon-panel-opened {
         display: none !important;
     }
 

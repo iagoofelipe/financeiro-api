@@ -81,7 +81,7 @@ class HomeView
     }
 
     #on_btnNavCollapse_clicked(evt) {
-        // let elements = $('.home-nav .nav-logo, .home-nav label');
+        // let elements = $('.home-nav .nav-logo, .home-nav span');
         // const jquery = $(evt.currentTarget);
 
         $('.home-nav').toggleClass('collapsed');

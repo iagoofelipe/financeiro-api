@@ -1,4 +1,4 @@
-<div class="card shadow-sm p-3 d-grid row-gap-3 h-100 overflow-auto">
+<div class="card shadow-sm p-3 d-flex row-gap-3 h-100 overflow-auto">
     <p class="title m-0">Novo Registro</p>
     <hr class="hr-ignore-parent-padding m-0">
     <div>
@@ -16,10 +16,16 @@
         <span>Data de Ocorrência</span>
         <input type="datetime" class="form-control" id="inp-occurrance">
     </div>
-    <div>
+    <div class="d-flex align-items-center">
+        <input type="checkbox" id="inp-self-reg" class="me-2" onclick="$('#div-inp-responsable').attr('hidden', this.checked)">
+        <span>Registro Pessoal</span>
+    </div>
+    <div id="div-inp-responsable">
         <span>Responsável</span>
-        <select class="form-control" id="inp-responsable">
-            <option value="" selected disabled hidden></option>
+        <select class="form-select" id="inp-responsable">
+            {% for responsable in responsables %}
+            <option value="{{ responsable.id }}">{{ responsable.name }}</option>
+            {% endfor %}
         </select>
     </div>
     <div>
@@ -31,16 +37,20 @@
             <option>Saída Cartão</option>
         </select>
     </div>
-    <div class="d-flex">
-        <div class="me-3 w-100">
-            <span>Total de Parcelas</span>
-            <input type="number" class="form-control" min="1" step="1" value="1" id="inp-num-installments">
-        </div>
+    <hr class="hr-ignore-parent-padding m-0">
+    <p class="title-2 m-0">Parcelamento</p>
+    <div class="d-flex column-gap-3">
         <div class="w-100">
             <span>Parcela Atual</span>
             <input type="number" class="form-control" min="1" step="1" value="1" id="inp-current-installment">
         </div>
+        <div class="w-100">
+            <span>Total de Parcelas</span>
+            <input type="number" class="form-control" min="1" step="1" value="1" id="inp-num-installments">
+        </div>
     </div>
+    <hr class="hr-ignore-parent-padding m-0">
+    <p class="title-2 m-0">Cartão</p>
     <div class="d-flex">
         <div class="me-3 w-100">
             <span>Cartão</span>
@@ -57,6 +67,7 @@
             </select>
         </div>
     </div>
+    <div class="h-100"></div>
     <hr class="hr-ignore-parent-padding m-0">
     <div class="d-flex justify-content-end">
         <button class="btn btn-outline ms-3">cancelar</button>

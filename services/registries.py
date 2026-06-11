@@ -1,5 +1,6 @@
 from http import HTTPStatus
 import datetime as dt
+from dateutil.relativedelta import relativedelta
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -7,6 +8,7 @@ if TYPE_CHECKING:
 
 from . import consts
 from apps.api import models
+from . import invoices
 
 def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[models.Registry] | None]:
     """ consulta os registros aplicando os filtros fornecidos. A filtragem segue o padrão de `key__condition` do django """
@@ -64,16 +66,23 @@ def get_by_id(user, regid:int) -> tuple[HTTPStatus, str, models.Registry | None]
 
 def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
     """ cria um novo registro, retorna statuscode, error, object """
+
+    if 'installment_current' in data and not 'installment_total' in data:
+        return HTTPStatus.BAD_REQUEST, f'installment_total é necessário para installment_current', None
+
     ids_to_query = {
-        'invoice_id': dict(obj=None, model=models.Invoice, attr_with_user='self'),
-        'responsable_id': dict(obj=None, model=models.Responsable, attr_with_user='card'),
+        'responsable_id': dict(obj=None, model=models.Responsable, attr_with_user='self'),
     }
+
+    if 'card_id' in data:
+        ids_to_query['card_id'] = dict(obj=None, model=models.Card, attr_with_user='self')
 
     for id_to_query, params in ids_to_query.items():
         if id_to_query not in data:
             continue
 
         obj = params['model'].objects.filter(id=data[id_to_query]).first()
+        params['obj'] = obj
         attr_with_user = params['attr_with_user']
 
         if not obj:
@@ -83,7 +92,11 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
             obj_with_user = obj if attr_with_user == 'self' else getattr(obj, attr_with_user)
             if obj_with_user.user != user:
                 return HTTPStatus.FORBIDDEN, f'o ID fornecido em {id_to_query} não é vinculado ao usuário atual', None
-
+        
+    date_ref = dt.date(data['ref_year'], data['ref_month'], 1)
+    invoice = invoices.get_or_create(ids_to_query['card_id']['obj'], date_ref) if 'card_id' in data else None
+    # print(invoice.id)
+    # return HTTPStatus.FORBIDDEN, f'teste', None
     try:
         reg = models.Registry(
             title=data['title'],
@@ -91,15 +104,64 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
             status=data['status'][0],
             occurrance=data['occurrance'],
             description=data.get('description'),
-            date_ref=f'{data['ref_year']}-{str(data['ref_month']).zfill(2)}-01',
+            date_ref=date_ref,
             type_in=data['type_in'],
             user=user,
-            invoice=ids_to_query['invoice_id']['obj'],
+            invoice=invoice,
             responsable=ids_to_query['responsable_id']['obj'],
         )
     except KeyError as e:
         return HTTPStatus.BAD_REQUEST, f'missing required param {e}', None
-
+   
     reg.save()
-    
-    return HTTPStatus.OK, '', models.Registry.objects.get(id=reg.id)
+    regid = reg.id
+
+    # criando grupo de parcelas
+    if 'installment_total' in data:
+        index = data.get('installment_current', 1) - 1
+        total = data['installment_total']
+
+        if index >= total:
+            return HTTPStatus.BAD_REQUEST, f'a parcela atual deve ser menor ou igual ao total de parcelas', None
+        
+        installment = models.Installment(
+            num_items=total,
+            value=data['value'] * total
+        )
+        installment.save()
+
+        occurrance = dt.datetime.strptime(data['occurrance'], '%Y-%m-%d %H:%M')
+        type_in = data['type_in']
+
+        for i in range(index, total):
+            if i != index: # criando um novo registro caso não seja o primeiro index
+                date_ref += relativedelta(months=1)
+                if type_in:
+                    occurrance += relativedelta(months=1)
+
+                elif invoice:
+                    invoice = invoices.get_or_create(invoice.card, date_ref)
+                
+                reg = models.Registry(
+                    title=data['title'],
+                    value=data['value'],
+                    status='A',
+                    occurrance=occurrance,
+                    description=data.get('description'),
+                    date_ref=date_ref,
+                    type_in=type_in,
+                    user=user,
+                    invoice=invoice,
+                    responsable=ids_to_query['responsable_id']['obj'],
+                )
+                reg.save()
+
+            installment_item = models.InstallmentItem(
+                index=i,
+                installment=installment,
+                registry=reg
+            )
+            installment_item.save()
+
+
+    return HTTPStatus.OK, '', models.Registry.objects.get(id=regid)

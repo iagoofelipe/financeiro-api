@@ -16,9 +16,10 @@ def nav_regs(request):
     if not request.user.is_authenticated:
         return HttpResponseNotAllowed()
     
+    current_ref = registries.get_default_date_reference(request.user)
     return render(request, 'partials/home-regs.html', {
         'date_references': registries.get_date_references(request.user),
-        'current_ref': registries.get_default_date_reference(request.user).strftime('%b %y')
+        'current_ref': current_ref.strftime('%b %y') if current_ref else ''
     })
 
 def reg_trans_cards(request):
@@ -86,4 +87,5 @@ def new_reg(request):
 
     return render(request, 'partials/new-reg.html', {
         'cards': models.Card.objects.filter(user=request.user),
+        'responsables': models.Responsable.objects.filter(user=request.user).order_by('name'),
     })

@@ -33,6 +33,7 @@ class Invoice(models.Model):
         return {
             'id': self.id,
             'date_ref': self.date_ref,
+            'date_ref_formatted': self.date_ref.strftime('%b %y'),
             'closing_date': self.closing_date,
             'due_date': self.due_date,
             'limit': self.limit,
