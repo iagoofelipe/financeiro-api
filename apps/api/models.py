@@ -27,13 +27,17 @@ class Invoice(models.Model):
     closing_date = models.DateField()
     due_date = models.DateField()
     limit = models.FloatField()
-    card = models.ForeignKey(Card, on_delete=models.CASCADE)
+    card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='invoices')
+
+    @property
+    def date_ref_formatted(self):
+        return self.date_ref.strftime('%b %y')
 
     def to_dto(self):
         return {
             'id': self.id,
             'date_ref': self.date_ref,
-            'date_ref_formatted': self.date_ref.strftime('%b %y'),
+            'date_ref_formatted': self.date_ref_formatted,
             'closing_date': self.closing_date,
             'due_date': self.due_date,
             'limit': self.limit,

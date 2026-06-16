@@ -16,7 +16,7 @@ class HomeView
         let nav_btns = $('.home-nav .nav-link');
 
         for(let i=0; i<nav_btns.length; i++) {
-            $(nav_btns[i]).on('click', async (evt) => await this.#navBtn_clicked(evt));
+            $(nav_btns[i]).on('click', async (evt) => await this.#on_navBtn_clicked(evt));
         }
 
         this.#initialNavBtn = nav_btns[1];
@@ -26,21 +26,21 @@ class HomeView
         $('#btn-nav-collapse').click(this.#on_btnNavCollapse_clicked);
     }
 
-    async #navBtn_clicked(evt) {
+    async #on_navBtn_clicked(evt) {
         evt.preventDefault();
 
         let jbtn = $(evt.currentTarget);
         let title = jbtn.prop('name');
 
         // atualizando conteúdo
-        const parent = '#home-content';
+        let new_widget;
         switch (title) {
         // case 'Dashboards':
         //     let dashview = await DashboardView.create(parent);
         //     break;
 
         case 'Registros':
-            let regview = await RegistryView.create(parent);
+            let regview = new_widget = await RegistryView.create();
             break;
 
         // case 'Cartões e Faturas':
@@ -63,6 +63,10 @@ class HomeView
         
         $('#home-title').text(title); // atualizando título
         this.#update_nav_button(jbtn); // atualizando botão selecionado
+        
+        // atualizando conteúdo
+        let home_content = $('#home-content').html('');
+        new_widget.jquery().appendTo(home_content);
     }
 
     #set_animations() {

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotAllowed
 from uuid import uuid4
+import datetime as dt
 
 from apps.api import models
 from services import registries
@@ -85,7 +86,32 @@ def new_reg(request):
     if not request.user.is_authenticated:
         return HttpResponseNotAllowed()
 
+    cards = models.Card.objects.filter(user=request.user)
+    first_card = cards.first()
+    now = dt.datetime.now()
+    months = [ # Num Mês, Texto Mês, Mês Atual
+        ['1', 'Janeiro', False],
+        ['2', 'Fevereiro', False],
+        ['3', 'Março', False],
+        ['4', 'Abril', False],
+        ['5', 'Maio', False],
+        ['6', 'Junho', False],
+        ['7', 'Julho', False],
+        ['8', 'Agosto', False],
+        ['9', 'Setembro', False],
+        ['10', 'Outubro', False],
+        ['11', 'Novembro', False],
+        ['12', 'Dezembro', False],
+    ]
+
+    # definindo como True o mês atual
+    months[now.month-1][2] = True
+
     return render(request, 'partials/new-reg.html', {
-        'cards': models.Card.objects.filter(user=request.user),
+        'cards': cards,
+        'invoices': first_card.invoices.all() if first_card else [],
         'responsables': models.Responsable.objects.filter(user=request.user).order_by('name'),
+        'months': months,
+        'current_date': now,
+        'current_datetime_formatted': now.strftime('%d/%m/%Y %H:%M'),
     })

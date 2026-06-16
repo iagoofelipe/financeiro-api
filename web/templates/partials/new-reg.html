@@ -2,32 +2,59 @@
     <p class="title m-0">Novo Registro</p>
     <hr class="hr-ignore-parent-padding m-0">
     <div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" id="inp-radio-status-in" checked name="status">
+            <label class="form-check-label" for="inp-radio-status-in">Entrada</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" id="inp-radio-status-out" name="status">
+            <label class="form-check-label" for="inp-radio-status-out">Saída</label>
+        </div>
+    </div>
+    <div>
         <span>Título</span>
         <input type="text" class="form-control" id="inp-title">
     </div>
     <div>
         <span>Valor</span>
         <div class="input-group">
-            <span class="input-group-text" id="basic-addon1">R$</span>
-            <input type="number" class="form-control" min="0" step="0.01" value="0.00">
+            <span class="input-group-text">R$</span>
+            <input id="inp-value" type="number" class="form-control" min="0" step="0.01" placeholder="0,00">
         </div>
     </div>
     <div>
         <span>Data de Ocorrência</span>
-        <input type="datetime" class="form-control" id="inp-occurrance">
+        <input type="datetime" class="form-control" id="inp-occurrance" value="{{ current_datetime_formatted }}">
     </div>
-    <div class="d-flex align-items-center">
-        <input type="checkbox" id="inp-self-reg" class="me-2" checked onclick="$('#div-inp-responsable').attr('hidden', this.checked)">
-        <span>Registro Pessoal</span>
+    <div class="d-flex column-gap-3">
+        <div class="w-100">
+            <span>Mês de Referência</span>
+            <select class="form-select" id="inp-ref-month">
+                {% for month in months %}
+                <option value="{{ month.0 }}" {% if month.2 %}selected{% endif %}>{{ month.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="w-100">
+            <span>Ano de Referência</span>
+            <input type="number" class="form-control" min="2000" step="1" maxlength="4" value="{{ current_date.year }}" id="inp-ref-year">
+        </div>
     </div>
     <div>
-        <span>Tipo de Registro</span>
-        <select class="form-select" id="inp-type">
-            <option value="in">Entrada</option>
-            <option value="in-card">Entrada Cartão</option>
-            <option value="out" selected>Saída</option>
-            <option value="out-card">Saída Cartão</option>
+        <span>Status</span>
+        <select class="form-select" id="inp-status">
+            <option value="ACCOUNTED">Contabilizado</option>
+            <option value="OK">Pago</option>
+            <option value="PENDING" selected>Pendente</option>
         </select>
+    </div>
+    <div>
+        <span>Descrição</span>
+        <input type="text" class="form-control" id="inp-desc">
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="inp-self-reg" checked onclick="$('#div-inp-responsable').attr('hidden', this.checked)">
+        <label class="form-check-label" for="inp-self-reg">Registro Pessoal</label>
     </div>
     <div id="div-inp-responsable" hidden>
         <span>Responsável</span>
@@ -37,42 +64,34 @@
             {% endfor %}
         </select>
     </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="inp-has-card" onclick="$('#div-inp-card').attr('hidden', !this.checked)">
+        <label class="form-check-label" for="inp-has-card">Possui Cartão</label>
+    </div>
+    <div id="div-inp-card" hidden>
+        <span>Cartão</span>
+        <select class="form-select" id="inp-card">
+            {% for card in cards %}
+            <option value="{{ card.id }}">{{ card.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
     <hr class="hr-ignore-parent-padding m-0">
     <p class="title-2 m-0">Parcelamento</p>
     <div class="d-flex column-gap-3">
         <div class="w-100">
             <span>Parcela Atual</span>
-            <input type="number" class="form-control" min="1" step="1" value="1" id="inp-current-installment">
+            <input type="number" class="form-control" min="1" step="1" placeholder="1" id="inp-current-installment">
         </div>
         <div class="w-100">
             <span>Total de Parcelas</span>
-            <input type="number" class="form-control" min="1" step="1" value="1" id="inp-num-installments">
-        </div>
-    </div>
-    <div id="div-inp-card" hidden>
-        <hr class="hr-ignore-parent-padding m-0">
-        <p class="title-2 m-3 ms-0">Cartão</p>
-        <div class="d-flex">
-            <div class="me-3 w-100">
-                <span>Cartão</span>
-                <select class="form-select" id="inp-card">
-                    {% for card in cards %}
-                    <option value="{{ card.id }}">{{ card.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="w-100">
-                <span>Fatura</span>
-                <select class="form-select" id="inp-invoice">
-                    <option value="" selected disabled hidden></option>
-                </select>
-            </div>
+            <input type="number" class="form-control" min="1" step="1" placeholder="1" id="inp-num-installments">
         </div>
     </div>
     <div class="h-100"></div>
     <hr class="hr-ignore-parent-padding m-0">
     <div class="d-flex justify-content-end">
-        <button class="btn btn-outline ms-3">cancelar</button>
-        <button class="btn primary ms-3">salvar</button>
+        <button class="btn btn-outline ms-3" id="btn-cancel-new-reg">cancelar</button>
+        <button class="btn primary ms-3" id="btn-save-new-reg">salvar</button>
     </div>
 </div>

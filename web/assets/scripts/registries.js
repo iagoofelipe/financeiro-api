@@ -1,48 +1,75 @@
 import Table from "./components/table.js";
-import { REG_STATUS_HTML, getElementsByXPath } from "./tools/utils.js";
+import { MODAL_FLAGS, REG_STATUS_HTML, getElementsByXPath, set_modal } from "./tools/utils.js";
 
 export default class RegistryView extends EventTarget {
     static templates = {};
 
     #jquery;
-    #current_date_ref;
     #tables = [];
     #cache = {
         regs_by_id: {},
         invoices_by_card_id: {},
     };
     #table_selected = null;
+    ID_CONTENT_TRANSACTIONS = 0;
+    ID_CONTENT_NEW_REG = 1;
 
     constructor(jquery) {
         super();
         this.#jquery = jquery;
-        this.#current_date_ref = $('#dropdown-date-ref .dropdown-item.active').attr('value');
-
-        // jquery.on('click', '#trans-cards button[data-bs-toggle="collapse"]', this.#on_btnCollapsable_clicked);
-        $('#reg-details-btn-hide').on('click', (evt) => this.hideDetails());
-        $('#dropdown-date-ref .dropdown-item').on('click', async (e) => await this.#on_dropdownDateRefItem_clicked(e));
-        $('#btn-trans-reload').on('click', async (e) => await this.updateTransactionCards());
-        $('#btn-trans-expand').click(this.expandAllCards);
-        $('#btn-trans-collapse').click(this.collapseAllCards);
-        $('#btn-new-reg').click(async (e) => await this.#on_btnNewReg_clicked(e));
-        jquery.on('change', '#inp-card', () => this.updateNewRegInvoices());
-        jquery.on('change', '#inp-type', async (e) => await this.#on_regType_changed(e));
-
-        this.updateTransactionCards();
-        // this.collapseAllCards();
     }
 
-    static async create(parent) {
-        let jquery = $(parent).html(await $.get('/home/nav-regs'));
-        return new RegistryView(jquery);
+    //-----------------------------------------------------------------------------
+    // Métodos Públicos - Estáticos
+    static async create() {
+        let jquery = $('<div class="h-100">'); // div é necessário para trocar o conteúdo interno
+        let obj = new RegistryView(jquery);
+        
+        await obj.setContentById(obj.ID_CONTENT_TRANSACTIONS);
+        return obj;
     }
 
-    hideDetails() {
-        $('#reg-details').hide();
-        if (this.#table_selected) {
-            this.#table_selected.unselect();
-            this.#table_selected = null;
+
+    //-----------------------------------------------------------------------------
+    // Métodos Públicos
+    jquery() { return this.#jquery; }
+
+    async setContentById(id) {
+        let jcontent;
+        
+        switch(id)
+        {
+            case this.ID_CONTENT_NEW_REG:
+                jcontent = $(await $.get('/home/new-reg'));
+                
+                // Template new-reg
+                jcontent.on('change', '#inp-card', async () => await this.updateNewRegInvoices());
+                // jcontent.on('change', '#inp-type', async (e) => await this.#on_regType_changed(e));
+                jcontent.on('click', '#btn-save-new-reg', async (e) => await this.#on_btnSaveNewReg_clicked(e));
+                jcontent.on('click', '#btn-cancel-new-reg', async (e) => await this.#on_btnCancelNewReg_clicked(e));
+                break;
+            
+            case this.ID_CONTENT_TRANSACTIONS:
+                jcontent = $(await $.get('/home/nav-regs'));
+                
+                // Template home-regs
+                jcontent.on('click', '#btn-trans-expand', this.expandAllCards);
+                jcontent.on('click', '#reg-details-btn-hide', this.hideDetails);
+                jcontent.on('click', '#btn-trans-collapse', this.collapseAllCards);
+                jcontent.on('click', '#btn-trans-reload', async () => await this.updateTransactionCards());
+                jcontent.on('click', '#btn-new-reg', async (e) => await this.#on_btnNewReg_clicked(e));
+                jcontent.on('click', '#dropdown-date-ref .dropdown-item', async (e) => await this.#on_dropdownDateRefItem_clicked(e));
+
+                this.updateTransactionCards();
+                break;
+            
+            default:
+                throw Error('undefined content id');
         }
+
+        // this.#jquery.html('');
+        // jcontent.appendTo(this.#jquery);
+        this.#jquery.html(jcontent);
     }
 
     setRegistryDetails(reg) {
@@ -57,26 +84,44 @@ export default class RegistryView extends EventTarget {
         $("#reg-details-invoice .text").text(reg.invoice_ref_formatted ?? '');
         $("#reg-details-installment .text").text(reg.installment_formatted ?? '');
         $("#reg-details-installment-value .text").text(reg.installment_value_formatted ?? '');
-        $("#reg-details-paid .text").text(reg.installment_paid_formatted ?? '');
-        $("#reg-details-pending .text").text(reg.installment_pending_formatted ?? '');
 
-        $('#reg-details').show();
-
+        let details_paid_pending = $("#reg-details-paid-pending");
+        details_paid_pending.find(".text.paid").text(reg.installment_paid_formatted ?? '');
+        details_paid_pending.find(".text.pending").text(reg.installment_pending_formatted ?? '');
+        
+        if (reg.installment_formatted) {
+            let percent = 100 / reg.installment_value;
+            details_paid_pending.find('.bar.paid').css('width', `${reg.installment_paid * percent}%`);
+            details_paid_pending.find('.bar.pending').css('width', `${reg.installment_pending * percent}%`);
+            
+            details_paid_pending.show();
+        }
+        else details_paid_pending.hide();
+        
         // ocultando e exibindo campos de acordo com o conteúdo com XPath
         $(getElementsByXPath("//div[contains(@id, 'reg-details-')][child::p[contains(@class, 'text') and text()]]")).show();
         $(getElementsByXPath("//div[contains(@id, 'reg-details-')][child::p[contains(@class, 'text') and not(text())]]")).hide();
+        
+        $('#reg-details').show();
+    }
+
+    hideDetails() {
+        $('#reg-details').hide();
+        if (this.#table_selected) {
+            this.#table_selected.unselect();
+            this.#table_selected = null;
+        }
     }
 
     async updateTransactionCards() {
         this.hideDetails();
-        // let controllers = $('#btn-date-ref, #btn-trans-reload');
-        // controllers.prop('disabled', true);
         
         // limpando cache
         this.#cache.regs_by_id = {};
         this.#cache.invoices_by_card_id = {};
 
-        const response = await $.get('/home/regs-trans-cards', {date_ref: this.#current_date_ref});
+        const current_date_ref = $('#dropdown-date-ref .dropdown-item.active').attr('value');
+        const response = await $.get('/home/regs-trans-cards', {date_ref: current_date_ref});
         let jquery = $('#trans-cards').html(response);
         $('#sum-inputs').text($('#sum-inputs-hidden').text());
         $('#sum-outputs').text($('#sum-outputs-hidden').text());
@@ -90,22 +135,39 @@ export default class RegistryView extends EventTarget {
             this.#tables.push(table);
             table.addEventListener(Table.EVENTS.ROW_CLICKED, async (e) => await this.#on_tableTransaction_rowClicked(e));
         }
-
-        // controllers.prop('disabled', false);
     }
 
     collapseAllCards() {
-        // $('#btn-trans-collapse').hide();
-        // $('#btn-trans-expand').show();
         $('#trans-cards button[aria-expanded="true"]').click();
     }
 
     expandAllCards() {
-        // $('#btn-trans-expand').hide();
-        // $('#btn-trans-collapse').show();
         $('#trans-cards button[aria-expanded="false"]').click();
     }
 
+    async updateNewRegInvoices() {
+        const id_option = $('#inp-card').val();
+        if (!(id_option in this.#cache.invoices_by_card_id)) {
+            this.#cache.invoices_by_card_id[id_option] = await $.get({
+                url: `/api/getInvoices`,
+                data: {
+                    card_id: id_option,
+                },
+                headers: {
+                    'Authorization': localStorage.getItem('TOKEN_API'),
+                }
+            });
+        }
+
+        let inp_invoice = $('#inp-invoice').html('');
+
+        this.#cache.invoices_by_card_id[id_option].forEach(element => {
+            $(`<option value="${element.id}">${element.date_ref_formatted}</option>`).appendTo(inp_invoice);
+        });
+    }
+
+    //-----------------------------------------------------------------------------
+    // Eventos template home-regs
     async #on_tableTransaction_rowClicked(evt) {
         let id = evt.detail.id;
 
@@ -133,7 +195,7 @@ export default class RegistryView extends EventTarget {
         if (selected.hasClass('active'))
             return;
         
-        this.#current_date_ref = selected.attr('value');
+        // this.#current_date_ref = selected.attr('value');
         $('#dropdown-date-ref .dropdown-item.active').removeClass('active');
         selected.addClass('active');
         $('#btn-date-ref').text(selected.text());
@@ -141,48 +203,66 @@ export default class RegistryView extends EventTarget {
         await this.updateTransactionCards();
     }
 
-    // #on_btnCollapsable_clicked(evt) {
-    //     if ($('#trans-cards button[aria-expanded="true"]').length) {
-    //         $('#btn-trans-expand').hide();
-    //         $('#btn-trans-collapse').show();
-    //     } else {
-    //         $('#btn-trans-collapse').hide();
-    //         $('#btn-trans-expand').show();
-    //     }
-    // }
-
     async #on_btnNewReg_clicked(evt) {
-        this.#jquery.html(await $.get('/home/new-reg'));
-        await this.updateNewRegInvoices();
+        await this.setContentById(this.ID_CONTENT_NEW_REG);
     }
 
-    async updateNewRegInvoices() {
-        const id_option = $('#inp-card').val();
-        if (!(id_option in this.#cache.invoices_by_card_id)) {
-            this.#cache.invoices_by_card_id[id_option] = await $.get({
-                url: `/api/getInvoices`,
-                data: {
-                    card_id: id_option,
-                },
-                headers: {
-                    'Authorization': localStorage.getItem('TOKEN_API'),
-                }
-            });
+    //-----------------------------------------------------------------------------
+    // Eventos template new-reg
+    async #on_btnSaveNewReg_clicked(evt) {
+        const
+            self_reg = this.#jquery.find('#inp-self-reg').prop('checked'),
+            type = this.#jquery.find('#inp-type').val(),
+            has_card = this.#jquery.find('#inp-has-card').prop('checked'),
+            value = this.#jquery.find('#inp-value').val(),
+            installment_current = this.#jquery.find('#inp-current-installment').val(),
+            installment_total = this.#jquery.find('#inp-num-installments').val(),
+            data = {
+                title: this.#jquery.find('#inp-title').val(),
+                value: value? parseFloat(value) : 0,
+                status: this.#jquery.find('#inp-status').val(),
+                occurrance: this.#jquery.find('#inp-occurrance').val(),
+                description: this.#jquery.find('#inp-desc').val(),
+                ref_year: parseInt(this.#jquery.find('#inp-ref-year').val()),
+                ref_month: parseInt(this.#jquery.find('#inp-ref-month').val()),
+                type_in: this.#jquery.find('#inp-radio-status-in').prop('checked'),
+                responsable_id: !self_reg? this.#jquery.find('#inp-responsable').val() : null,
+                card_id: has_card? this.#jquery.find('#inp-card').val() : null,
+                installment_current: installment_current? parseInt(installment_current) : 1,
+                installment_total: installment_total? parseInt(installment_total) : 1,
+            };
+
+        // verificando campos obrigatórios
+        let required_fields = {
+            title: '#inp-title',
+            occurrance: '#inp-occurrance',
+            ref_year: '#inp-ref-year',
+        };
+        let fields_missing = [];
+        let fields_remove_required = [];
+    
+        // validando entradas
+        for (const field in required_fields) {
+            if (!data[field])
+                fields_missing.push(required_fields[field]);
+            else
+                fields_remove_required.push(required_fields[field]);
         }
 
-        let inp_invoice = $('#inp-invoice');
-        inp_invoice.html('');
+        $(fields_remove_required.join(', ')).removeClass('required');
+        
+        if (fields_missing.length) {
+            $(fields_missing.join(', ')).addClass('required');
+            set_modal('Validação de Entradas', 'preencha todos os campos obrigatórios!', true, MODAL_FLAGS.HIDE_FOOTER);
+            return;
+        }
 
-        this.#cache.invoices_by_card_id[id_option].forEach(element => {
-            $(`<option value="${element.id}">${element.date_ref_formatted}</option>`).appendTo(inp_invoice);
-        });
+        console.log(data);
     }
 
-    async #on_regType_changed(evt) {
-        const jquery_card = $('#div-inp-card');
-        const type = $(evt.currentTarget).val();
-
-        jquery_card.prop('hidden', type != 'in-card' && type != 'out-card');
+    async #on_btnCancelNewReg_clicked(evt) {
+        await this.setContentById(this.ID_CONTENT_TRANSACTIONS);
     }
 
+    //-----------------------------------------------------------------------------
 }

@@ -74,7 +74,7 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
         'responsable_id': dict(obj=None, model=models.Responsable, attr_with_user='self'),
     }
 
-    if 'card_id' in data:
+    if 'card_id' in data and data['card_id']:
         ids_to_query['card_id'] = dict(obj=None, model=models.Card, attr_with_user='self')
 
     for id_to_query, params in ids_to_query.items():
