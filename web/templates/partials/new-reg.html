@@ -52,8 +52,10 @@
         <span>Descrição</span>
         <input type="text" class="form-control" id="inp-desc">
     </div>
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="inp-self-reg" checked onclick="$('#div-inp-responsable').attr('hidden', this.checked)">
+    <div class="form-check" {% if not responsables %}title="nenhum responsável cadastrado"{% endif %}>
+        <input class="form-check-input" type="checkbox" id="inp-self-reg" checked 
+            onclick="$('#div-inp-responsable').attr('hidden', this.checked)"
+            {% if not responsables %}disabled{% endif %}>
         <label class="form-check-label" for="inp-self-reg">Registro Pessoal</label>
     </div>
     <div id="div-inp-responsable" hidden>
@@ -64,8 +66,10 @@
             {% endfor %}
         </select>
     </div>
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="inp-has-card" onclick="$('#div-inp-card').attr('hidden', !this.checked)">
+    <div class="form-check" {% if not cards %}title="nenhum cartão cadastrado"{% endif %}>
+        <input class="form-check-input" type="checkbox" id="inp-has-card"
+            onclick="$('#div-inp-card').attr('hidden', !this.checked)"
+            {% if not cards %}disabled{% endif %}>
         <label class="form-check-label" for="inp-has-card">Possui Cartão</label>
     </div>
     <div id="div-inp-card" hidden>
@@ -91,7 +95,7 @@
     <div class="h-100"></div>
     <hr class="hr-ignore-parent-padding m-0">
     <div class="d-flex justify-content-end">
-        <button class="btn btn-outline ms-3" id="btn-cancel-new-reg">cancelar</button>
+        {% if has_regs %}<button class="btn btn-outline ms-3" id="btn-cancel-new-reg">cancelar</button>{% endif %}
         <button class="btn primary ms-3" id="btn-save-new-reg">salvar</button>
     </div>
 </div>

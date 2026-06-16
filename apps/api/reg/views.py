@@ -1,9 +1,9 @@
-from django.http import HttpRequest, JsonResponse
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from django.http import HttpRequest
+from rest_framework.decorators import api_view
 import json
 
 from services import registries
+from apps.api.models import Registry
 from services.tools import response_dto_or_error, response_obj_or_error
 
 @api_view(["GET"])
@@ -20,4 +20,8 @@ def add_registry(request:HttpRequest):
 
 @api_view(["GET"])
 def get_reg_date_references(request:HttpRequest):
-    return response_obj_or_error(200, '', list(registries.get_date_references(request.user)), safe=False)
+    return response_obj_or_error(obj=list(registries.get_date_references(request.user)), safe=False)
+
+@api_view(["GET"])
+def has_registries(request:HttpRequest):
+    return response_obj_or_error(obj={'found': bool(Registry.objects.filter(user=request.user).count())})

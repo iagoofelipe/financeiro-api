@@ -1,4 +1,5 @@
 import Table from "./components/table.js";
+import { has_registries } from "./tools/api.js";
 import { MODAL_FLAGS, REG_STATUS_HTML, getElementsByXPath, set_modal } from "./tools/utils.js";
 
 export default class RegistryView extends EventTarget {
@@ -25,7 +26,7 @@ export default class RegistryView extends EventTarget {
         let jquery = $('<div class="h-100">'); // div é necessário para trocar o conteúdo interno
         let obj = new RegistryView(jquery);
         
-        await obj.setContentById(obj.ID_CONTENT_TRANSACTIONS);
+        await obj.setContentById(await has_registries()? obj.ID_CONTENT_TRANSACTIONS : obj.ID_CONTENT_NEW_REG);
         return obj;
     }
 
@@ -216,41 +217,52 @@ export default class RegistryView extends EventTarget {
             has_card = this.#jquery.find('#inp-has-card').prop('checked'),
             value = this.#jquery.find('#inp-value').val(),
             installment_current = this.#jquery.find('#inp-current-installment').val(),
-            installment_total = this.#jquery.find('#inp-num-installments').val(),
-            data = {
-                title: this.#jquery.find('#inp-title').val(),
-                value: value? parseFloat(value) : 0,
-                status: this.#jquery.find('#inp-status').val(),
-                occurrance: this.#jquery.find('#inp-occurrance').val(),
-                description: this.#jquery.find('#inp-desc').val(),
-                ref_year: parseInt(this.#jquery.find('#inp-ref-year').val()),
-                ref_month: parseInt(this.#jquery.find('#inp-ref-month').val()),
-                type_in: this.#jquery.find('#inp-radio-status-in').prop('checked'),
-                responsable_id: !self_reg? this.#jquery.find('#inp-responsable').val() : null,
-                card_id: has_card? this.#jquery.find('#inp-card').val() : null,
-                installment_current: installment_current? parseInt(installment_current) : 1,
-                installment_total: installment_total? parseInt(installment_total) : 1,
-            };
+            installment_total = this.#jquery.find('#inp-num-installments').val();
+            
+        let data = {
+            title: this.#jquery.find('#inp-title').val(),
+            value: value? parseFloat(value) : 0,
+            status: this.#jquery.find('#inp-status').val(),
+            occurrance: this.#jquery.find('#inp-occurrance').val(),
+            description: this.#jquery.find('#inp-desc').val(),
+            ref_year: parseInt(this.#jquery.find('#inp-ref-year').val()),
+            ref_month: parseInt(this.#jquery.find('#inp-ref-month').val()),
+            type_in: this.#jquery.find('#inp-radio-status-in').prop('checked'),
+            responsable_id: !self_reg? this.#jquery.find('#inp-responsable').val() : null,
+            card_id: has_card? this.#jquery.find('#inp-card').val() : null,
+            installment_current: installment_current? parseInt(installment_current) : 1,
+            installment_total: installment_total? parseInt(installment_total) : 1,
+        };
 
         // verificando campos obrigatórios
         let required_fields = {
             title: '#inp-title',
             occurrance: '#inp-occurrance',
-            ref_year: '#inp-ref-year',
         };
-        let fields_missing = [];
-        let fields_remove_required = [];
-    
+        
         // validando entradas
+        $('[class^="form"].required').removeClass('required');
+
+        if (data.installment_current > data.installment_total) {
+            this.#jquery.find('#inp-current-installment, #inp-num-installments').addClass('required');
+
+            set_modal('Validação de Entradas', 'o valor da parcela atual não pode ser maior que o total de parcelas!', true, MODAL_FLAGS.HIDE_FOOTER);
+            return;
+        }
+
+        if (isNaN(data.ref_year) || data.ref_year < 2000) {
+            this.#jquery.find('#inp-ref-year').addClass('required');
+
+            set_modal('Validação de Entradas', 'o ano de referência deve ser maior ou igual a 2000', true, MODAL_FLAGS.HIDE_FOOTER);
+            return;
+        }
+        
+        let fields_missing = [];
         for (const field in required_fields) {
             if (!data[field])
                 fields_missing.push(required_fields[field]);
-            else
-                fields_remove_required.push(required_fields[field]);
         }
 
-        $(fields_remove_required.join(', ')).removeClass('required');
-        
         if (fields_missing.length) {
             $(fields_missing.join(', ')).addClass('required');
             set_modal('Validação de Entradas', 'preencha todos os campos obrigatórios!', true, MODAL_FLAGS.HIDE_FOOTER);

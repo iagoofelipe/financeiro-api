@@ -113,5 +113,6 @@ def new_reg(request):
         'responsables': models.Responsable.objects.filter(user=request.user).order_by('name'),
         'months': months,
         'current_date': now,
-        'current_datetime_formatted': now.strftime('%d/%m/%Y %H:%M'),
+        'current_datetime_formatted': now.strftime('%Y-%m-%d %H:%M'),
+        'has_regs': models.Registry.objects.filter(user=request.user).count(),
     })

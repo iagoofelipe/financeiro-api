@@ -24,4 +24,5 @@ urlpatterns = [
     path('getRegistry/<int:regid>', reg_views.get_registry),
     path('addRegistry', reg_views.add_registry),
     path('getRegistryDateReferences', reg_views.get_reg_date_references),
+    path('hasRegistries', reg_views.has_registries),
 ]
