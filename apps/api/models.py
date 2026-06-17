@@ -125,7 +125,7 @@ class Installment(models.Model):
     value = models.FloatField(default=0)
     paid = models.FloatField(default=0)
     pending = models.FloatField(default=0)
-
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
 class InstallmentItem(models.Model):
     index = models.IntegerField()

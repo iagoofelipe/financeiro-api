@@ -4,10 +4,17 @@
             <p class="title m-0">Transações</p>
             <div class="d-flex flex-row align-items-center">
                 {% include 'icons/money-recive.svg' %}
-                <label id="sum-inputs" title="total de entradas" class="total-inputs title-3-bold me-3 ms-1">R$ 0,00</label>
+                <spam id="sum-inputs" title="total de entradas" class="total-inputs title-3-bold me-3 ms-1">R$ 0,00</spam>
                 {% include 'icons/money-send.svg' %}
-                <label id="sum-outputs" class="total-outputs title-3-bold ms-1 me-3" title="total de saídas">R$ 0,00</label>
-                <div class="btn-group" role="group">
+                <spam id="sum-outputs" class="total-outputs title-3-bold ms-1 me-3" title="total de saídas">R$ 0,00</spam>
+                <select title="mês de referência" id="filter-ref-month">
+                    {% for month in months %}
+                    <option value="{{ month.0 }}" {% if month.2 %}selected{% endif %}>{{ month.1 }}</option>
+                    {% endfor %}
+                </select>
+                <input title="ano de referência" type="number" min="2000" step="1" maxlength="4" value="{{ current_date.year }}" id="filter-ref-year">
+
+                <!-- <div class="btn-group" role="group">
                     <button id="btn-date-ref" type="button" class="btn btn-outline dropdown-toggle"
                         data-bs-toggle="dropdown" aria-expanded="false">
                         {{ current_ref }}
@@ -17,7 +24,7 @@
                         <li><a class="dropdown-item {% if date_ref.formatted == current_ref %} active {% endif %}" value="{{ date_ref.value }}">{{ date_ref.formatted }}</a></li>
                         {% endfor %}
                     </ul>
-                </div>
+                </div> -->
                 <button title="novo registro" id="btn-new-reg" class="btn btn-outline ms-3">{% include 'icons/plus.svg' %}</button>
                 <button title="recarregar" id="btn-trans-reload" class="btn btn-outline ms-3">{% include 'icons/refresh.svg' %}</button>
                 <button title="expandir todos" id="btn-trans-expand" class="btn btn-outline ms-3">{% include 'icons/expand.svg' %}</button>

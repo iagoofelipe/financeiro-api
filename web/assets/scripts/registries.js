@@ -30,47 +30,44 @@ export default class RegistryView extends EventTarget {
         return obj;
     }
 
-
     //-----------------------------------------------------------------------------
     // Métodos Públicos
     jquery() { return this.#jquery; }
 
     async setContentById(id) {
         let jcontent;
-        
+
         switch(id)
         {
             case this.ID_CONTENT_NEW_REG:
                 jcontent = $(await $.get('/home/new-reg'));
+                this.#jquery.html(jcontent);
                 
                 // Template new-reg
                 jcontent.on('change', '#inp-card', async () => await this.updateNewRegInvoices());
-                // jcontent.on('change', '#inp-type', async (e) => await this.#on_regType_changed(e));
                 jcontent.on('click', '#btn-save-new-reg', async (e) => await this.#on_btnSaveNewReg_clicked(e));
                 jcontent.on('click', '#btn-cancel-new-reg', async (e) => await this.#on_btnCancelNewReg_clicked(e));
                 break;
             
             case this.ID_CONTENT_TRANSACTIONS:
                 jcontent = $(await $.get('/home/nav-regs'));
+                this.#jquery.html(jcontent);
                 
                 // Template home-regs
-                jcontent.on('click', '#btn-trans-expand', this.expandAllCards);
-                jcontent.on('click', '#reg-details-btn-hide', this.hideDetails);
-                jcontent.on('click', '#btn-trans-collapse', this.collapseAllCards);
+                jcontent.on('click', '#btn-trans-expand', () => this.expandAllCards());
+                jcontent.on('click', '#reg-details-btn-hide', () => this.hideDetails());
+                jcontent.on('click', '#btn-trans-collapse', () => this.collapseAllCards());
                 jcontent.on('click', '#btn-trans-reload', async () => await this.updateTransactionCards());
                 jcontent.on('click', '#btn-new-reg', async (e) => await this.#on_btnNewReg_clicked(e));
-                jcontent.on('click', '#dropdown-date-ref .dropdown-item', async (e) => await this.#on_dropdownDateRefItem_clicked(e));
+                // jcontent.on('click', '#dropdown-date-ref .dropdown-item', async (e) => await this.#on_dropdownDateRefItem_clicked(e));
+                jcontent.on('change', '#filter-ref-year, #filter-ref-month', async () => await this.updateTransactionCards());
 
-                this.updateTransactionCards();
+                await this.updateTransactionCards();
                 break;
             
             default:
                 throw Error('undefined content id');
         }
-
-        // this.#jquery.html('');
-        // jcontent.appendTo(this.#jquery);
-        this.#jquery.html(jcontent);
     }
 
     setRegistryDetails(reg) {
@@ -121,11 +118,20 @@ export default class RegistryView extends EventTarget {
         this.#cache.regs_by_id = {};
         this.#cache.invoices_by_card_id = {};
 
-        const current_date_ref = $('#dropdown-date-ref .dropdown-item.active').attr('value');
+        const ref_year = $('#filter-ref-year'), ref_month = $('#filter-ref-month');
+        if (!ref_year.length || !ref_month.length) {
+            console.log('sem date_ref', ref_year, ref_month);
+            return;
+        }
+
+        const current_date_ref = `${$('#filter-ref-year').val()}-${$('#filter-ref-month').val()}-01`;
         const response = await $.get('/home/regs-trans-cards', {date_ref: current_date_ref});
         let jquery = $('#trans-cards').html(response);
-        $('#sum-inputs').text($('#sum-inputs-hidden').text());
-        $('#sum-outputs').text($('#sum-outputs-hidden').text());
+        let sum_inputs = $('#sum-inputs-hidden').text();
+        let sum_outputs = $('#sum-outputs-hidden').text();
+
+        $('#sum-inputs').text(sum_inputs? sum_inputs : 'R$ 0,00');
+        $('#sum-outputs').text(sum_outputs? sum_outputs : 'R$ 0,00');
 
         let find_tables = jquery.find('table'),
             len = find_tables.length;
@@ -191,18 +197,18 @@ export default class RegistryView extends EventTarget {
         this.setRegistryDetails(this.#cache.regs_by_id[id]);
     }
 
-    async #on_dropdownDateRefItem_clicked(evt) {
-        let selected = $(evt.currentTarget);
-        if (selected.hasClass('active'))
-            return;
+    // async #on_dropdownDateRefItem_clicked(evt) {
+    //     let selected = $(evt.currentTarget);
+    //     if (selected.hasClass('active'))
+    //         return;
         
-        // this.#current_date_ref = selected.attr('value');
-        $('#dropdown-date-ref .dropdown-item.active').removeClass('active');
-        selected.addClass('active');
-        $('#btn-date-ref').text(selected.text());
+    //     // this.#current_date_ref = selected.attr('value');
+    //     $('#dropdown-date-ref .dropdown-item.active').removeClass('active');
+    //     selected.addClass('active');
+    //     $('#btn-date-ref').text(selected.text());
 
-        await this.updateTransactionCards();
-    }
+    //     await this.updateTransactionCards();
+    // }
 
     async #on_btnNewReg_clicked(evt) {
         await this.setContentById(this.ID_CONTENT_NEW_REG);

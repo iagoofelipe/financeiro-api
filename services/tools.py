@@ -1,5 +1,6 @@
 from typing import Literal
 from django.http import JsonResponse
+import datetime as dt
 
 SUFFIX_FILTERS_TYPE = {
     'int': {'gt', 'gte', 'lt', 'lte'},
@@ -32,3 +33,24 @@ def response_success_error(statuscode:int, msg:str, success:object):
 
 def format_coin(val:float):
     return f"R$ {val:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+def months_with_current(today:dt.date=None):
+    months = [ # Num Mês, Texto Mês, Mês Atual
+        ['01', 'Janeiro', False],
+        ['02', 'Fevereiro', False],
+        ['03', 'Março', False],
+        ['04', 'Abril', False],
+        ['05', 'Maio', False],
+        ['06', 'Junho', False],
+        ['07', 'Julho', False],
+        ['08', 'Agosto', False],
+        ['09', 'Setembro', False],
+        ['10', 'Outubro', False],
+        ['11', 'Novembro', False],
+        ['12', 'Dezembro', False],
+    ]
+
+    # definindo como True o mês atual
+    months[(today if today else dt.date.today()).month-1][2] = True
+    
+    return months

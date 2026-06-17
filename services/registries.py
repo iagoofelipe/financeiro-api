@@ -33,8 +33,8 @@ def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[mode
     if occurrance_init or occurrance_end:
         filters['occurrance__range'] = (occurrance_init, occurrance_end)
 
-    if 'date_ref' not in filters or not filters['date_ref']:
-        filters['date_ref'] = dt.date.today().strftime('%Y-%m-01')
+    # if 'date_ref' not in filters or not filters['date_ref']:
+    #     filters['date_ref'] = dt.date.today().strftime('%Y-%m-01')
 
     regs = models.Registry.objects \
         .filter(user=user, **filters) \
@@ -74,8 +74,11 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
         'responsable_id': dict(obj=None, model=models.Responsable, attr_with_user='self'),
     }
 
-    if 'card_id' in data and data['card_id']:
-        ids_to_query['card_id'] = dict(obj=None, model=models.Card, attr_with_user='self')
+    if 'card_id' in data:
+        if not data['card_id']:
+            data.pop('card_id')
+        else:
+            ids_to_query['card_id'] = dict(obj=None, model=models.Card, attr_with_user='self')
 
     for id_to_query, params in ids_to_query.items():
         if id_to_query not in data:
@@ -95,13 +98,14 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
         
     date_ref = dt.date(data['ref_year'], data['ref_month'], 1)
     invoice = invoices.get_or_create(ids_to_query['card_id']['obj'], date_ref) if 'card_id' in data else None
-    # print(invoice.id)
-    # return HTTPStatus.FORBIDDEN, f'teste', None
+    value = data['value']
+    status = data['status'][0]
+
     try:
         reg = models.Registry(
             title=data['title'],
-            value=data['value'],
-            status=data['status'][0],
+            value=value,
+            status=status,
             occurrance=data['occurrance'],
             description=data.get('description'),
             date_ref=date_ref,
@@ -124,9 +128,14 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
         if index >= total:
             return HTTPStatus.BAD_REQUEST, f'a parcela atual deve ser menor ou igual ao total de parcelas', None
         
+        total_value = value * total
+        paid_value = value * (index + (status == 'O'))
         installment = models.Installment(
+            user=user,
             num_items=total,
-            value=data['value'] * total
+            value=total_value,
+            paid=paid_value,
+            pending=total_value - paid_value,
         )
         installment.save()
 
@@ -144,7 +153,7 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
                 
                 reg = models.Registry(
                     title=data['title'],
-                    value=data['value'],
+                    value=value,
                     status='A',
                     occurrance=occurrance,
                     description=data.get('description'),

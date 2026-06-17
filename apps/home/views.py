@@ -1,13 +1,13 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseNotAllowed
+from django.http import HttpResponseForbidden
 from uuid import uuid4
 import datetime as dt
 
 from apps.api import models
 from services import registries
 from services import cards
-from services.tools import format_coin
+from services.tools import format_coin, months_with_current
 
 @login_required(login_url='/login')
 def index(request):
@@ -15,17 +15,22 @@ def index(request):
 
 def nav_regs(request):
     if not request.user.is_authenticated:
-        return HttpResponseNotAllowed()
+        return HttpResponseForbidden()
     
-    current_ref = registries.get_default_date_reference(request.user)
+    # current_ref = registries.get_default_date_reference(request.user)
+    
+    today = dt.date.today()
+    
     return render(request, 'partials/home-regs.html', {
-        'date_references': registries.get_date_references(request.user),
-        'current_ref': current_ref.strftime('%b %y') if current_ref else ''
+        # 'date_references': registries.get_date_references(request.user),
+        # 'current_ref': current_ref.strftime('%b %y') if current_ref else ''
+        'current_date': today,
+        'months': months_with_current(today),
     })
 
 def reg_trans_cards(request):
     if not request.user.is_authenticated:
-        return HttpResponseNotAllowed()
+        return HttpResponseForbidden()
     
     *_, regs = registries.get_by_filters(request.user, date_ref=request.GET.get('date_ref'))
     transactions_by_responsable = {}
@@ -84,34 +89,17 @@ def reg_trans_cards(request):
 
 def new_reg(request):
     if not request.user.is_authenticated:
-        return HttpResponseNotAllowed()
+        return HttpResponseForbidden()
 
     cards = models.Card.objects.filter(user=request.user)
     first_card = cards.first()
     now = dt.datetime.now()
-    months = [ # Num Mês, Texto Mês, Mês Atual
-        ['1', 'Janeiro', False],
-        ['2', 'Fevereiro', False],
-        ['3', 'Março', False],
-        ['4', 'Abril', False],
-        ['5', 'Maio', False],
-        ['6', 'Junho', False],
-        ['7', 'Julho', False],
-        ['8', 'Agosto', False],
-        ['9', 'Setembro', False],
-        ['10', 'Outubro', False],
-        ['11', 'Novembro', False],
-        ['12', 'Dezembro', False],
-    ]
-
-    # definindo como True o mês atual
-    months[now.month-1][2] = True
 
     return render(request, 'partials/new-reg.html', {
         'cards': cards,
         'invoices': first_card.invoices.all() if first_card else [],
         'responsables': models.Responsable.objects.filter(user=request.user).order_by('name'),
-        'months': months,
+        'months': months_with_current(now),
         'current_date': now,
         'current_datetime_formatted': now.strftime('%Y-%m-%d %H:%M'),
         'has_regs': models.Registry.objects.filter(user=request.user).count(),

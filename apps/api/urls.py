@@ -7,9 +7,10 @@ from .card import views as card_views
 from .invoice import views as invoice_views
 
 urlpatterns = [
-    # Auth
+    # Account
     path('auth', obtain_auth_token),
     path('createAccount', views.create_account),
+    path('deleteAccount', views.delete_account),
 
     # Card
     path('getCards', card_views.get_cards),
