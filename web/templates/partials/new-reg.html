@@ -3,12 +3,12 @@
     <hr class="hr-ignore-parent-padding m-0">
     <div>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" id="inp-radio-status-in" checked name="status">
-            <label class="form-check-label" for="inp-radio-status-in">Entrada</label>
+            <input class="form-check-input" type="radio" id="inp-radio-type-in" checked name="type">
+            <label class="form-check-label" for="inp-radio-type-in">Entrada</label>
         </div>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" id="inp-radio-status-out" name="status">
-            <label class="form-check-label" for="inp-radio-status-out">Saída</label>
+            <input class="form-check-input" type="radio" id="inp-radio-type-out" name="type">
+            <label class="form-check-label" for="inp-radio-type-out">Saída</label>
         </div>
     </div>
     <div>
@@ -66,23 +66,25 @@
             {% endfor %}
         </select>
     </div>
-    <div class="form-check" {% if not cards %}title="nenhum cartão cadastrado"{% endif %}>
+    <div class="form-check">
         <input class="form-check-input" type="checkbox" id="inp-has-card"
-            onclick="$('#div-inp-card').attr('hidden', !this.checked)"
-            {% if not cards %}disabled{% endif %}>
+            onclick="$('#div-inp-card').attr('hidden', !this.checked)">
         <label class="form-check-label" for="inp-has-card">Possui Cartão</label>
     </div>
     <div id="div-inp-card" hidden>
         <span>Cartão</span>
-        <select class="form-select" id="inp-card">
-            {% for card in cards %}
-            <option value="{{ card.id }}">{{ card.name }}</option>
-            {% endfor %}
-        </select>
+        <div class="d-flex d-column column-gap-2">
+            <select class="form-select" id="inp-card">
+                {% for card in cards %}
+                <option value="{{ card.id }}">{{ card.name }}</option>
+                {% endfor %}
+            </select>
+            <button title="novo cartão" id="btn-new-card" class="btn btn-outline" data-bs-toggle="modal" data-bs-target="#modal-new-card">{% include 'icons/plus.svg' %}</button>
+        </div>
     </div>
     <hr class="hr-ignore-parent-padding m-0">
     <p class="title-2 m-0">Parcelamento</p>
-    <div class="d-flex column-gap-3">
+    <div class="d-flex column-gap-2">
         <div class="w-100">
             <span>Parcela Atual</span>
             <input type="number" class="form-control" min="1" step="1" placeholder="1" id="inp-current-installment">
@@ -97,5 +99,47 @@
     <div class="d-flex justify-content-end">
         {% if has_regs %}<button class="btn btn-outline ms-3" id="btn-cancel-new-reg">cancelar</button>{% endif %}
         <button class="btn primary ms-3" id="btn-save-new-reg">salvar</button>
+    </div>
+</div>
+
+
+<!-- MODAL - Novo Cartão -->
+<div class="modal fade" id="modal-new-card" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Novo Cartão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex flex-column row-gap-3">
+                <div>
+                    <span>Nome</span>
+                    <input type="text" class="form-control" id="inp-new-card-name">
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="inp-new-card-prev-month-closing">
+                    <label class="form-check-label" for="inp-new-card-prev-month-closing">O dia de fechamento ocorre no mês anterior</label>
+                </div>
+                <div>
+                    <span>Dia de Fechamento</span>
+                    <input type="number" class="form-control" min="1" step="1" max="31" placeholder="1" id="inp-new-card-closing">
+                </div>
+                <div>
+                    <span>Dia de Vencimento</span>
+                    <input type="number" class="form-control" min="1" step="1" max="31" placeholder="1" id="inp-new-card-due">
+                </div>
+                <div>
+                    <span>Limite</span>
+                    <div class="input-group">
+                        <span class="input-group-text">R$</span>
+                        <input id="inp-new-card-limit" type="number" class="form-control" min="0" step="0.01" placeholder="0,00">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" data-bs-dismiss="modal">fechar</button>
+                <button type="button" id="btn-new-card-save" class="btn primary">salvar</button>
+            </div>
+        </div>
     </div>
 </div>

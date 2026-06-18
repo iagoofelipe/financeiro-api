@@ -15,10 +15,10 @@ export function getCookie(name) {
 }
 
 export const REG_STATUS_HTML = {
-    PENDING: '<span class="badge-custom bg-pendente">Pendente</span>',
-    ACCOUNTED: '<span class="badge-custom bg-pendente">Contabilizado</span>',
-    OK: '<span class="badge-custom bg-pago">Pago</span>',
-    LATE: '<span class="badge-custom bg-atrasado">Atrasado</span>',
+    PENDING: '<span class="badge-custom bg-pendente" title="o registro está dentro do prazo">Pendente</span>',
+    ACCOUNTED: '<span class="badge-custom bg-pendente" title="o registro foi contabilizado, porém não pago">Contabilizado</span>',
+    OK: '<span class="badge-custom bg-pago" title="o registro foi contabilizado e pago">Pago</span>',
+    LATE: '<span class="badge-custom bg-atrasado" title="o registro está fora do prazo previsto">Atrasado</span>',
 };
 
 export function getElementsByXPath(xpath, context = document) {
@@ -44,9 +44,9 @@ export function set_modal(title, html_body, show = true, flags = 0) {
     $('#modalLabel').text(title);
     $('#modal .modal-body').html(html_body);
     
-    $('.modal-header').toggle(!(flags & MODAL_FLAGS.HIDE_TITLE));
-    $('.modal-header .btn-close').toggle(!(flags & MODAL_FLAGS.HIDE_HEADER_BTN_CLOSE));
-    $('.modal-footer').toggle(!(flags & MODAL_FLAGS.HIDE_FOOTER));
+    $('#modal .modal-header').toggle(!(flags & MODAL_FLAGS.HIDE_TITLE));
+    $('#modal .modal-header .btn-close').toggle(!(flags & MODAL_FLAGS.HIDE_HEADER_BTN_CLOSE));
+    $('#modal .modal-footer').toggle(!(flags & MODAL_FLAGS.HIDE_FOOTER));
 
     if (show) {
         modal.show();

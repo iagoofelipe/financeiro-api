@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 from services.tools import format_coin
 
@@ -7,6 +8,8 @@ class Card(models.Model):
     name = models.CharField(max_length=20)
     closing_day = models.IntegerField()
     due_day = models.IntegerField()
+    closing_previous_month = models.BooleanField(default=False)
+    limit = models.FloatField()
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def to_dto(self):
@@ -15,6 +18,8 @@ class Card(models.Model):
             'name': self.name,
             'closing_day': self.closing_day,
             'due_day': self.due_day,
+            'limit': self.limit,
+            'closing_previous_month': self.closing_previous_month,
         }
 
 class Responsable(models.Model):
@@ -47,23 +52,25 @@ class Invoice(models.Model):
 
 
 class Registry(models.Model):
-    STATUS = {
-        'P': 'PENDING',
-        'O': 'OK',
-        'L': 'LATE',
-        'A': 'ACCOUNTED',
-    }
-
     title = models.CharField(max_length=100)
     value = models.FloatField()
-    status = models.CharField(choices=STATUS, max_length=1)
     occurrance = models.DateTimeField()
     description = models.CharField(max_length=100, null=True, default=None)
     date_ref = models.DateField()
     type_in = models.BooleanField(default=False)
+    done = models.BooleanField(default=False)
+    accounted = models.BooleanField(default=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, null=True, default=None)
     responsable = models.ForeignKey(Responsable, on_delete=models.CASCADE, null=True, default=None)
+
+    @property
+    def status(self):
+        if self.done:
+            return 'OK'
+        if self.accounted:
+            return 'ACCOUNTED'
+        return 'LATE' if  timezone.localtime() > self.occurrance else 'PENDING'
 
     @property
     def installment_formatted(self):
@@ -87,12 +94,14 @@ class Registry(models.Model):
             'title': self.title,
             'value': self.value,
             'value_formatted': format_coin(self.value),
-            'status': self.STATUS[self.status],
+            'status': self.status,
             'occurrance': self.occurrance.strftime('%Y-%m-%d %H:%M'),
             'occurrance_formatted': self.occurrance_formatted,
             'description': self.description,
             'date_ref': self.date_ref.strftime('%Y-%m'),
             'type_in': self.type_in,
+            'done': self.done,
+            'accounted': self.accounted,
             'card_name': self.invoice.card.name if self.invoice else '',
             'responsable_name': self.responsable.name if self.responsable else '',
             'responsable_id': self.responsable.id if self.responsable else None,

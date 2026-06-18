@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from uuid import uuid4
 import datetime as dt
+from django.utils import timezone
 
 from apps.api import models
 from services import registries
@@ -18,8 +19,7 @@ def nav_regs(request):
         return HttpResponseForbidden()
     
     # current_ref = registries.get_default_date_reference(request.user)
-    
-    today = dt.date.today()
+    today = timezone.localtime()
     
     return render(request, 'partials/home-regs.html', {
         # 'date_references': registries.get_date_references(request.user),
@@ -42,10 +42,6 @@ def reg_trans_cards(request):
                 'title': reg.responsable.name if reg.responsable else 'Pessoais',
                 'sum_inputs': 0,
                 'sum_outputs': 0,
-                # 'num_LATE': 0,
-                # 'num_PENDING': 0,
-                # 'num_OK': 0,
-                # 'num_ACCOUNTED': 0,
                 'values': {
                     'Entradas': [],
                     'Saídas': [],
@@ -53,7 +49,7 @@ def reg_trans_cards(request):
             }
         
         obj = transactions_by_responsable[reg.responsable]
-        num_status = f'num_{reg.STATUS[reg.status]}'
+        num_status = f'num_{reg.status}'
         if num_status not in obj:
             obj[num_status] = 0
 
@@ -82,7 +78,6 @@ def reg_trans_cards(request):
         'transactions': transactions,
         'sum_inputs': format_coin(sum_inputs),
         'sum_outputs': format_coin(sum_outputs),
-        'date_references': registries.get_date_references(request.user),
     }
 
     return render(request, 'partials/home-regs-trans-cards.html', data)
@@ -93,7 +88,7 @@ def new_reg(request):
 
     cards = models.Card.objects.filter(user=request.user)
     first_card = cards.first()
-    now = dt.datetime.now()
+    now = timezone.localtime()
 
     return render(request, 'partials/new-reg.html', {
         'cards': cards,

@@ -28,3 +28,19 @@ def get_by_id(user, cardid:int) -> tuple[HTTPStatus, str, models.Card | None]:
         return HTTPStatus.METHOD_NOT_ALLOWED, 'permissão de acesso negada', None
     
     return HTTPStatus.OK, '', obj
+
+def create(user, **data) -> tuple[HTTPStatus, str, models.Card | None]:
+    try:
+        card = models.Card(
+            name=data['name'],
+            closing_day=data['closing_day'],
+            due_day=data['due_day'],
+            closing_previous_month=data.get('closing_previous_month'),
+            limit=data['limit'],
+            user=user,
+        )
+    except KeyError as e:
+        return HTTPStatus.BAD_REQUEST, f'missing required param {e}', None
+
+    card.save()
+    return HTTPStatus.OK, '', card

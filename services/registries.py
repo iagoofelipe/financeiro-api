@@ -1,5 +1,6 @@
 from http import HTTPStatus
 import datetime as dt
+from django.utils import timezone
 from dateutil.relativedelta import relativedelta
 
 from typing import TYPE_CHECKING
@@ -19,8 +20,8 @@ def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[mode
 
     filters = { k: filters[k] for k in set(filters) & consts.REGISTRY_FILTERS }
 
-    if 'status' in filters:
-        filters['status'] = filters['status'][0] # necessário pois a base armazena o STATUS apenas como a primeira letra
+    # if 'status' in filters:
+    #     filters['status'] = filters['status'][0] # necessário pois a base armazena o STATUS apenas como a primeira letra
 
     occurrance_init = ''
     occurrance_end = ''
@@ -43,16 +44,16 @@ def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[mode
 
     return HTTPStatus.OK, '', regs
 
-def get_date_references(user):
-    date_refs = models.Registry.objects.filter(user=user).values_list('date_ref', flat=True).distinct().order_by()
-    return [ {'value': v.strftime('%Y-%m-%d'), 'formatted': v.strftime('%b %y')} for v in date_refs ]
+# def get_date_references(user):
+#     date_refs = models.Registry.objects.filter(user=user).values_list('date_ref', flat=True).distinct().order_by()
+#     return [ {'value': v.strftime('%Y-%m-%d'), 'formatted': v.strftime('%b %y')} for v in date_refs ]
 
-def get_default_date_reference(user) -> dt.date | None:
-    current = models.Registry.objects.filter(user=user, date_ref=dt.date.today().strftime('%Y-%m-01')).first()
-    if current:
-        return current.date_ref
+# def get_default_date_reference(user) -> dt.date | None:
+#     current = models.Registry.objects.filter(user=user, date_ref=dt.date.today().strftime('%Y-%m-01')).first()
+#     if current:
+#         return current.date_ref
     
-    return models.Registry.objects.filter(user=user).values_list('date_ref', flat=True).distinct().order_by().first()
+#     return models.Registry.objects.filter(user=user).values_list('date_ref', flat=True).distinct().order_by().first()
 
 def get_by_id(user, regid:int) -> tuple[HTTPStatus, str, models.Registry | None]:
     reg = models.Registry.objects.filter(id=regid).first()
@@ -70,22 +71,18 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
     if 'installment_current' in data and not 'installment_total' in data:
         return HTTPStatus.BAD_REQUEST, f'installment_total é necessário para installment_current', None
 
+    # consultando dependências
     ids_to_query = {
-        'responsable_id': dict(obj=None, model=models.Responsable, attr_with_user='self'),
+        'responsable_id': { 'model': models.Responsable, 'attr_with_user': 'self', 'name': 'responsable' },
+        'card_id': { 'model': models.Card, 'attr_with_user': 'self', 'name': 'card' },
     }
 
-    if 'card_id' in data:
-        if not data['card_id']:
-            data.pop('card_id')
-        else:
-            ids_to_query['card_id'] = dict(obj=None, model=models.Card, attr_with_user='self')
-
     for id_to_query, params in ids_to_query.items():
-        if id_to_query not in data:
+        if id_to_query not in data or data[id_to_query] in ('', None):
             continue
 
         obj = params['model'].objects.filter(id=data[id_to_query]).first()
-        params['obj'] = obj
+        data[params['name']] = obj
         attr_with_user = params['attr_with_user']
 
         if not obj:
@@ -97,22 +94,25 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
                 return HTTPStatus.FORBIDDEN, f'o ID fornecido em {id_to_query} não é vinculado ao usuário atual', None
         
     date_ref = dt.date(data['ref_year'], data['ref_month'], 1)
-    invoice = invoices.get_or_create(ids_to_query['card_id']['obj'], date_ref) if 'card_id' in data else None
+    invoice = invoices.get_or_create(data['card'], date_ref) if 'card' in data else None
     value = data['value']
-    status = data['status'][0]
+    done = data.get('done', False)
+    occurrance = timezone.make_aware(dt.datetime.strptime(data['occurrance'], '%Y-%m-%d %H:%M'), timezone.get_current_timezone())
+    responsable = data.get('responsable')
 
     try:
         reg = models.Registry(
             title=data['title'],
             value=value,
-            status=status,
-            occurrance=data['occurrance'],
+            occurrance=occurrance,
             description=data.get('description'),
             date_ref=date_ref,
             type_in=data['type_in'],
+            done=done,
+            accounted=data.get('accounted', False) if not done else False,
             user=user,
             invoice=invoice,
-            responsable=ids_to_query['responsable_id']['obj'],
+            responsable=responsable,
         )
     except KeyError as e:
         return HTTPStatus.BAD_REQUEST, f'missing required param {e}', None
@@ -129,7 +129,7 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
             return HTTPStatus.BAD_REQUEST, f'a parcela atual deve ser menor ou igual ao total de parcelas', None
         
         total_value = value * total
-        paid_value = value * (index + (status == 'O'))
+        paid_value = value * (index + reg.done)
         installment = models.Installment(
             user=user,
             num_items=total,
@@ -139,29 +139,30 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
         )
         installment.save()
 
-        occurrance = dt.datetime.strptime(data['occurrance'], '%Y-%m-%d %H:%M')
         type_in = data['type_in']
 
         for i in range(index, total):
             if i != index: # criando um novo registro caso não seja o primeiro index
                 date_ref += relativedelta(months=1)
-                if type_in:
+                
+                # caso seja uma entrada no cartão, a data de ocorrência é fixa
+                if type_in and invoice:
                     occurrance += relativedelta(months=1)
 
-                elif invoice:
+                if invoice:
                     invoice = invoices.get_or_create(invoice.card, date_ref)
                 
                 reg = models.Registry(
                     title=data['title'],
                     value=value,
-                    status='A',
+                    accounted=True,
                     occurrance=occurrance,
                     description=data.get('description'),
                     date_ref=date_ref,
                     type_in=type_in,
                     user=user,
                     invoice=invoice,
-                    responsable=ids_to_query['responsable_id']['obj'],
+                    responsable=responsable,
                 )
                 reg.save()
 
@@ -171,6 +172,5 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
                 registry=reg
             )
             installment_item.save()
-
 
     return HTTPStatus.OK, '', models.Registry.objects.get(id=regid)

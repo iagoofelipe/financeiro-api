@@ -2,33 +2,22 @@
     <div class="card d-flex flex-column p-3 shadow-sm reg-transactions overflow-auto">
         <div class="d-flex flex-row align-items-center justify-content-between">
             <p class="title m-0">Transações</p>
-            <div class="d-flex flex-row align-items-center">
-                {% include 'icons/money-recive.svg' %}
-                <spam id="sum-inputs" title="total de entradas" class="total-inputs title-3-bold me-3 ms-1">R$ 0,00</spam>
-                {% include 'icons/money-send.svg' %}
-                <spam id="sum-outputs" class="total-outputs title-3-bold ms-1 me-3" title="total de saídas">R$ 0,00</spam>
-                <select title="mês de referência" id="filter-ref-month">
-                    {% for month in months %}
-                    <option value="{{ month.0 }}" {% if month.2 %}selected{% endif %}>{{ month.1 }}</option>
-                    {% endfor %}
-                </select>
-                <input title="ano de referência" type="number" min="2000" step="1" maxlength="4" value="{{ current_date.year }}" id="filter-ref-year">
-
-                <!-- <div class="btn-group" role="group">
-                    <button id="btn-date-ref" type="button" class="btn btn-outline dropdown-toggle"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ current_ref }}
-                    </button>
-                    <ul id="dropdown-date-ref" class="dropdown-menu" aria-labelledby="btn-date-ref">
-                        {% for date_ref in date_references %}
-                        <li><a class="dropdown-item {% if date_ref.formatted == current_ref %} active {% endif %}" value="{{ date_ref.value }}">{{ date_ref.formatted }}</a></li>
-                        {% endfor %}
-                    </ul>
-                </div> -->
-                <button title="novo registro" id="btn-new-reg" class="btn btn-outline ms-3">{% include 'icons/plus.svg' %}</button>
-                <button title="recarregar" id="btn-trans-reload" class="btn btn-outline ms-3">{% include 'icons/refresh.svg' %}</button>
-                <button title="expandir todos" id="btn-trans-expand" class="btn btn-outline ms-3">{% include 'icons/expand.svg' %}</button>
-                <button title="recolher todos" id="btn-trans-collapse" class="btn btn-outline ms-3">{% include 'icons/collapse.svg' %}</button>
+            <div class="d-flex flex-row align-items-center column-gap-3">
+                <div>
+                    {% include 'icons/money-recive.svg' %}
+                    <spam id="sum-inputs" title="total de entradas" class="total-inputs title-3-bold ms-1">R$ 0,00
+                    </spam>
+                </div>
+                <div>
+                    {% include 'icons/money-send.svg' %}
+                    <spam id="sum-outputs" class="total-outputs title-3-bold ms-1" title="total de saídas">R$ 0,00
+                    </spam>
+                </div>
+                <button title="novo registro" id="btn-new-reg" class="btn btn-outline">{% include 'icons/plus.svg' %}</button>
+                <button title="recarregar" id="btn-trans-reload" class="btn btn-outline">{% include 'icons/refresh.svg' %}</button>
+                <button title="expandir todos" id="btn-trans-expand" class="btn btn-outline">{% include 'icons/expand.svg' %}</button>
+                <button title="recolher todos" id="btn-trans-collapse" class="btn btn-outline" hidden>{% include 'icons/collapse.svg' %}</button>
+                <button title="filtrar registros" id="btn-trans-filter" class="btn btn-outline" data-bs-toggle="modal" data-bs-target="#modal-trans-filter">{% include 'icons/filter.svg' %}</button>
             </div>
         </div>
         <hr class="hr-ignore-parent-padding">
@@ -41,7 +30,7 @@
             </div>
             <div class="d-flex">
                 <button class="btn btn-outline ms-3">{% include 'icons/edit.svg' %}</button>
-                <button id="reg-details-btn-hide" class="btn btn-outline ms-3">{% include 'icons/panel-right-filled.svg' %}</button>
+                <button id="reg-details-btn-hide" class="btn btn-outline ms-3">{% include 'icons/panel-right-filled.svg'%}</button>
             </div>
         </div>
         <div id="reg-details-type">
@@ -100,4 +89,43 @@
             </div>
         </div>
     </div>
+
+    <!-- MODAL - Filtros -->
+    <div class="modal fade" id="modal-trans-filter" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Filtros</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row align-items-center mb-3">
+                            <div class="col-md-auto">
+                                <label for="filter-ref-month" class="col-form-label">Mês de Referência</label>
+                            </div>
+                            <div class="col">
+                                <select class="form-select" id="filter-ref-month">
+                                    {% for month in months %}
+                                    <option value="{{ month.0 }}" {% if month.2 %}selected{% endif %}>{{ month.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row align-items-center">
+                            <div class="col-md-auto">
+                                <label for="filter-ref-year" class="col-form-label">Ano de Referência</label>
+                            </div>
+                            <div class="col">
+                                <input type="number" class="form-control col" min="2000" step="1" maxlength="4" value="{{ current_date.year }}" id="filter-ref-year">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 </div>

@@ -2,8 +2,7 @@ from http import HTTPStatus
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-
-def create_user(**data) -> tuple[HTTPStatus, str, User | None]:
+def create(**data) -> tuple[HTTPStatus, str, User | None]:
     """ cria um novo usuário """
     fields = {'username', 'password', 'email', 'first_name', 'last_name'}
     fields_missing = fields - set(data)
@@ -19,7 +18,7 @@ def create_user(**data) -> tuple[HTTPStatus, str, User | None]:
 
     return HTTPStatus.OK, '', user
 
-def delete_user(user:User):
+def delete(user:User):
     try:
         User.objects.get(id=user.id).delete()
         return HTTPStatus.OK, '', True

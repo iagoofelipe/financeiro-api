@@ -1,6 +1,7 @@
 from apps.api import models
 from http import HTTPStatus
 import datetime as dt
+from django.utils import timezone
 from dateutil.relativedelta import relativedelta
 
 from typing import TYPE_CHECKING
@@ -37,12 +38,16 @@ def get_or_create(card:models.Card, date_ref:dt.date):
     if obj:
         return obj
     
-    prev = models.Invoice.objects.filter(card=card, date_ref=date_ref-relativedelta(months=1)).first()
+    closing_date = dt.date(date_ref.year, date_ref.month, card.closing_day)
+
+    if card.closing_previous_month:
+        closing_date -= relativedelta(months=1)
+
     obj = models.Invoice(
         date_ref=date_ref,
-        closing_date=date_ref + dt.timedelta(days=card.closing_day - 1),
-        due_date=date_ref + dt.timedelta(days=card.due_day - 1),
-        limit=prev.limit if prev else 0,
+        closing_date=closing_date,
+        due_date=dt.date(date_ref.year, date_ref.month, card.due_day),
+        limit=card.limit,
         card=card,
     )
     obj.save()

@@ -15,6 +15,7 @@ urlpatterns = [
     # Card
     path('getCards', card_views.get_cards),
     path('getCard/<int:cardid>', card_views.get_card),
+    path('addCard', card_views.add_card),
 
     # Invoice
     path('getInvoices', invoice_views.get_invoices),

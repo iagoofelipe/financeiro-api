@@ -9,9 +9,9 @@ from services.tools import response_success_error
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def create_account(request:HttpRequest):
-    return response_success_error(*user.create_user(**json.loads(request.body)))
+    return response_success_error(*user.create(**json.loads(request.body)))
 
 @api_view(["POST"])
 def delete_account(request:HttpRequest):
-    return response_success_error(*user.delete_user(request.user))
+    return response_success_error(*user.delete(request.user))
     

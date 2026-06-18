@@ -1,5 +1,5 @@
 import Table from "./components/table.js";
-import { has_registries } from "./tools/api.js";
+import { has_registries, add_card, add_registry } from "./tools/api.js";
 import { MODAL_FLAGS, REG_STATUS_HTML, getElementsByXPath, set_modal } from "./tools/utils.js";
 
 export default class RegistryView extends EventTarget {
@@ -47,6 +47,7 @@ export default class RegistryView extends EventTarget {
                 jcontent.on('change', '#inp-card', async () => await this.updateNewRegInvoices());
                 jcontent.on('click', '#btn-save-new-reg', async (e) => await this.#on_btnSaveNewReg_clicked(e));
                 jcontent.on('click', '#btn-cancel-new-reg', async (e) => await this.#on_btnCancelNewReg_clicked(e));
+                jcontent.on('click', '#btn-new-card-save', async (e) => await this.#on_modalNewCard_btnSave_clicked(e));
                 break;
             
             case this.ID_CONTENT_TRANSACTIONS:
@@ -59,7 +60,6 @@ export default class RegistryView extends EventTarget {
                 jcontent.on('click', '#btn-trans-collapse', () => this.collapseAllCards());
                 jcontent.on('click', '#btn-trans-reload', async () => await this.updateTransactionCards());
                 jcontent.on('click', '#btn-new-reg', async (e) => await this.#on_btnNewReg_clicked(e));
-                // jcontent.on('click', '#dropdown-date-ref .dropdown-item', async (e) => await this.#on_dropdownDateRefItem_clicked(e));
                 jcontent.on('change', '#filter-ref-year, #filter-ref-month', async () => await this.updateTransactionCards());
 
                 await this.updateTransactionCards();
@@ -118,20 +118,14 @@ export default class RegistryView extends EventTarget {
         this.#cache.regs_by_id = {};
         this.#cache.invoices_by_card_id = {};
 
-        const ref_year = $('#filter-ref-year'), ref_month = $('#filter-ref-month');
-        if (!ref_year.length || !ref_month.length) {
-            console.log('sem date_ref', ref_year, ref_month);
-            return;
-        }
-
-        const current_date_ref = `${$('#filter-ref-year').val()}-${$('#filter-ref-month').val()}-01`;
+        const current_date_ref = this.#jquery.find('#filter-ref-year').val() + '-' + this.#jquery.find('#filter-ref-month').val() + '-01';
         const response = await $.get('/home/regs-trans-cards', {date_ref: current_date_ref});
-        let jquery = $('#trans-cards').html(response);
-        let sum_inputs = $('#sum-inputs-hidden').text();
-        let sum_outputs = $('#sum-outputs-hidden').text();
+        let jquery = this.#jquery.find('#trans-cards').html(response);
+        let sum_inputs = this.#jquery.find('#sum-inputs-hidden').text();
+        let sum_outputs = this.#jquery.find('#sum-outputs-hidden').text();
 
-        $('#sum-inputs').text(sum_inputs? sum_inputs : 'R$ 0,00');
-        $('#sum-outputs').text(sum_outputs? sum_outputs : 'R$ 0,00');
+        this.#jquery.find('#sum-inputs').text(sum_inputs? sum_inputs : 'R$ 0,00');
+        this.#jquery.find('#sum-outputs').text(sum_outputs? sum_outputs : 'R$ 0,00');
 
         let find_tables = jquery.find('table'),
             len = find_tables.length;
@@ -228,17 +222,27 @@ export default class RegistryView extends EventTarget {
         let data = {
             title: this.#jquery.find('#inp-title').val(),
             value: value? parseFloat(value) : 0,
-            status: this.#jquery.find('#inp-status').val(),
             occurrance: this.#jquery.find('#inp-occurrance').val(),
             description: this.#jquery.find('#inp-desc').val(),
             ref_year: parseInt(this.#jquery.find('#inp-ref-year').val()),
             ref_month: parseInt(this.#jquery.find('#inp-ref-month').val()),
-            type_in: this.#jquery.find('#inp-radio-status-in').prop('checked'),
+            type_in: this.#jquery.find('#inp-radio-type-in').prop('checked'),
             responsable_id: !self_reg? this.#jquery.find('#inp-responsable').val() : null,
             card_id: has_card? this.#jquery.find('#inp-card').val() : null,
             installment_current: installment_current? parseInt(installment_current) : 1,
             installment_total: installment_total? parseInt(installment_total) : 1,
         };
+
+        switch (this.#jquery.find('#inp-status').val())
+        {
+            case 'ACCOUNTED':
+                data.accounted = true;
+                break;
+
+            case 'OK':
+                data.done = true;
+                break;
+        }
 
         // verificando campos obrigatórios
         let required_fields = {
@@ -275,12 +279,42 @@ export default class RegistryView extends EventTarget {
             return;
         }
 
-        console.log(data);
+        // console.log(data);
+        if (await add_registry(data))
+            await this.setContentById(this.ID_CONTENT_TRANSACTIONS);
+        else
+            set_modal('Erro na Criação dos Dados', 'não foi possível salvar os dados do registro');
     }
 
     async #on_btnCancelNewReg_clicked(evt) {
         await this.setContentById(this.ID_CONTENT_TRANSACTIONS);
     }
 
+    async #on_modalNewCard_btnSave_clicked(evt) {
+        const 
+            jname = this.#jquery.find('#inp-new-card-name'),
+            data = {
+                name: jname.val(),
+                closing_day: parseInt(this.#jquery.find('#inp-new-card-closing').val()),
+                closing_previous_month: this.#jquery.find('#inp-new-card-prev-month-closing').prop('checked'),
+                due_day: parseInt(this.#jquery.find('#inp-new-card-due').val()),
+                due_previous_month: this.#jquery.find('#inp-new-card-prev-month-due').prop('checked'),
+                limit: parseFloat(this.#jquery.find('#inp-new-card-limit').val()),
+            };
+
+        // validando dados
+        $('[class^="form"].required').removeClass('required');
+
+        if (!data.name) {
+            jname.addClass('required');
+            return;
+        }
+
+        $('#modal-new-card').modal('hide');
+
+        if (!await add_card(data)) {
+            set_modal('Erro na Criação dos Dados', 'Não foi possível adicionar o novo cartão');
+        }
+    }
     //-----------------------------------------------------------------------------
 }
