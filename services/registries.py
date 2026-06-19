@@ -1,6 +1,5 @@
 from http import HTTPStatus
 import datetime as dt
-from django.utils import timezone
 from dateutil.relativedelta import relativedelta
 
 from typing import TYPE_CHECKING
@@ -20,9 +19,6 @@ def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[mode
 
     filters = { k: filters[k] for k in set(filters) & consts.REGISTRY_FILTERS }
 
-    # if 'status' in filters:
-    #     filters['status'] = filters['status'][0] # necessário pois a base armazena o STATUS apenas como a primeira letra
-
     occurrance_init = ''
     occurrance_end = ''
     if 'occurrance_init' in filters:
@@ -34,26 +30,12 @@ def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[mode
     if occurrance_init or occurrance_end:
         filters['occurrance__range'] = (occurrance_init, occurrance_end)
 
-    # if 'date_ref' not in filters or not filters['date_ref']:
-    #     filters['date_ref'] = dt.date.today().strftime('%Y-%m-01')
-
     regs = models.Registry.objects \
         .filter(user=user, **filters) \
         .order_by('-occurrance') \
         .all()
 
     return HTTPStatus.OK, '', regs
-
-# def get_date_references(user):
-#     date_refs = models.Registry.objects.filter(user=user).values_list('date_ref', flat=True).distinct().order_by()
-#     return [ {'value': v.strftime('%Y-%m-%d'), 'formatted': v.strftime('%b %y')} for v in date_refs ]
-
-# def get_default_date_reference(user) -> dt.date | None:
-#     current = models.Registry.objects.filter(user=user, date_ref=dt.date.today().strftime('%Y-%m-01')).first()
-#     if current:
-#         return current.date_ref
-    
-#     return models.Registry.objects.filter(user=user).values_list('date_ref', flat=True).distinct().order_by().first()
 
 def get_by_id(user, regid:int) -> tuple[HTTPStatus, str, models.Registry | None]:
     reg = models.Registry.objects.filter(id=regid).first()
@@ -70,6 +52,12 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
 
     if 'installment_current' in data and not 'installment_total' in data:
         return HTTPStatus.BAD_REQUEST, f'installment_total é necessário para installment_current', None
+
+    # validando dados
+    try:
+        occurrance = dt.datetime.strptime(data['occurrance'], '%d/%m/%Y %H:%M')
+    except ValueError:
+        return HTTPStatus.BAD_REQUEST, f'occurrance deve seguir o formato dd/mm/aaaa hh:mm', None
 
     # consultando dependências
     ids_to_query = {
@@ -97,7 +85,6 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
     invoice = invoices.get_or_create(data['card'], date_ref) if 'card' in data else None
     value = data['value']
     done = data.get('done', False)
-    occurrance = timezone.make_aware(dt.datetime.strptime(data['occurrance'], '%Y-%m-%d %H:%M'), timezone.get_current_timezone())
     responsable = data.get('responsable')
 
     try:
@@ -121,7 +108,7 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
     regid = reg.id
 
     # criando grupo de parcelas
-    if 'installment_total' in data:
+    if data.get('installment_total', 0) > 1:
         index = data.get('installment_current', 1) - 1
         total = data['installment_total']
 

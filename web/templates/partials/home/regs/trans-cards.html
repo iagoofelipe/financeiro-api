@@ -1,19 +1,20 @@
-{% for transaction in transactions %}
 <div id="sum-inputs-hidden" hidden>{{ sum_inputs }}</div>
 <div id="sum-outputs-hidden" hidden>{{ sum_outputs }}</div>
+
+{% for transaction in transactions %}
 <div class="card p-3 {% if forloop.counter != 1 %} mt-3 {% endif %}">
     <div class="d-flex flex-row align-items-center justify-content-between">
         <div>
             <p class="title mb-2">{{ transaction.title }}</p>
             <div class="d-flex flex-row align-items-center card-transaction-desc">
                 {% include 'icons/money-recive.svg' %}
-                <label title="total de entradas" class="title-3-bold me-3 ms-1">{{ transaction.sum_inputs }}</label>
+                <span title="total de entradas" class="title-3-bold me-3 ms-1">{{ transaction.sum_inputs }}</span>
                 {% include 'icons/money-send.svg' %}
-                <label class="title-3-bold me-3 ms-1" title="total de saídas">{{ transaction.sum_outputs }}</label>
-                {% if transaction.LATE %}       <label class="title-3-bold me-3">{{ transaction.LATE }}</label>      {% endif %}
-                {% if transaction.PENDING %}    <label class="title-3-bold me-3">{{ transaction.PENDING }}</label>   {% endif %}
-                {% if transaction.OK %}         <label class="title-3-bold me-3">{{ transaction.OK }}</label>        {% endif %}
-                {% if transaction.ACCOUNTED %}  <label class="title-3-bold me-3">{{ transaction.ACCOUNTED }}</label> {% endif %}
+                <span class="title-3-bold me-3 ms-1" title="total de saídas">{{ transaction.sum_outputs }}</span>
+                {% if transaction.LATE %}       <span class="title-3-bold me-3">{{ transaction.LATE }}</span>      {% endif %}
+                {% if transaction.PENDING %}    <span class="title-3-bold me-3">{{ transaction.PENDING }}</span>   {% endif %}
+                {% if transaction.OK %}         <span class="title-3-bold me-3">{{ transaction.OK }}</span>        {% endif %}
+                {% if transaction.ACCOUNTED %}  <span class="title-3-bold me-3">{{ transaction.ACCOUNTED }}</span> {% endif %}
             </div>
         </div>
         {% if transaction.values.Entradas or transaction.values.Saídas %}

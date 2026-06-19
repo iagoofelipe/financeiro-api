@@ -5,13 +5,13 @@
             <div class="d-flex flex-row align-items-center column-gap-3">
                 <div>
                     {% include 'icons/money-recive.svg' %}
-                    <spam id="sum-inputs" title="total de entradas" class="total-inputs title-3-bold ms-1">R$ 0,00
-                    </spam>
+                    <span id="sum-inputs" title="total de entradas" class="total-inputs title-3-bold ms-1">R$ 0,00
+                    </span>
                 </div>
                 <div>
                     {% include 'icons/money-send.svg' %}
-                    <spam id="sum-outputs" class="total-outputs title-3-bold ms-1" title="total de saídas">R$ 0,00
-                    </spam>
+                    <span id="sum-outputs" class="total-outputs title-3-bold ms-1" title="total de saídas">R$ 0,00
+                    </span>
                 </div>
                 <button title="novo registro" id="btn-new-reg" class="btn btn-outline">{% include 'icons/plus.svg' %}</button>
                 <button title="recarregar" id="btn-trans-reload" class="btn btn-outline">{% include 'icons/refresh.svg' %}</button>
@@ -23,72 +23,8 @@
         <hr class="hr-ignore-parent-padding">
         <div id="trans-cards"></div>
     </div>
-    <div class="card p-3 shadow-sm ms-3 reg-details h-100 overflow-auto" id="reg-details" style="display: none;">
-        <div class="d-flex justify-content-between align-items-center">
-            <div id="reg-details-title">
-                <p class="text m-0 title-2"></p>
-            </div>
-            <div class="d-flex">
-                <button class="btn btn-outline ms-3">{% include 'icons/edit.svg' %}</button>
-                <button id="reg-details-btn-hide" class="btn btn-outline ms-3">{% include 'icons/panel-right-filled.svg'%}</button>
-            </div>
-        </div>
-        <div id="reg-details-type">
-            <p class="m-0 fw-semibold">Tipo</p>
-            <p class="text"></p>
-        </div>
-        <div id="reg-details-value">
-            <p class="m-0 fw-semibold">Valor</p>
-            <p class="text"></p>
-        </div>
-        <div id="reg-details-owner">
-            <p class="m-0 fw-semibold">Responsável</p>
-            <p class="text"></p>
-        </div>
-        <div id="reg-details-occurrance">
-            <p class="m-0 fw-semibold">Data de Ocorrência</p>
-            <p class="text">20 Jan 26, 08h10</p>
-        </div>
-        <div id="reg-details-description">
-            <p class="m-0 fw-semibold">Descrição</p>
-            <p class="text">Televisão parcelada</p>
-        </div>
-        <div id="reg-details-status">
-            <p class="m-0 fw-semibold">Status</p>
-            <div class="text"></div>
-        </div>
-        <hr class="hr-ignore-parent-padding">
-        <div id="reg-details-card">
-            <p class="m-0 fw-semibold">Cartão</p>
-            <p class="text"></p>
-        </div>
-        <div id="reg-details-invoice">
-            <p class="m-0 fw-semibold">Fatura</p>
-            <p class="text"></p>
-        </div>
-        <div id="reg-details-installment">
-            <p class="m-0 fw-semibold">Parcela</p>
-            <p class="text"></p>
-        </div>
-        <div id="reg-details-installment-value">
-            <p class="m-0 fw-semibold">Valor Total</p>
-            <p class="text"></p>
-        </div>
-        <div id="reg-details-paid-pending">
-            <div class="d-flex justify-content-between">
-                <span class="fw-semibold">Pago</span>
-                <span class="fw-semibold">Pendente</span>
-            </div>
-            <div style="height: 30px;" class="d-flex">
-                <div class="bar paid" style="width: 60%; background-color: #435797;"></div>
-                <div class="bar pending" style="width: 40%; background-color: #cbd1e4;"></div>
-            </div>
-            <div class="d-flex justify-content-between">
-                <span class="text paid"></span>
-                <span class="text pending"></span>
-            </div>
-        </div>
-    </div>
+    
+    {% include 'partials/home/regs/details.html' %}
 
     <!-- MODAL - Filtros -->
     <div class="modal fade" id="modal-trans-filter" tabindex="-1" aria-hidden="true">
@@ -112,7 +48,6 @@
                                 </select>
                             </div>
                         </div>
-
                         <div class="row align-items-center">
                             <div class="col-md-auto">
                                 <label for="filter-ref-year" class="col-form-label">Ano de Referência</label>
@@ -121,7 +56,6 @@
                                 <input type="number" class="form-control col" min="2000" step="1" maxlength="4" value="{{ current_date.year }}" id="filter-ref-year">
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>

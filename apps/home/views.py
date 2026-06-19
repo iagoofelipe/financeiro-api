@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from uuid import uuid4
 import datetime as dt
-from django.utils import timezone
 
 from apps.api import models
 from services import registries
@@ -19,9 +18,9 @@ def nav_regs(request):
         return HttpResponseForbidden()
     
     # current_ref = registries.get_default_date_reference(request.user)
-    today = timezone.localtime()
+    today = dt.date.today()
     
-    return render(request, 'partials/home-regs.html', {
+    return render(request, 'partials/home/regs/index.html', {
         # 'date_references': registries.get_date_references(request.user),
         # 'current_ref': current_ref.strftime('%b %y') if current_ref else ''
         'current_date': today,
@@ -80,22 +79,19 @@ def reg_trans_cards(request):
         'sum_outputs': format_coin(sum_outputs),
     }
 
-    return render(request, 'partials/home-regs-trans-cards.html', data)
+    return render(request, 'partials/home/regs/trans-cards.html', data)
 
 def new_reg(request):
     if not request.user.is_authenticated:
         return HttpResponseForbidden()
 
-    cards = models.Card.objects.filter(user=request.user)
-    first_card = cards.first()
-    now = timezone.localtime()
+    now = dt.datetime.now()
 
     return render(request, 'partials/new-reg.html', {
-        'cards': cards,
-        'invoices': first_card.invoices.all() if first_card else [],
+        'cards': models.Card.objects.filter(user=request.user),
         'responsables': models.Responsable.objects.filter(user=request.user).order_by('name'),
         'months': months_with_current(now),
         'current_date': now,
-        'current_datetime_formatted': now.strftime('%Y-%m-%d %H:%M'),
+        'current_datetime_formatted': now.strftime('%d/%m/%Y %H:%M'),
         'has_regs': models.Registry.objects.filter(user=request.user).count(),
     })

@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from django.utils import timezone
+import datetime as dt
 
 from services.tools import format_coin
 
@@ -26,6 +26,11 @@ class Responsable(models.Model):
     name = models.CharField(max_length=30)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    def to_dto(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+        }
 
 class Invoice(models.Model):
     date_ref = models.DateField()
@@ -70,7 +75,7 @@ class Registry(models.Model):
             return 'OK'
         if self.accounted:
             return 'ACCOUNTED'
-        return 'LATE' if  timezone.localtime() > self.occurrance else 'PENDING'
+        return 'LATE' if  dt.datetime.now() > self.occurrance else 'PENDING'
 
     @property
     def installment_formatted(self):
@@ -95,7 +100,7 @@ class Registry(models.Model):
             'value': self.value,
             'value_formatted': format_coin(self.value),
             'status': self.status,
-            'occurrance': self.occurrance.strftime('%Y-%m-%d %H:%M'),
+            'occurrance': self.occurrance.strftime('%d/%m/%Y %H:%M'),
             'occurrance_formatted': self.occurrance_formatted,
             'description': self.description,
             'date_ref': self.date_ref.strftime('%Y-%m'),

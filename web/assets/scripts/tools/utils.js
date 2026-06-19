@@ -32,7 +32,7 @@ export function getElementsByXPath(xpath, context = document) {
     return array;
 }
 
-export const modal = new bootstrap.Modal('#modal');
+// export const modal = new bootstrap.Modal('#modal');
 
 export const MODAL_FLAGS = {
     HIDE_TITLE: 1 << 1,
@@ -49,6 +49,8 @@ export function set_modal(title, html_body, show = true, flags = 0) {
     $('#modal .modal-footer').toggle(!(flags & MODAL_FLAGS.HIDE_FOOTER));
 
     if (show) {
-        modal.show();
+        // modal.show();
+        let modal = new bootstrap.Modal('#modal');
+        modal.show(document.body);
     }
 }

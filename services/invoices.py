@@ -1,7 +1,6 @@
 from apps.api import models
 from http import HTTPStatus
 import datetime as dt
-from django.utils import timezone
 from dateutil.relativedelta import relativedelta
 
 from typing import TYPE_CHECKING

@@ -5,6 +5,7 @@ from . import views
 from .reg import views as reg_views
 from .card import views as card_views
 from .invoice import views as invoice_views
+from .responsable import views as responsable_views
 
 urlpatterns = [
     # Account
@@ -27,4 +28,9 @@ urlpatterns = [
     path('addRegistry', reg_views.add_registry),
     path('getRegistryDateReferences', reg_views.get_reg_date_references),
     path('hasRegistries', reg_views.has_registries),
+
+    # Responsable
+    path('getResponsables', responsable_views.get_responsables),
+    path('getResponsable/<int:id>', responsable_views.get_responsable),
+    path('addResponsable', responsable_views.add_responsable),
 ]

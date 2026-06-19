@@ -1,7 +1,6 @@
 from typing import Literal
 from django.http import JsonResponse
 import datetime as dt
-from django.utils import timezone
 
 SUFFIX_FILTERS_TYPE = {
     'int': {'gt', 'gte', 'lt', 'lte'},
@@ -52,6 +51,6 @@ def months_with_current(today:dt.date=None):
     ]
 
     # definindo como True o mês atual
-    months[(today if today else timezone.localtime()).month-1][2] = True
+    months[(today if today else dt.date.today()).month-1][2] = True
     
     return months

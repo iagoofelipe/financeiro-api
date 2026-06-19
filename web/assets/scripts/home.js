@@ -1,4 +1,4 @@
-import RegistryView from "./registries.js";
+import RegistryView from "./registries/view.js";
 // import DashboardView from "./dashboards.js";
 // import CreditCardView from "./cards.js";
 
@@ -85,27 +85,6 @@ class HomeView
     }
 
     #on_btnNavCollapse_clicked(evt) {
-        // let elements = $('.home-nav .nav-logo, .home-nav span');
-        // const jquery = $(evt.currentTarget);
-
         $('.home-nav').toggleClass('collapsed');
-
-        // console.log(jquery.ariaExpanded);
-
-        // if (jquery.attr('aria-expanded') == 'true') {
-        //     $('#btn-nav-collapse').attr('aria-expanded', 'false');
-        //     $('#')
-        //     // elements.hide();
-        // } else {
-        //     $('#btn-nav-collapse').attr('aria-expanded', 'true');
-        //     // elements.show();
-        // }
-
-        // toggle icons
-        // let to_show = $('#btn-nav-collapse img[hidden]');
-        // let to_hide = $('#btn-nav-collapse img:not([hidden])');
-
-        // to_hide.prop('hidden', true);
-        // to_show.prop('hidden', false);
     }
 }

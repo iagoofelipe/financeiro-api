@@ -3,11 +3,11 @@
     <hr class="hr-ignore-parent-padding m-0">
     <div>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" id="inp-radio-type-in" checked name="type">
+            <input class="form-check-input" type="radio" id="inp-radio-type-in" name="type">
             <label class="form-check-label" for="inp-radio-type-in">Entrada</label>
         </div>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" id="inp-radio-type-out" name="type">
+            <input class="form-check-input" type="radio" id="inp-radio-type-out" checked name="type">
             <label class="form-check-label" for="inp-radio-type-out">Saída</label>
         </div>
     </div>
@@ -52,24 +52,26 @@
         <span>Descrição</span>
         <input type="text" class="form-control" id="inp-desc">
     </div>
-    <div class="form-check" {% if not responsables %}title="nenhum responsável cadastrado"{% endif %}>
+    <div class="form-check">
         <input class="form-check-input" type="checkbox" id="inp-self-reg" checked 
-            onclick="$('#div-inp-responsable').attr('hidden', this.checked)"
-            {% if not responsables %}disabled{% endif %}>
-        <label class="form-check-label" for="inp-self-reg">Registro Pessoal</label>
+            onclick="$('#div-inp-responsable').attr('hidden', this.checked)">
+        <label class="form-check-label" for="inp-self-reg">Pessoal</label>
     </div>
     <div id="div-inp-responsable" hidden>
         <span>Responsável</span>
-        <select class="form-select" id="inp-responsable">
-            {% for responsable in responsables %}
-            <option value="{{ responsable.id }}">{{ responsable.name }}</option>
-            {% endfor %}
-        </select>
+        <div class="d-flex d-column column-gap-2">
+            <select class="form-select" id="inp-responsable">
+                {% for responsable in responsables %}
+                <option value="{{ responsable.id }}">{{ responsable.name }}</option>
+                {% endfor %}
+            </select>
+            <button title="novo cartão" id="btn-new-responsable" class="btn btn-outline" data-bs-toggle="modal" data-bs-target="#modal-new-responsable">{% include 'icons/plus.svg' %}</button>
+        </div>
     </div>
     <div class="form-check">
         <input class="form-check-input" type="checkbox" id="inp-has-card"
             onclick="$('#div-inp-card').attr('hidden', !this.checked)">
-        <label class="form-check-label" for="inp-has-card">Possui Cartão</label>
+        <label class="form-check-label" for="inp-has-card">Registro no Cartão</label>
     </div>
     <div id="div-inp-card" hidden>
         <span>Cartão</span>
@@ -97,49 +99,15 @@
     <div class="h-100"></div>
     <hr class="hr-ignore-parent-padding m-0">
     <div class="d-flex justify-content-end">
-        {% if has_regs %}<button class="btn btn-outline ms-3" id="btn-cancel-new-reg">cancelar</button>{% endif %}
-        <button class="btn primary ms-3" id="btn-save-new-reg">salvar</button>
+        {% if has_regs %}<button class="btn btn-outline ms-3 btn-new-reg-cancel">cancelar</button>{% endif %}
+        <button class="btn primary ms-3 btn-new-reg-save">salvar</button>
     </div>
+    
+    <!-- MODAL - Novo Cartão -->
+    {% include 'partials/home/regs/modal-new-card.html' %}
+    
+    <!-- MODAL - Novo Responsável -->
+    {% include 'partials/home/regs/modal-new-responsable.html' %}
+
 </div>
 
-
-<!-- MODAL - Novo Cartão -->
-<div class="modal fade" id="modal-new-card" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Novo Cartão</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body d-flex flex-column row-gap-3">
-                <div>
-                    <span>Nome</span>
-                    <input type="text" class="form-control" id="inp-new-card-name">
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="inp-new-card-prev-month-closing">
-                    <label class="form-check-label" for="inp-new-card-prev-month-closing">O dia de fechamento ocorre no mês anterior</label>
-                </div>
-                <div>
-                    <span>Dia de Fechamento</span>
-                    <input type="number" class="form-control" min="1" step="1" max="31" placeholder="1" id="inp-new-card-closing">
-                </div>
-                <div>
-                    <span>Dia de Vencimento</span>
-                    <input type="number" class="form-control" min="1" step="1" max="31" placeholder="1" id="inp-new-card-due">
-                </div>
-                <div>
-                    <span>Limite</span>
-                    <div class="input-group">
-                        <span class="input-group-text">R$</span>
-                        <input id="inp-new-card-limit" type="number" class="form-control" min="0" step="0.01" placeholder="0,00">
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline" data-bs-dismiss="modal">fechar</button>
-                <button type="button" id="btn-new-card-save" class="btn primary">salvar</button>
-            </div>
-        </div>
-    </div>
-</div>

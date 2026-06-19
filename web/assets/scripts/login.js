@@ -1,4 +1,4 @@
-import { getCookie, modal, MODAL_FLAGS, set_modal } from "./tools/utils.js";
+import { getCookie, MODAL_FLAGS, set_modal } from "./tools/utils.js";
 
 $(() => {
     $('#btn-auth').on('click', on_auth);
@@ -32,7 +32,6 @@ async function on_auth() {
         });
 
     } catch (e) {
-        console.log(e)
         const detail = (e.responseJSON && e.responseJSON.detail) ? e.responseJSON.detail : 'erro interno inesperado';
         set_modal('Autenticação de Usuário', detail, true, MODAL_FLAGS.HIDE_HEADER_BTN_CLOSE);
         form_controls.prop('disabled', false);
