@@ -76,6 +76,12 @@ class Registry(models.Model):
         if self.accounted:
             return 'ACCOUNTED'
         return 'LATE' if  dt.datetime.now() > self.occurrance else 'PENDING'
+    
+    @property
+    def status_without_late(self):
+        if self.done:
+            return 'OK'
+        return 'ACCOUNTED' if self.accounted else 'PENDING'
 
     @property
     def installment_formatted(self):

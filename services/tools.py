@@ -35,22 +35,22 @@ def format_coin(val:float):
     return f"R$ {val:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def months_with_current(today:dt.date=None):
-    months = [ # Num Mês, Texto Mês, Mês Atual
-        ['01', 'Janeiro', False],
-        ['02', 'Fevereiro', False],
-        ['03', 'Março', False],
-        ['04', 'Abril', False],
-        ['05', 'Maio', False],
-        ['06', 'Junho', False],
-        ['07', 'Julho', False],
-        ['08', 'Agosto', False],
-        ['09', 'Setembro', False],
-        ['10', 'Outubro', False],
-        ['11', 'Novembro', False],
-        ['12', 'Dezembro', False],
+    months = [
+        {'number': '01', 'text': 'janeiro', 'is_current': False},
+        {'number': '02', 'text': 'fevereiro', 'is_current': False},
+        {'number': '03', 'text': 'março', 'is_current': False},
+        {'number': '04', 'text': 'abril', 'is_current': False},
+        {'number': '05', 'text': 'maio', 'is_current': False},
+        {'number': '06', 'text': 'junho', 'is_current': False},
+        {'number': '07', 'text': 'julho', 'is_current': False},
+        {'number': '08', 'text': 'agosto', 'is_current': False},
+        {'number': '09', 'text': 'setembro', 'is_current': False},
+        {'number': '10', 'text': 'outubro', 'is_current': False},
+        {'number': '11', 'text': 'novembro', 'is_current': False},
+        {'number': '12', 'text': 'dezembro', 'is_current': False},
     ]
 
     # definindo como True o mês atual
-    months[(today if today else dt.date.today()).month-1][2] = True
+    months[(today if today else dt.date.today()).month-1]['is_current'] = True
     
     return months

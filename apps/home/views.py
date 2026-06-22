@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from uuid import uuid4
 import datetime as dt
 
@@ -24,6 +24,7 @@ def nav_regs(request):
         # 'date_references': registries.get_date_references(request.user),
         # 'current_ref': current_ref.strftime('%b %y') if current_ref else ''
         'current_date': today,
+        'date_ref': today.strftime('%B %Y'),
         'months': months_with_current(today),
     })
 
@@ -86,12 +87,51 @@ def new_reg(request):
         return HttpResponseForbidden()
 
     now = dt.datetime.now()
+    mode = request.GET.get('mode', 'NEW')
+    reg = None
 
-    return render(request, 'partials/new-reg.html', {
+    match mode:
+        case 'NEW':
+            title = 'Novo Registro'
+        
+        case 'EDIT':
+            title = 'Atualização de Registro'
+            if 'id' in request.GET:
+                reg = models.Registry.objects.filter(id=request.GET['id']).first()
+
+            if not reg:
+                return HttpResponseBadRequest('o parâmetro id não corresponde a um registro válido')
+            
+            if reg.user != request.user:
+                return HttpResponseForbidden('acesso negado')
+
+        case _:
+            return HttpResponseBadRequest('o parâmetro mode deve ser NEW, EDIT ou vazio')
+    
+    data = {
+        'title': title,
         'cards': models.Card.objects.filter(user=request.user),
         'responsables': models.Responsable.objects.filter(user=request.user).order_by('name'),
         'months': months_with_current(now),
         'current_date': now,
-        'current_datetime_formatted': now.strftime('%d/%m/%Y %H:%M'),
         'has_regs': models.Registry.objects.filter(user=request.user).count(),
-    })
+        'status': {
+            'ACCOUNTED': {'text': 'Contabilizado', 'selected': False},
+            'OK': {'text': 'Pago', 'selected': False},
+            'PENDING': {'text': 'Pendente', 'selected': False},
+        },
+        'reg': reg,
+        'reg_occurrance': None,
+        'reg_month_number': None,
+    }
+
+    if reg:
+        data['status'][reg.status_without_late]['selected'] = True
+        data['reg_occurrance'] = reg.occurrance_formatted
+        data['reg_month_number'] = reg.date_ref.strftime('%m')
+    else:
+        data['status']['PENDING']['selected'] = True
+        data['reg_occurrance'] = now.strftime('%d/%m/%Y %H:%M')
+        data['reg_month_number'] = now.strftime('%m')
+
+    return render(request, 'partials/home/regs/new-reg.html', data)

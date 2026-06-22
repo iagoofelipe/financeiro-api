@@ -66,9 +66,14 @@ body {
     color: #ffff;
 }
 
-.hr-ignore-parent-padding {
+.h-line-ignore-parent-padding {
     margin-inline-start: -1rem !important;
     margin-inline-end: -1rem !important;
+}
+
+.v-line-ignore-parent-padding {
+    margin-top: -1rem !important;
+    margin-bottom: -1rem !important;
 }
 
 .btn-outline {
