@@ -6,6 +6,7 @@ from .reg import views as reg_views
 from .card import views as card_views
 from .invoice import views as invoice_views
 from .responsable import views as responsable_views
+from .installment import views as installment_views
 
 urlpatterns = [
     # Account
@@ -22,12 +23,17 @@ urlpatterns = [
     path('getInvoices', invoice_views.get_invoices),
     path('getInvoice/<int:id>', invoice_views.get_invoice),
 
+    # Installment
+    path('deleteInstallment/<int:id>', installment_views.delete_installment),
+
     # Registry
     path('getRegistries', reg_views.get_registries),
     path('getRegistry/<int:regid>', reg_views.get_registry),
     path('addRegistry', reg_views.add_registry),
     path('getRegistryDateReferences', reg_views.get_reg_date_references),
     path('hasRegistries', reg_views.has_registries),
+    path('deleteRegistry/<int:regid>', reg_views.delete_registry),
+    path('updateRegistry', reg_views.update_registry),
 
     # Responsable
     path('getResponsables', responsable_views.get_responsables),

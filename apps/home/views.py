@@ -17,15 +17,21 @@ def nav_regs(request):
     if not request.user.is_authenticated:
         return HttpResponseForbidden()
     
-    # current_ref = registries.get_default_date_reference(request.user)
-    today = dt.date.today()
+    if 'date_ref' in request.GET:
+        try:
+            date = dt.date.strptime(request.GET['date_ref'], '%Y-%m-01')
+        except ValueError:
+            return HttpResponseBadRequest('o parâmetro date_ref deve seguir o padrão AAAA-MM-01')
+    
+    else:
+        date = dt.date.today()
     
     return render(request, 'partials/home/regs/index.html', {
         # 'date_references': registries.get_date_references(request.user),
         # 'current_ref': current_ref.strftime('%b %y') if current_ref else ''
-        'current_date': today,
-        'date_ref': today.strftime('%B %Y'),
-        'months': months_with_current(today),
+        'current_year': date.year,
+        'date_formatted': date.strftime('%B %Y'),
+        'months': months_with_current(date),
     })
 
 def reg_trans_cards(request):
@@ -82,7 +88,7 @@ def reg_trans_cards(request):
 
     return render(request, 'partials/home/regs/trans-cards.html', data)
 
-def new_reg(request):
+def reg_form(request):
     if not request.user.is_authenticated:
         return HttpResponseForbidden()
 
@@ -90,23 +96,24 @@ def new_reg(request):
     mode = request.GET.get('mode', 'NEW')
     reg = None
 
-    match mode:
-        case 'NEW':
-            title = 'Novo Registro'
+    if mode in ('EDIT', 'COPY'):
+        if 'id' in request.GET:
+            reg = models.Registry.objects.filter(id=request.GET['id']).first()
+
+        if not reg:
+            return HttpResponseBadRequest('o parâmetro id não corresponde a um registro válido')
         
-        case 'EDIT':
-            title = 'Atualização de Registro'
-            if 'id' in request.GET:
-                reg = models.Registry.objects.filter(id=request.GET['id']).first()
+        if reg.user != request.user:
+            return HttpResponseForbidden('acesso negado')
 
-            if not reg:
-                return HttpResponseBadRequest('o parâmetro id não corresponde a um registro válido')
-            
-            if reg.user != request.user:
-                return HttpResponseForbidden('acesso negado')
+    if mode in ('NEW', 'COPY'):
+        title = 'Novo Registro'
+    
+    elif mode == 'EDIT':
+        title = 'Atualização de Registro'
 
-        case _:
-            return HttpResponseBadRequest('o parâmetro mode deve ser NEW, EDIT ou vazio')
+    else:
+        return HttpResponseBadRequest('o parâmetro mode deve ser NEW, EDIT ou vazio')
     
     data = {
         'title': title,
@@ -120,18 +127,26 @@ def new_reg(request):
             'OK': {'text': 'Pago', 'selected': False},
             'PENDING': {'text': 'Pendente', 'selected': False},
         },
+        'edit_mode': mode == 'EDIT',
         'reg': reg,
-        'reg_occurrance': None,
-        'reg_month_number': None,
+        'current_installment': '',
+        'num_installments': '',
+        'hide_installment_alert': True,
     }
 
     if reg:
         data['status'][reg.status_without_late]['selected'] = True
-        data['reg_occurrance'] = reg.occurrance_formatted
+        data['reg_occurrance'] = reg.occurrance.strftime('%d/%m/%Y %H:%M')
         data['reg_month_number'] = reg.date_ref.strftime('%m')
+        
+        if installment_item := reg.installment_item.first():
+            data['current_installment'] = installment_item.index + 1
+            data['num_installments'] = installment_item.installment.num_items
+            data['hide_installment_alert'] = installment_item.index <= 0 or mode == 'EDIT'
+
     else:
         data['status']['PENDING']['selected'] = True
         data['reg_occurrance'] = now.strftime('%d/%m/%Y %H:%M')
         data['reg_month_number'] = now.strftime('%m')
-
-    return render(request, 'partials/home/regs/new-reg.html', data)
+    
+    return render(request, 'partials/home/regs/form.html', data)

@@ -1,21 +1,22 @@
 import Table from "../components/table.js";
 import RegistryDetails from "./details.js";
 import { has_registries } from "../tools/api.js";
-import NewRegistryView from "./new-reg.js";
+import RegistryForm from "./form.js";
 
 export default class RegistryView extends EventTarget {
     static templates = {};
 
     #jquery;
-    #reg_details = new RegistryDetails();
-    #new_reg;
+    #reg_details;
+    #reg_form;
     #tables = [];
     #cache = {
         regs_by_id: {},
     };
     #table_selected = null;
     ID_CONTENT_TRANSACTIONS = 0;
-    ID_CONTENT_NEW_REG = 1;
+    ID_CONTENT_REG_FORM = 1;
+    #current_date_ref = null;
 
     constructor(jquery) {
         super();
@@ -28,7 +29,7 @@ export default class RegistryView extends EventTarget {
         let jquery = $('<div class="h-100">'); // div é necessário para trocar o conteúdo interno
         let obj = new RegistryView(jquery);
         
-        await obj.setContentById(await has_registries()? obj.ID_CONTENT_TRANSACTIONS : obj.ID_CONTENT_NEW_REG);
+        await obj.setContentById(await has_registries()? obj.ID_CONTENT_TRANSACTIONS : obj.ID_CONTENT_REG_FORM);
         return obj;
     }
 
@@ -36,30 +37,33 @@ export default class RegistryView extends EventTarget {
     // Métodos Públicos
     jquery() { return this.#jquery; }
 
-    async setContentById(id) {
+    async setContentById(id, params) {
         let jcontent;
 
         switch(id)
         {
-            case this.ID_CONTENT_NEW_REG:
-                this.#new_reg = await NewRegistryView.create(this.#jquery);
-                this.#new_reg.addEventListener(NewRegistryView.EVENTS.FINISHED, async () => await this.setContentById(this.ID_CONTENT_TRANSACTIONS));
-                
+            case this.ID_CONTENT_REG_FORM:
+                this.#reg_form = await RegistryForm.create(this.#jquery, params);
+                this.#reg_form.addEventListener(RegistryForm.EVENTS.FINISHED, async () => await this.setContentById(this.ID_CONTENT_TRANSACTIONS));
                 break;
-            
+
             case this.ID_CONTENT_TRANSACTIONS:
-                jcontent = $(await $.get('/home/nav-regs'));
+                const data = this.#current_date_ref? {date_ref: this.#current_date_ref} : {};
+                jcontent = $(await $.get('/home/nav-regs', data));
                 this.#jquery.html(jcontent);
-                this.#reg_details.setJquery(jcontent.find('.reg-details'));
+                this.#reg_details = new RegistryDetails(jcontent.find('.reg-details'));
                 
                 // Template index
                 jcontent.on('click', '#btn-trans-expand', () => this.expandAllCards());
-                jcontent.on('click', '.reg-details .btn-hide', () => this.hideDetails());
                 jcontent.on('click', '#btn-trans-collapse', () => this.collapseAllCards());
                 jcontent.on('click', '#btn-trans-reload', async () => await this.updateTransactionCards());
-                jcontent.on('click', '#btn-new-reg', async () => await this.setContentById(this.ID_CONTENT_NEW_REG));
+                jcontent.on('click', '#btn-new-reg', async () => await this.setContentById(this.ID_CONTENT_REG_FORM, {mode: 'NEW'}));
                 jcontent.on('change', '#filter-ref-year, #filter-ref-month', async () => await this.updateTransactionCards());
-
+                
+                this.#reg_details.addEventListener(RegistryDetails.EVENTS.HIDE, () => this.hideDetails());
+                this.#reg_details.addEventListener(RegistryDetails.EVENTS.DUPLICATE, async (e) => this.setContentById(this.ID_CONTENT_REG_FORM, {mode: 'COPY', id: e.detail}));
+                this.#reg_details.addEventListener(RegistryDetails.EVENTS.EDIT, async (e) => this.setContentById(this.ID_CONTENT_REG_FORM, {mode: 'EDIT', id: e.detail}));
+                
                 await this.updateTransactionCards();
                 break;
             
@@ -81,9 +85,9 @@ export default class RegistryView extends EventTarget {
         
         // limpando cache
         this.#cache.regs_by_id = {};
-
-        const current_date_ref = this.#jquery.find('#filter-ref-year').val() + '-' + this.#jquery.find('#filter-ref-month').val() + '-01';
-        const response = await $.get('/home/regs-trans-cards', {date_ref: current_date_ref});
+        
+        this.#current_date_ref = this.#jquery.find('#filter-ref-year').val() + '-' + this.#jquery.find('#filter-ref-month').val() + '-01';
+        const response = await $.get('/home/regs-trans-cards', {date_ref: this.#current_date_ref});
         let jquery = this.#jquery.find('#trans-cards').html(response);
         let sum_inputs = this.#jquery.find('#sum-inputs-hidden').text();
         let sum_outputs = this.#jquery.find('#sum-outputs-hidden').text();

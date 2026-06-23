@@ -1,14 +1,26 @@
 import { getElementsByXPath, REG_STATUS_HTML } from "../tools/utils.js";
 
-export default class RegistryDetails {
+export default class RegistryDetails extends EventTarget {
     #jquery;
+    #id = null;
 
-    constructor(id_or_jquery = null) {
-        if (id_or_jquery)
-            this.#jquery = $(id_or_jquery);
+    static EVENTS = {
+        HIDE: 'financeiro-api:registrydetails:hide',
+        DUPLICATE: 'financeiro-api:registrydetails:duplicate',
+        EDIT: 'financeiro-api:registrydetails:edit',
+    };
+
+    constructor(jquery) {
+        super();
+        this.#jquery = jquery;
+
+        jquery.on('click', '.btn-duplicate', () => this.dispatchEvent(new CustomEvent(RegistryDetails.EVENTS.DUPLICATE, {detail: this.#id})));
+        jquery.on('click', '.btn-edit', () => this.dispatchEvent(new CustomEvent(RegistryDetails.EVENTS.EDIT, {detail: this.#id})));
+        jquery.on('click', '.btn-hide', () => this.dispatchEvent(new CustomEvent(RegistryDetails.EVENTS.HIDE)));
     }
 
     setValues(data) {
+        this.#id = data.id;
         this.#jquery.find('.inp-title .text').text(data.title);
         this.#jquery.find(".inp-type .text").text(data.type_in? 'Entrada' : 'Saída');
         this.#jquery.find(".inp-value .text").text(data.value_formatted ?? '');
@@ -43,5 +55,5 @@ export default class RegistryDetails {
 
     show() { this.#jquery.show(); }
     hide() { this.#jquery.hide(); }
-    setJquery(jquery) { this.#jquery = jquery; }
+    // setJquery(jquery) { this.#jquery = jquery; }
 }

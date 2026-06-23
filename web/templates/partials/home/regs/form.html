@@ -1,5 +1,5 @@
 <div class="card shadow-sm p-3 d-flex row-gap-3 h-100 overflow-auto">
-    <input type="text" id="inp-id" value="{{ reg.id }}" hidden>
+    {% if edit_mode %}<input type="text" id="inp-id" value="{{ reg.id }}" hidden>{% endif %}
     <p class="title m-0">{{ title }}</p>
     <hr class="h-line-ignore-parent-padding m-0">
     <div>
@@ -57,7 +57,7 @@
     <div class="form-check">
         <input class="form-check-input" type="checkbox" id="inp-self-reg"
             {% if not reg.responsable %}checked{% endif %}
-            onclick="$('#div-inp-responsable').attr('hidden', this.checked)">
+            onclick="document.getElementById('div-inp-responsable').hidden = this.checked">
         <label class="form-check-label" for="inp-self-reg">Pessoal</label>
     </div>
     <div id="div-inp-responsable" {% if not reg.responsable %}hidden{% endif %}>
@@ -74,7 +74,7 @@
     <div class="form-check">
         <input class="form-check-input" type="checkbox" id="inp-has-card"
             {% if reg.invoice %}checked{% endif %}
-            onclick="$('#div-inp-card').attr('hidden', !this.checked)">
+            onclick="document.getElementById('div-inp-card').hidden = !this.checked">
         <label class="form-check-label" for="inp-has-card">Registro no Cartão</label>
     </div>
     <div id="div-inp-card" {% if not reg.invoice %}hidden{% endif %}>
@@ -93,18 +93,24 @@
     <div class="d-flex column-gap-2">
         <div class="w-100">
             <span>Parcela Atual</span>
-            <input type="number" class="form-control" min="1" step="1" placeholder="1" id="inp-current-installment">
+            <input type="number" class="form-control" min="1" step="1" placeholder="1" id="inp-current-installment" value="{{ current_installment }}"
+            onchange="document.getElementById('alert-installment').hidden = this.value == 1 || this.value == ''"
+            {% if edit_mode %}disabled{% endif %}>
         </div>
         <div class="w-100">
             <span>Total de Parcelas</span>
-            <input type="number" class="form-control" min="1" step="1" placeholder="1" id="inp-num-installments">
+            <input type="number" class="form-control" min="1" step="1" placeholder="1" id="inp-num-installments" value="{{ num_installments }}"
+            {% if edit_mode %}disabled{% endif %}>
         </div>
     </div>
+    <div class="alert alert-warning m-0" id="alert-installment" role="alert"
+        {% if hide_installment_alert %}hidden{% endif %}>
+        Os registros anteriores a parcela atual não serão criados automaticamente!</div>
     <div class="h-100"></div>
     <hr class="h-line-ignore-parent-padding m-0">
     <div class="d-flex justify-content-end">
-        {% if has_regs %}<button class="btn btn-outline ms-3 btn-new-reg-cancel">cancelar</button>{% endif %}
-        <button class="btn primary ms-3 btn-new-reg-save">salvar</button>
+        {% if has_regs %}<button class="btn btn-outline ms-3 btn-reg-form-cancel">cancelar</button>{% endif %}
+        <button class="btn primary ms-3 btn-reg-form-save">salvar</button>
     </div>
     
     <!-- MODAL - Novo Cartão -->

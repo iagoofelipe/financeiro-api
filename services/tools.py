@@ -25,8 +25,8 @@ def response_dto_or_error(statuscode:int, msg:str, obj:object, iterable=False, s
 def response_obj_or_error(statuscode:int=200, msg:str='', obj:object={}, safe=True):
     return JsonResponse(obj if statuscode == 200 else {'detail':msg}, status=statuscode, safe=safe)
 
-def response_success_error(statuscode:int, msg:str, success:object):
-    d = {'success': bool(success)}
+def response_success_error(statuscode:int, msg:str, success:object=None):
+    d = {'success': bool(success or statuscode == 200)}
     if msg:
         d['detail'] = msg
     return JsonResponse(d, status=statuscode)

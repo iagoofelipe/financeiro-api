@@ -11,7 +11,7 @@
                     {% include 'icons/money-send.svg' %}
                     <span id="sum-outputs" class="total-outputs title-3-bold ms-1" title="total de saídas">R$ 0,00</span>
                 </div>
-                <span id="filter-ref-month-year" class="title-3-bold" title="período de referência">{{ date_ref }}</span>
+                <span id="filter-ref-month-year" class="title-3-bold" title="período de referência">{{ date_formatted }}</span>
                 <div class="v-line m-0 v-line-ignore-parent-padding"></div>
                 <button title="novo registro" id="btn-new-reg" class="btn btn-outline">{% include 'icons/plus.svg' %}</button>
                 <button title="recarregar" id="btn-trans-reload" class="btn btn-outline">{% include 'icons/refresh.svg' %}</button>
@@ -54,7 +54,7 @@
                                 <label for="filter-ref-year" class="col-form-label">Ano de Referência</label>
                             </div>
                             <div class="col">
-                                <input type="number" class="form-control col" min="2000" step="1" maxlength="4" value="{{ current_date.year }}" id="filter-ref-year"
+                                <input type="number" class="form-control col" min="2000" step="1" maxlength="4" value="{{ current_year }}" id="filter-ref-year"
                                     onchange="$('#filter-ref-month-year').text(`${$('#filter-ref-month option:checked').text()} ${this.value}`)">
                             </div>
                         </div>

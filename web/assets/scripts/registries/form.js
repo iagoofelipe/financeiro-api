@@ -1,12 +1,12 @@
 import ModalNewCard from "./modal/new-card.js";
 import ModalNewResponsable from "./modal/new-responsable.js";
 import { MODAL_FLAGS, set_modal } from "../tools/utils.js";
-import { add_registry, get_cards, get_responsables } from "../tools/api.js";
+import { add_registry, get_cards, get_responsables, update_registry } from "../tools/api.js";
 
-export default class NewRegistryView extends EventTarget {
+export default class RegistryForm extends EventTarget {
     
     static EVENTS = {
-        FINISHED: 'financeiro-api:newregistryview:finished',
+        FINISHED: 'financeiro-api:registryform:finished',
     };
 
     #jquery;
@@ -23,14 +23,14 @@ export default class NewRegistryView extends EventTarget {
         this.#modal_new_card.addEventListener(ModalNewCard.EVENTS.SAVED, async () => await this.#on_newCard_saved());
         this.#modal_new_responsable.addEventListener(ModalNewResponsable.EVENTS.SAVED, async () => await this.#on_newResponsable_saved());
 
-        this.#jquery.on('click', '.btn-new-reg-save', async (e) => await this.#on_btnSave_clicked(e));
-        this.#jquery.on('click', '.btn-new-reg-cancel', () => this.dispatchEvent(new CustomEvent(NewRegistryView.EVENTS.FINISHED)));
+        this.#jquery.on('click', '.btn-reg-form-save', async (e) => await this.#on_btnSave_clicked(e));
+        this.#jquery.on('click', '.btn-reg-form-cancel', () => this.dispatchEvent(new CustomEvent(RegistryForm.EVENTS.FINISHED)));
     }
 
-    static async create(jquery_container) {
-        let jquery = $(await $.get('/home/new-reg'));
+    static async create(jquery_container, params) {
+        let jquery = $(await $.get('/home/reg-form', params));
         jquery_container.html(jquery);
-        return new NewRegistryView(jquery);
+        return new RegistryForm(jquery);
     }
 
     async #on_btnSave_clicked(evt) {
@@ -40,21 +40,27 @@ export default class NewRegistryView extends EventTarget {
             has_card = this.#jquery.find('#inp-has-card').prop('checked'),
             value = this.#jquery.find('#inp-value').val(),
             installment_current = this.#jquery.find('#inp-current-installment').val(),
-            installment_total = this.#jquery.find('#inp-num-installments').val();
+            installment_total = this.#jquery.find('#inp-num-installments').val(),
+            inp_id = this.#jquery.find('#inp-id'),
+            is_new_reg = !inp_id.length;
             
         let data = {
             title: this.#jquery.find('#inp-title').val(),
             value: value? parseFloat(value) : 0,
             occurrance: this.#jquery.find('#inp-occurrance').val(),
             description: this.#jquery.find('#inp-desc').val(),
-            ref_year: parseInt(this.#jquery.find('#inp-ref-year').val()),
-            ref_month: parseInt(this.#jquery.find('#inp-ref-month').val()),
+            date_ref: `${this.#jquery.find('#inp-ref-year').val()}-${this.#jquery.find('#inp-ref-month').val()}`,
             type_in: this.#jquery.find('#inp-radio-type-in').prop('checked'),
-            responsable_id: !self_reg? this.#jquery.find('#inp-responsable').val() : null,
-            card_id: has_card? this.#jquery.find('#inp-card').val() : null,
-            installment_current: installment_current? parseInt(installment_current) : 1,
-            installment_total: installment_total? parseInt(installment_total) : 1,
         };
+        
+        if (is_new_reg) {
+            data.responsable_id = !self_reg? this.#jquery.find('#inp-responsable').val() : null;
+            data.card_id = has_card? this.#jquery.find('#inp-card').val() : null;
+            data.installment_current = installment_current? parseInt(installment_current) : 1;
+            data.installment_total = installment_total? parseInt(installment_total) : 1;
+        } else {
+            data.id = inp_id.val();
+        }
 
         switch (this.#jquery.find('#inp-status').val())
         {
@@ -102,9 +108,9 @@ export default class NewRegistryView extends EventTarget {
             return;
         }
 
-        const response = await add_registry(data);
+        const response = await (is_new_reg? add_registry : update_registry)(data);
         if (response.success)
-            this.dispatchEvent(new CustomEvent(NewRegistryView.EVENTS.FINISHED));
+            this.dispatchEvent(new CustomEvent(RegistryForm.EVENTS.FINISHED));
         else
             set_modal('Erro', response.error);
     }
