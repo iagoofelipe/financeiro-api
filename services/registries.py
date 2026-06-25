@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 from . import consts
 from apps.api import models
 from . import invoices
+from . import installments
 
 def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[models.Registry] | None]:
     """ consulta os registros aplicando os filtros fornecidos. A filtragem segue o padrão de `key__condition` do django """
@@ -27,6 +28,11 @@ def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[mode
     if 'ocurrance_end' in filters:
         occurrance_end = filters.pop('occurrance_end')
     
+    if 'card_id' in filters:
+        v = filters.pop('card_id')
+        if v:
+            filters['invoice__card__id'] = v
+
     if occurrance_init or occurrance_end:
         filters['occurrance__range'] = (occurrance_init, occurrance_end)
 
@@ -81,11 +87,31 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
             if obj_with_user.user != user:
                 return HTTPStatus.FORBIDDEN, f'o ID fornecido em {id_to_query} não é vinculado ao usuário atual', None
 
+    if 'status' in data:
+        status = data.pop('status')
+        match status:
+            case 'PENDING':
+                done = False
+                accounted = False
+            
+            case 'ACCOUNTED':
+                done = False
+                accounted = True
+
+            case 'OK':
+                done = True
+                accounted = False
+
+            case _:
+                return HTTPStatus.BAD_REQUEST, f'o valor "{status}" não é um status válido entre PENDING, ACCOUNTED ou OK', None
+    else:
+        done = False
+        accounted = False
+
     try:
         date_ref = dt.date.strptime(data['date_ref'], '%Y-%m')
         invoice = invoices.get_or_create(data['card'], date_ref) if 'card' in data else None
         value = data['value']
-        done = data.get('done', False)
         responsable = data.get('responsable')
         
         reg = models.Registry(
@@ -96,7 +122,7 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
             date_ref=date_ref,
             type_in=data['type_in'],
             done=done,
-            accounted=data.get('accounted', False) if not done else False,
+            accounted=accounted,
             user=user,
             invoice=invoice,
             responsable=responsable,
@@ -200,16 +226,38 @@ def update(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
     if reg.user != user:
         return HTTPStatus.FORBIDDEN, 'permissão de acesso negada', None
     
+    if 'status' in data:
+        status = data.pop('status')
+        match status:
+            case 'PENDING':
+                data['done'] = False
+                data['accounted'] = False
+            
+            case 'ACCOUNTED':
+                data['done'] = False
+                data['accounted'] = True
+
+            case 'OK':
+                data['done'] = True
+                data['accounted'] = False
+
+            case _:
+                return HTTPStatus.BAD_REQUEST, f'o valor "{status}" não é um status válido entre PENDING, ACCOUNTED ou OK', None
+
     try:
         if 'occurrance' in data:
             data['occurrance'] = dt.datetime.strptime(data['occurrance'], '%d/%m/%Y %H:%M')
+        if 'date_ref' in data:
+            data['date_ref'] = dt.date.strptime(data['date_ref'], '%Y-%m')
         
         base_manager_reg.update(**data)
 
-    except ValueError:
-        return HTTPStatus.BAD_REQUEST, 'o parâmetro occurrance deve seguir o formato DD/MM/AAAA HH:MM', None
-
     except Exception as e:
         return HTTPStatus.BAD_REQUEST, e.__str__(), None
+    
+    # atualizando parcelas, caso haja
+    if installment_item := reg.installment_item.first():
+        installments.update_values(installment_item.installment)
 
     return HTTPStatus.OK, '', base_manager_reg.first()
+

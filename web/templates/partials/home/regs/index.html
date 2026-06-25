@@ -11,11 +11,16 @@
                     {% include 'icons/money-send.svg' %}
                     <span id="sum-outputs" class="total-outputs title-3-bold ms-1" title="total de saídas">R$ 0,00</span>
                 </div>
-                <span id="filter-ref-month-year" class="title-3-bold" title="período de referência">{{ date_formatted }}</span>
-                <div class="v-line m-0 v-line-ignore-parent-padding"></div>
+                <div class="d-flex align-items-center">
+                    <div class="icon-money-bag-alert">{% include 'icons/money-bag-alert.svg' %}</div>
+                    <div class="icon-money-bag-success">{% include 'icons/money-bag-success.svg' %}</div>
+                    <span id="total-inout" class="total-inout title-3-bold ms-1" title="saldo final">R$ 0,00</span>
+                </div>
+                <span id="filter-info" class="title-3-bold" title="período de referência">Referência: {{ date_formatted }}</span>
+                <div class="v-line m-0"></div>
                 <button title="novo registro" id="btn-new-reg" class="btn btn-outline">{% include 'icons/plus.svg' %}</button>
                 <button title="recarregar" id="btn-trans-reload" class="btn btn-outline">{% include 'icons/refresh.svg' %}</button>
-                <button title="expandir todos" id="btn-trans-expand" class="btn btn-outline">{% include 'icons/expand.svg' %}</button>
+                <!-- <button title="expandir todos" id="btn-trans-expand" class="btn btn-outline">{% include 'icons/expand.svg' %}</button> -->
                 <button title="recolher todos" id="btn-trans-collapse" class="btn btn-outline" hidden>{% include 'icons/collapse.svg' %}</button>
                 <button title="filtrar registros" id="btn-trans-filter" class="btn btn-outline" data-bs-toggle="modal" data-bs-target="#modal-trans-filter">{% include 'icons/filter.svg' %}</button>
             </div>
@@ -35,27 +40,38 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="container">
-                        <div class="row align-items-center mb-3">
-                            <div class="col-md-auto">
+                    <div class="container p-0">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
                                 <label for="filter-ref-month" class="col-form-label">Mês de Referência</label>
                             </div>
                             <div class="col">
-                                <select class="form-select" id="filter-ref-month"
-                                    onchange="$('#filter-ref-month-year').text(`${this.options[this.selectedIndex].text} ${$('#filter-ref-year').val()}`)">
+                                <select class="form form-select" id="filter-ref-month">
                                     {% for month in months %}
                                     <option value="{{ month.number }}" {% if month.is_current %}selected{% endif %}>{{ month.text }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                         </div>
-                        <div class="row align-items-center">
-                            <div class="col-md-auto">
+                        <div class="row align-items-center mt-3">
+                            <div class="col-md-4">
                                 <label for="filter-ref-year" class="col-form-label">Ano de Referência</label>
                             </div>
                             <div class="col">
-                                <input type="number" class="form-control col" min="2000" step="1" maxlength="4" value="{{ current_year }}" id="filter-ref-year"
-                                    onchange="$('#filter-ref-month-year').text(`${$('#filter-ref-month option:checked').text()} ${this.value}`)">
+                                <input type="number" class="form form-control col" min="2000" step="1" maxlength="4" value="{{ current_year }}" id="filter-ref-year">
+                            </div>
+                        </div>
+                        <div class="row align-items-center mt-3">
+                            <div class="col-md-4">
+                                <label for="filter-card" class="col-form-label">Cartão</label>
+                            </div>
+                            <div class="col">
+                                <select class="form form-select" id="filter-card">
+                                    <option value="">(Todos)</option>
+                                    {% for card in cards %}
+                                    <option value="{{ card.id }}">{{ card.name }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
                     </div>

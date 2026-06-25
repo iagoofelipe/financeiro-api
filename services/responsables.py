@@ -15,11 +15,16 @@ def get_by_id(user, id:int) -> tuple[HTTPStatus, str, models.Responsable | None]
     return HTTPStatus.OK, '', obj
 
 def create(user, **data) -> tuple[HTTPStatus, str, models.Responsable | None]:
+    if 'name' not in data:
+        return HTTPStatus.BAD_REQUEST, 'o parâmetro name é obrigatório!', None
+
+    name = data['name']
+
+    if models.Responsable.objects.filter(name=name, user=user).count():
+        return HTTPStatus.BAD_REQUEST, 'já existe um responsável cadastrado com esse nome!', None
+
     try:
-        obj = models.Responsable(
-            name=data['name'],
-            user=user,
-        )
+        obj = models.Responsable(name=name, user=user)
     except KeyError as e:
         return HTTPStatus.BAD_REQUEST, f'missing required param {e}', None
 

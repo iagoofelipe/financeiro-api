@@ -4,6 +4,7 @@
             <p class="text m-0 title-2"></p>
         </div>
         <div class="d-flex">
+            <button class="btn btn-outline ms-3 btn-delete">{% include 'icons/trash.svg' %}</button>
             <button class="btn btn-outline ms-3 btn-duplicate">{% include 'icons/duplicate.svg' %}</button>
             <button class="btn btn-outline ms-3 btn-edit">{% include 'icons/edit.svg' %}</button>
             <button class="btn btn-outline ms-3 btn-hide">{% include 'icons/panel-right-filled.svg'%}</button>
@@ -64,4 +65,19 @@
             <span class="text pending"></span>
         </div>
     </div>
+
+
+    <!-- MODAL - Delete Confirm -->
+    <div class="modal fade" id="modal-trans-delete" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">Deseja excluir todos os dados do registro?<br><br>Os registros no mesmo grupo de parcelamento também serão excluídos!</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">fechar</button>
+                    <button type="button" class="btn primary btn-modal-ok">confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>

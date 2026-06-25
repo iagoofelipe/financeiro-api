@@ -29,6 +29,7 @@ def nav_regs(request):
     return render(request, 'partials/home/regs/index.html', {
         # 'date_references': registries.get_date_references(request.user),
         # 'current_ref': current_ref.strftime('%b %y') if current_ref else ''
+        'cards': models.Card.objects.filter(user=request.user),
         'current_year': date.year,
         'date_formatted': date.strftime('%B %Y'),
         'months': months_with_current(date),
@@ -38,7 +39,7 @@ def reg_trans_cards(request):
     if not request.user.is_authenticated:
         return HttpResponseForbidden()
     
-    *_, regs = registries.get_by_filters(request.user, date_ref=request.GET.get('date_ref'))
+    *_, regs = registries.get_by_filters(request.user, **request.GET.dict())
     transactions_by_responsable = {}
 
     for reg in regs:
@@ -79,14 +80,15 @@ def reg_trans_cards(request):
 
     # ordenando por título, fixando Pessoais no topo
     transactions = sorted(transactions_by_responsable.values(), key=lambda t: (t['title'] != 'Pessoais', t['title']))
-
-    data = {
+    
+    total_inout = sum_inputs - sum_outputs
+    return render(request, 'partials/home/regs/trans-cards.html', {
         'transactions': transactions,
         'sum_inputs': format_coin(sum_inputs),
         'sum_outputs': format_coin(sum_outputs),
-    }
-
-    return render(request, 'partials/home/regs/trans-cards.html', data)
+        'total_inout': format_coin(total_inout),
+        'positive_inout': total_inout >= 0,
+    })
 
 def reg_form(request):
     if not request.user.is_authenticated:

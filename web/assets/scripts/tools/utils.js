@@ -51,6 +51,6 @@ export function set_modal(title, html_body, show = true, flags = 0) {
     if (show) {
         // modal.show();
         let modal = new bootstrap.Modal('#modal');
-        modal.show(document.body);
+        modal.show();
     }
 }

@@ -68,7 +68,8 @@
                 <option value="{{ responsable.id }}" {% if reg.responsable.id == responsable.id %}selected{% endif %}>{{ responsable.name }}</option>
                 {% endfor %}
             </select>
-            <button title="novo cartão" id="btn-new-responsable" class="btn btn-outline" data-bs-toggle="modal" data-bs-target="#modal-new-responsable">{% include 'icons/plus.svg' %}</button>
+            <button title="novo cartão" id="btn-new-responsable" class="btn btn-outline" data-bs-toggle="modal" data-bs-target="#modal-new-responsable"
+                onclick="document.getElementById('inp-new-responsable-name').value = ''">{% include 'icons/plus.svg' %}</button>
         </div>
     </div>
     <div class="form-check">

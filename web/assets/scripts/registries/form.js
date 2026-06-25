@@ -1,7 +1,8 @@
 import ModalNewCard from "./modal/new-card.js";
 import ModalNewResponsable from "./modal/new-responsable.js";
 import { MODAL_FLAGS, set_modal } from "../tools/utils.js";
-import { add_registry, get_cards, get_responsables, update_registry } from "../tools/api.js";
+import { get_cards, get_responsables } from "../tools/api.js";
+import { add_registry, update_registry } from "../tools/api/registries.js";
 
 export default class RegistryForm extends EventTarget {
     
@@ -42,15 +43,17 @@ export default class RegistryForm extends EventTarget {
             installment_current = this.#jquery.find('#inp-current-installment').val(),
             installment_total = this.#jquery.find('#inp-num-installments').val(),
             inp_id = this.#jquery.find('#inp-id'),
-            is_new_reg = !inp_id.length;
+            is_new_reg = !inp_id.length,
+            ref_year = this.#jquery.find('#inp-ref-year').val();
             
         let data = {
             title: this.#jquery.find('#inp-title').val(),
             value: value? parseFloat(value) : 0,
             occurrance: this.#jquery.find('#inp-occurrance').val(),
             description: this.#jquery.find('#inp-desc').val(),
-            date_ref: `${this.#jquery.find('#inp-ref-year').val()}-${this.#jquery.find('#inp-ref-month').val()}`,
+            date_ref: `${ref_year}-${this.#jquery.find('#inp-ref-month').val()}`,
             type_in: this.#jquery.find('#inp-radio-type-in').prop('checked'),
+            status: this.#jquery.find('#inp-status').val(),
         };
         
         if (is_new_reg) {
@@ -62,17 +65,6 @@ export default class RegistryForm extends EventTarget {
             data.id = inp_id.val();
         }
 
-        switch (this.#jquery.find('#inp-status').val())
-        {
-            case 'ACCOUNTED':
-                data.accounted = true;
-                break;
-
-            case 'OK':
-                data.done = true;
-                break;
-        }
-
         // verificando campos obrigatórios
         let required_fields = {
             title: '#inp-title',
@@ -82,14 +74,14 @@ export default class RegistryForm extends EventTarget {
         // validando entradas
         this.#jquery.find('[class^="form"].required').removeClass('required');
 
-        if (data.installment_current > data.installment_total) {
+        if (is_new_reg && data.installment_current > data.installment_total) {
             this.#jquery.find('#inp-current-installment, #inp-num-installments').addClass('required');
 
             set_modal('Validação de Entradas', 'o valor da parcela atual não pode ser maior que o total de parcelas!', true, MODAL_FLAGS.HIDE_FOOTER);
             return;
         }
 
-        if (isNaN(data.ref_year) || data.ref_year < 2000) {
+        if (isNaN(ref_year) || ref_year < 2000) {
             this.#jquery.find('#inp-ref-year').addClass('required');
 
             set_modal('Validação de Entradas', 'o ano de referência deve ser maior ou igual a 2000', true, MODAL_FLAGS.HIDE_FOOTER);

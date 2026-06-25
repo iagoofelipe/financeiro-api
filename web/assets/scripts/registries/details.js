@@ -5,9 +5,10 @@ export default class RegistryDetails extends EventTarget {
     #id = null;
 
     static EVENTS = {
-        HIDE: 'financeiro-api:registrydetails:hide',
         DUPLICATE: 'financeiro-api:registrydetails:duplicate',
+        DELETE: 'financeiro-api:registrydetails:delete',
         EDIT: 'financeiro-api:registrydetails:edit',
+        HIDE: 'financeiro-api:registrydetails:hide',
     };
 
     constructor(jquery) {
@@ -15,8 +16,10 @@ export default class RegistryDetails extends EventTarget {
         this.#jquery = jquery;
 
         jquery.on('click', '.btn-duplicate', () => this.dispatchEvent(new CustomEvent(RegistryDetails.EVENTS.DUPLICATE, {detail: this.#id})));
+        jquery.on('click', '.btn-delete', () => this.#jquery.find('#modal-trans-delete').modal('show'));
         jquery.on('click', '.btn-edit', () => this.dispatchEvent(new CustomEvent(RegistryDetails.EVENTS.EDIT, {detail: this.#id})));
         jquery.on('click', '.btn-hide', () => this.dispatchEvent(new CustomEvent(RegistryDetails.EVENTS.HIDE)));
+        jquery.on('click', '#modal-trans-delete .btn-modal-ok', () => this.#on_modalDelete_btnOK_clicked());
     }
 
     setValues(data) {
@@ -55,5 +58,12 @@ export default class RegistryDetails extends EventTarget {
 
     show() { this.#jquery.show(); }
     hide() { this.#jquery.hide(); }
-    // setJquery(jquery) { this.#jquery = jquery; }
+    
+    //-----------------------------------------------------------------------------
+    // Eventos
+    #on_modalDelete_btnOK_clicked() {
+        this.#jquery.find('#modal-trans-delete').modal('hide');
+        this.dispatchEvent(new CustomEvent(RegistryDetails.EVENTS.DELETE, {detail: this.#id}));
+    }
+    //-----------------------------------------------------------------------------
 }

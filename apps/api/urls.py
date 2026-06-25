@@ -25,6 +25,7 @@ urlpatterns = [
 
     # Installment
     path('deleteInstallment/<int:id>', installment_views.delete_installment),
+    path('updateInstallments', installment_views.update_installments),
 
     # Registry
     path('getRegistries', reg_views.get_registries),

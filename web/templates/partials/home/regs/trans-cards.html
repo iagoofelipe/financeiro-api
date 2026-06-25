@@ -1,5 +1,9 @@
-<div id="sum-inputs-hidden" hidden>{{ sum_inputs }}</div>
-<div id="sum-outputs-hidden" hidden>{{ sum_outputs }}</div>
+<div hidden>
+    <input id="sum-inputs-hidden" value="{{ sum_inputs }}">
+    <input id="sum-outputs-hidden" value="{{ sum_outputs }}">
+    <input id="total-inout-hidden" value="{{ total_inout }}">
+    <input id="positive-inout-hidden" value="{{ positive_inout }}">
+</div>
 
 {% for transaction in transactions %}
 <div class="card p-3 {% if forloop.counter != 1 %} mt-3 {% endif %}">

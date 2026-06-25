@@ -132,8 +132,7 @@ main {
 }
 
 .reg-details {
-    min-width: 400px;
-    width: 20%;
+    min-width: 430px;
 }
 
 /* Estilo customizado para as Badges (Status) */
