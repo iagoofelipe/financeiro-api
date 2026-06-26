@@ -54,11 +54,12 @@ export default class RegistryForm extends EventTarget {
             date_ref: `${ref_year}-${this.#jquery.find('#inp-ref-month').val()}`,
             type_in: this.#jquery.find('#inp-radio-type-in').prop('checked'),
             status: this.#jquery.find('#inp-status').val(),
+            category: this.#jquery.find('#inp-category').val(),
+            responsable_id: !self_reg? this.#jquery.find('#inp-responsable').val() : null,
+            card_id: has_card? this.#jquery.find('#inp-card').val() : null,
         };
         
         if (is_new_reg) {
-            data.responsable_id = !self_reg? this.#jquery.find('#inp-responsable').val() : null;
-            data.card_id = has_card? this.#jquery.find('#inp-card').val() : null;
             data.installment_current = installment_current? parseInt(installment_current) : 1;
             data.installment_total = installment_total? parseInt(installment_total) : 1;
         } else {

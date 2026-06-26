@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 import json
 
 from services import responsables
-from services.tools import response_dto_or_error, response_obj_or_error
+from services.tools import response_dto_or_error
 
 @api_view(["GET"])
 def get_responsables(request:HttpRequest):

@@ -30,6 +30,7 @@ export default class RegistryDetails extends EventTarget {
         this.#jquery.find(".inp-owner .text").text(data.responsable_name ?? '');
         this.#jquery.find(".inp-occurrance .text").text(data.occurrance_formatted ?? '');
         this.#jquery.find(".inp-description .text").text(data.description ?? '');
+        this.#jquery.find(".inp-category .text").text(data.category ?? '');
         this.#jquery.find(".inp-status .text").html(REG_STATUS_HTML[data.status]);
         this.#jquery.find(".inp-card .text").text(data.card_name ?? '');
         this.#jquery.find(".inp-invoice .text").text(data.invoice_ref_formatted ?? '');

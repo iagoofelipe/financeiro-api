@@ -13,23 +13,23 @@
         </div>
     </div>
     <div>
-        <span>Título</span>
+        <label for="inp-title" class="form-label">Título</label>
         <input type="text" class="form-control" id="inp-title" value="{{ reg.title }}">
     </div>
     <div>
-        <span>Valor</span>
+        <label for="inp-value" class="form-label">Valor</label>
         <div class="input-group">
             <span class="input-group-text">R$</span>
             <input id="inp-value" type="number" class="form-control" min="0" step="0.01" placeholder="0,00" value="{{ reg.value }}">
         </div>
     </div>
     <div>
-        <span>Data de Ocorrência</span>
+        <label for="inp-occurrance" class="form-label">Data de Ocorrência</label>
         <input type="datetime" class="form-control" id="inp-occurrance" value="{{ reg_occurrance }}">
     </div>
     <div class="d-flex column-gap-3">
         <div class="w-100">
-            <span>Mês de Referência</span>
+            <label for="inp-ref-month" class="form-label">Mês de Referência</label>
             <select class="form-select" id="inp-ref-month">
                 {% for month in months %}
                 <option value="{{ month.number }}" {% if month.number == reg_month_number %}selected{% endif %}>{{ month.text }}</option>
@@ -37,13 +37,13 @@
             </select>
         </div>
         <div class="w-100">
-            <span>Ano de Referência</span>
+            <label for="inp-ref-year" class="form-label">Ano de Referência</label>
             <input type="number" class="form-control" min="2000" step="1" maxlength="4" id="inp-ref-year"
                 value="{%if ref %}{{ reg.year }}{% else %}{{ current_date.year }}{% endif %}">
         </div>
     </div>
     <div>
-        <span>Status</span>
+        <label for="inp-status" class="form-label">Status</label>
         <select class="form-select" id="inp-status">
             {% for value, prop in status.items %}
             <option value="{{  value }}" {% if prop.selected %}selected{% endif %}>{{ prop.text }}</option>
@@ -51,8 +51,17 @@
         </select>
     </div>
     <div>
-        <span>Descrição</span>
-        <input type="text" class="form-control" id="inp-desc" value="{{ reg.description }}">
+        <label for="inp-desc" class="form-label">Descrição</label>
+        <input type="text" class="form-control" id="inp-desc" {% if reg.description %}value="{{ reg.description }}"{% endif %}>
+    </div>
+    <div class="mb-3">
+        <label for="inp-category" class="form-label">Categoria</label>
+        <input class="form-control" list="datalist-category" id="inp-category" placeholder="Outros" {% if reg.category %}value="{{ reg.category.title }}"{% endif %}>
+        <datalist id="datalist-category">
+            {% for category in categories %}
+            <option value="{{ category.title }}">
+            {% endfor %}
+        </datalist>
     </div>
     <div class="form-check">
         <input class="form-check-input" type="checkbox" id="inp-self-reg"
@@ -61,7 +70,7 @@
         <label class="form-check-label" for="inp-self-reg">Pessoal</label>
     </div>
     <div id="div-inp-responsable" {% if not reg.responsable %}hidden{% endif %}>
-        <span>Responsável</span>
+        <label for="inp-title" class="form-label">Responsável</label>
         <div class="d-flex d-column column-gap-2">
             <select class="form-select" id="inp-responsable">
                 {% for responsable in responsables %}
@@ -79,7 +88,7 @@
         <label class="form-check-label" for="inp-has-card">Registro no Cartão</label>
     </div>
     <div id="div-inp-card" {% if not reg.invoice %}hidden{% endif %}>
-        <span>Cartão</span>
+        <label for="inp-card" class="form-label">Cartão</label>
         <div class="d-flex d-column column-gap-2">
             <select class="form-select" id="inp-card">
                 {% for card in cards %}
@@ -93,20 +102,25 @@
     <p class="title-2 m-0">Parcelamento</p>
     <div class="d-flex column-gap-2">
         <div class="w-100">
-            <span>Parcela Atual</span>
+            <label for="inp-current-installment" class="form-label">Parcela Atual</label>
             <input type="number" class="form-control" min="1" step="1" placeholder="1" id="inp-current-installment" value="{{ current_installment }}"
-            onchange="document.getElementById('alert-installment').hidden = this.value == 1 || this.value == ''"
+            onchange="document.getElementById('alert-installment-quantity').hidden = this.value == 1 || this.value == ''"
             {% if edit_mode %}disabled{% endif %}>
         </div>
         <div class="w-100">
-            <span>Total de Parcelas</span>
+            <label for="inp-num-installments" class="form-label">Total de Parcelas</label>
             <input type="number" class="form-control" min="1" step="1" placeholder="1" id="inp-num-installments" value="{{ num_installments }}"
             {% if edit_mode %}disabled{% endif %}>
         </div>
     </div>
-    <div class="alert alert-warning m-0" id="alert-installment" role="alert"
-        {% if hide_installment_alert %}hidden{% endif %}>
+    <div class="alert alert-warning m-0" id="alert-installment-quantity" role="alert"
+        {% if hide_installment_quantity_alert %}hidden{% endif %}>
         Os registros anteriores a parcela atual não serão criados automaticamente!</div>
+
+    {% if show_installment_updates_alert %}
+    <div class="alert alert-warning m-0" role="alert">As alterações aplicadas neste registro não serão replicadas para as outras parcelas!</div>
+    {% endif %}
+
     <div class="h-100"></div>
     <hr class="h-line-ignore-parent-padding m-0">
     <div class="d-flex justify-content-end">

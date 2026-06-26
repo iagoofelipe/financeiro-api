@@ -1,4 +1,4 @@
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 import json
@@ -14,4 +14,3 @@ def create_account(request:HttpRequest):
 @api_view(["POST"])
 def delete_account(request:HttpRequest):
     return response_success_error(*user.delete(request.user))
-    

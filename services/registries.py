@@ -11,6 +11,16 @@ from apps.api import models
 from . import invoices
 from . import installments
 
+
+# campos que necessitam da verificação de pertencimento do usuário
+# field: {model: source_model, attr_with_user: field_to_validate (default self), name: destiny_name}
+REGISTRY_IS_OWNER_VALIDATION = {
+    'responsable_id': { 'model': models.Responsable, 'name': 'responsable' },
+    'card_id': { 'model': models.Card, 'name': 'card' },
+}
+SET_REGISTRY_IS_OWNER_VALIDATION = set(REGISTRY_IS_OWNER_VALIDATION)
+
+
 def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[models.Registry] | None]:
     """ consulta os registros aplicando os filtros fornecidos. A filtragem segue o padrão de `key__condition` do django """
     # adicionando filtros
@@ -53,139 +63,139 @@ def get_by_id(user, regid:int) -> tuple[HTTPStatus, str, models.Registry | None]
     
     return HTTPStatus.OK, '', reg
 
+def validations(user, data:dict, required_fields:set=None, validate_installment=False, remove_if_empty=True) -> tuple[HTTPStatus, str] | None:
+    set_data = set(data)
+    data['user'] = user
+
+    # substituindo string vazias por None
+    for k in filter(lambda k: data[k] == '', data):
+        data[k] = None
+
+    # verificando campos obrigatórios
+    if required_fields and isinstance(required_fields, set):
+        missing_fields = required_fields - set_data
+        if missing_fields:
+            return HTTPStatus.BAD_REQUEST, f'campos obrigatórios ausentes {missing_fields}'
+
+    if validate_installment:
+        if 'installment_current' in data and not 'installment_total' in data:
+            return HTTPStatus.BAD_REQUEST, f'installment_total é necessário para installment_current'
+        
+        data['installment_total'] = total = data.get('installment_total', 0)
+        data['installment_index'] = index = data.pop('installment_current', 1) - 1
+
+        if total > 1 and index >= total:
+            return HTTPStatus.BAD_REQUEST, f'a parcela atual deve ser menor ou igual ao total de parcelas'
+    
+    # validando vínculo do usuário com os ids fornecidos
+    for field in SET_REGISTRY_IS_OWNER_VALIDATION & set_data:
+        if data[field] is None:
+            if remove_if_empty:
+                data.pop(field)
+            continue
+
+        # coletando informações do campo
+        model = REGISTRY_IS_OWNER_VALIDATION[field]['model']
+        attr_with_user = REGISTRY_IS_OWNER_VALIDATION[field].get('attr_with_user', 'self')
+        name = REGISTRY_IS_OWNER_VALIDATION[field]['name']
+
+        # coletando dados para validação
+        obj = model.objects.filter(id=data.pop(field)).first()
+
+        if not obj:
+            return HTTPStatus.BAD_REQUEST, f'nenhum id válido encontrado para {field}'
+
+        obj_with_user = obj if attr_with_user == 'self' else getattr(obj, attr_with_user)
+        if obj_with_user.user != user:
+            return HTTPStatus.FORBIDDEN, f'o ID fornecido em {field} não é vinculado ao usuário atual'
+        
+        data[name] = obj
+    
+    # tratando dados de entrada
+    try:
+        if 'occurrance' in data:
+            data['occurrance'] = dt.datetime.strptime(data['occurrance'], '%d/%m/%Y %H:%M')
+        
+        if 'date_ref' in data:
+            data['date_ref'] = dt.date.strptime(data['date_ref'], '%Y-%m')
+
+    except ValueError as e:
+        return HTTPStatus.BAD_REQUEST, e.__str__()
+    
+    if 'status' in data:
+        data['done'] = False
+        data['accounted'] = False
+        status = data.pop('status')
+
+        if status not in ('PENDING', 'ACCOUNTED', 'OK'):
+            return HTTPStatus.BAD_REQUEST, 'o parâmetro status deve ser PENDING, ACCOUNTED ou OK'
+        
+        match status:
+            # case 'PENDING':     done e accounted False
+            case 'ACCOUNTED':   data['accounted'] = True
+            case 'OK':          data['done'] = True
+
+    if 'category' in data:
+        if data['category']:
+            data['category'], created = models.Category.objects.get_or_create(title=data['category'], user=user)
+        
+        elif remove_if_empty:
+            data.pop('category')
+
+    if 'card' in data:
+        data['invoice'] = invoices.get_or_create(data.pop('card'), data['date_ref'])
+    elif 'card_id' in data and data['card_id'] is None:
+        data['invoice'] = data.pop('card_id')
+
+
 def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
     """ cria um novo registro, retorna statuscode, error, object """
 
-    if 'installment_current' in data and not 'installment_total' in data:
-        return HTTPStatus.BAD_REQUEST, f'installment_total é necessário para installment_current', None
+    validation_result = validations(user, data, {'title', 'value', 'occurrance', 'date_ref'}, validate_installment=True)
 
-    # validando dados
-    try:
-        occurrance = dt.datetime.strptime(data['occurrance'], '%d/%m/%Y %H:%M')
-    except ValueError:
-        return HTTPStatus.BAD_REQUEST, f'occurrance deve seguir o formato dd/mm/aaaa hh:mm', None
+    # em caso de erro na validação
+    if validation_result:
+        return *validation_result, None
+    
+    # removendo dados adicionados na validação que não são passados para models.Registry
+    installment_total = data.pop('installment_total')
+    installment_index = data.pop('installment_index')
 
-    # consultando dependências
-    ids_to_query = {
-        'responsable_id': { 'model': models.Responsable, 'attr_with_user': 'self', 'name': 'responsable' },
-        'card_id': { 'model': models.Card, 'attr_with_user': 'self', 'name': 'card' },
-    }
-
-    for id_to_query, params in ids_to_query.items():
-        if id_to_query not in data or data[id_to_query] in ('', None):
-            continue
-
-        obj = params['model'].objects.filter(id=data[id_to_query]).first()
-        data[params['name']] = obj
-        attr_with_user = params['attr_with_user']
-
-        if not obj:
-            return HTTPStatus.BAD_REQUEST, f'nenhum id válido encontrado para {id_to_query}', None
-
-        if attr_with_user:
-            obj_with_user = obj if attr_with_user == 'self' else getattr(obj, attr_with_user)
-            if obj_with_user.user != user:
-                return HTTPStatus.FORBIDDEN, f'o ID fornecido em {id_to_query} não é vinculado ao usuário atual', None
-
-    if 'status' in data:
-        status = data.pop('status')
-        match status:
-            case 'PENDING':
-                done = False
-                accounted = False
-            
-            case 'ACCOUNTED':
-                done = False
-                accounted = True
-
-            case 'OK':
-                done = True
-                accounted = False
-
-            case _:
-                return HTTPStatus.BAD_REQUEST, f'o valor "{status}" não é um status válido entre PENDING, ACCOUNTED ou OK', None
-    else:
-        done = False
-        accounted = False
-
-    try:
-        date_ref = dt.date.strptime(data['date_ref'], '%Y-%m')
-        invoice = invoices.get_or_create(data['card'], date_ref) if 'card' in data else None
-        value = data['value']
-        responsable = data.get('responsable')
-        
-        reg = models.Registry(
-            title=data['title'],
-            value=value,
-            occurrance=occurrance,
-            description=data.get('description'),
-            date_ref=date_ref,
-            type_in=data['type_in'],
-            done=done,
-            accounted=accounted,
-            user=user,
-            invoice=invoice,
-            responsable=responsable,
-        )
-    except KeyError as e:
-        return HTTPStatus.BAD_REQUEST, f'missing required param {e}', None
-    except ValueError:
-        return HTTPStatus.BAD_REQUEST, f'o parâmetro date-ref deve seguir o formato AAAA-MM', None
-   
+    reg = models.Registry(**data)
     reg.save()
     regid = reg.id
 
     # criando grupo de parcelas
-    if data.get('installment_total', 0) > 1:
-        index = data.get('installment_current', 1) - 1
-        total = data['installment_total']
+    if installment_total > 1:
+        total_value = data['value'] * installment_total
+        paid_value = data['value'] * (installment_index + reg.done)
 
-        if index >= total:
-            return HTTPStatus.BAD_REQUEST, f'a parcela atual deve ser menor ou igual ao total de parcelas', None
-        
-        total_value = value * total
-        paid_value = value * (index + reg.done)
         installment = models.Installment(
             user=user,
-            num_items=total,
+            num_items=installment_total,
             value=total_value,
             paid=paid_value,
             pending=total_value - paid_value,
         )
         installment.save()
 
-        type_in = data['type_in']
-
-        for i in range(index, total):
-            if i != index: # criando um novo registro caso não seja o primeiro index
-                date_ref += relativedelta(months=1)
+        for i in range(installment_index, installment_total):
+            if i != installment_index: # criando um novo registro caso não seja o primeiro index
+                data['date_ref'] += relativedelta(months=1)
                 
-                if type_in: # caso seja uma saída, a data de ocorrência é fixa
-                    occurrance += relativedelta(months=1)
+                if reg.type_in: # caso seja uma saída, a data de ocorrência é fixa
+                    data['occurrance'] += relativedelta(months=1)
 
-                if invoice:
-                    invoice = invoices.get_or_create(invoice.card, date_ref)
+                if 'invoice' in data:
+                    data['invoice'] = invoices.get_or_create(data['invoice'].card, data['date_ref'])
+
+                data['done'] = False
+                data['accounted'] = not reg.type_in
                 
-                reg = models.Registry(
-                    title=data['title'],
-                    value=value,
-                    accounted=not type_in,
-                    occurrance=occurrance,
-                    description=data.get('description'),
-                    date_ref=date_ref,
-                    type_in=type_in,
-                    user=user,
-                    invoice=invoice,
-                    responsable=responsable,
-                )
+                reg = models.Registry(**data)
                 reg.save()
 
-            installment_item = models.InstallmentItem(
-                index=i,
-                installment=installment,
-                registry=reg
-            )
-            installment_item.save()
+            models.InstallmentItem(index=i, installment=installment, registry=reg).save()
 
     return HTTPStatus.OK, '', models.Registry.objects.get(id=regid)
 
@@ -214,8 +224,10 @@ def delete(user, id, all_parents=True) -> tuple[HTTPStatus, str]:
 
 
 def update(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
-    if 'id' not in data:
-        return HTTPStatus.BAD_REQUEST, 'o parâmetro id é obrigatório', None
+    validation_result = validations(user, data, {'id'}, remove_if_empty=False)
+
+    if validation_result:
+        return *validation_result, None
 
     base_manager_reg = models.Registry.objects.filter(id=data.pop('id'))
     reg = base_manager_reg.first()
@@ -226,32 +238,8 @@ def update(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
     if reg.user != user:
         return HTTPStatus.FORBIDDEN, 'permissão de acesso negada', None
     
-    if 'status' in data:
-        status = data.pop('status')
-        match status:
-            case 'PENDING':
-                data['done'] = False
-                data['accounted'] = False
-            
-            case 'ACCOUNTED':
-                data['done'] = False
-                data['accounted'] = True
-
-            case 'OK':
-                data['done'] = True
-                data['accounted'] = False
-
-            case _:
-                return HTTPStatus.BAD_REQUEST, f'o valor "{status}" não é um status válido entre PENDING, ACCOUNTED ou OK', None
-
     try:
-        if 'occurrance' in data:
-            data['occurrance'] = dt.datetime.strptime(data['occurrance'], '%d/%m/%Y %H:%M')
-        if 'date_ref' in data:
-            data['date_ref'] = dt.date.strptime(data['date_ref'], '%Y-%m')
-        
         base_manager_reg.update(**data)
-
     except Exception as e:
         return HTTPStatus.BAD_REQUEST, e.__str__(), None
     
@@ -259,5 +247,5 @@ def update(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
     if installment_item := reg.installment_item.first():
         installments.update_values(installment_item.installment)
 
-    return HTTPStatus.OK, '', base_manager_reg.first()
+    return HTTPStatus.OK, '', reg
 

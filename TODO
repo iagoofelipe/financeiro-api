@@ -1,2 +1,3 @@
-[ ] adicionar botão duplicar no detalhamento do registo
-[ ] adicionar botão excluir no detalhamento do registo
+[X] adicionar botão duplicar no detalhamento do registo
+[X] adicionar botão excluir no detalhamento do registo
+[ ] adicionar filtros (intervalo do valor, texto em título, tipo de entrada...) em registros

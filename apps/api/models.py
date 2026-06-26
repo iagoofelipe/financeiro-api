@@ -54,7 +54,10 @@ class Invoice(models.Model):
             'card_id': self.card.id,
             'card_name': self.card.name,
         }
-
+    
+class Category(models.Model):
+    title = models.CharField(max_length=100)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
 class Registry(models.Model):
     title = models.CharField(max_length=100)
@@ -67,6 +70,7 @@ class Registry(models.Model):
     accounted = models.BooleanField(default=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, null=True, default=None)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, default=None)
     responsable = models.ForeignKey(Responsable, on_delete=models.CASCADE, null=True, default=None)
 
     @property
@@ -92,6 +96,10 @@ class Registry(models.Model):
     def occurrance_formatted(self):
         d = self.occurrance
         return d.strftime(f'%d %b %y{f', %Hh{'%M' if d.minute else ''}' if d.hour or d.minute else ''}')
+    
+    @property
+    def category_title(self):
+        return self.category.title if self.category else 'Outros'
 
     def __repr__(self):
         return self.__str__()
@@ -109,6 +117,7 @@ class Registry(models.Model):
             'occurrance': self.occurrance.strftime('%d/%m/%Y %H:%M'),
             'occurrance_formatted': self.occurrance_formatted,
             'description': self.description,
+            'category': self.category_title,
             'date_ref': self.date_ref.strftime('%Y-%m'),
             'type_in': self.type_in,
             'done': self.done,

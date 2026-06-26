@@ -6,7 +6,6 @@ import datetime as dt
 
 from apps.api import models
 from services import registries
-from services import cards
 from services.tools import format_coin, months_with_current
 
 @login_required(login_url='/login')
@@ -27,8 +26,6 @@ def nav_regs(request):
         date = dt.date.today()
     
     return render(request, 'partials/home/regs/index.html', {
-        # 'date_references': registries.get_date_references(request.user),
-        # 'current_ref': current_ref.strftime('%b %y') if current_ref else ''
         'cards': models.Card.objects.filter(user=request.user),
         'current_year': date.year,
         'date_formatted': date.strftime('%B %Y'),
@@ -133,7 +130,9 @@ def reg_form(request):
         'reg': reg,
         'current_installment': '',
         'num_installments': '',
-        'hide_installment_alert': True,
+        'hide_installment_quantity_alert': True,
+        'show_installment_updates_alert': False,
+        'categories': models.Category.objects.filter(user=request.user),
     }
 
     if reg:
@@ -144,7 +143,8 @@ def reg_form(request):
         if installment_item := reg.installment_item.first():
             data['current_installment'] = installment_item.index + 1
             data['num_installments'] = installment_item.installment.num_items
-            data['hide_installment_alert'] = installment_item.index <= 0 or mode == 'EDIT'
+            data['hide_installment_quantity_alert'] = installment_item.index <= 0 or mode == 'EDIT'
+            data['show_installment_updates_alert'] = mode == 'EDIT'
 
     else:
         data['status']['PENDING']['selected'] = True
