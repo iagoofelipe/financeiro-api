@@ -6,7 +6,7 @@
 </div>
 
 {% for transaction in transactions %}
-<div class="card p-3 {% if forloop.counter != 1 %} mt-3 {% endif %}">
+<div class="card p-3">
     <div class="d-flex flex-row align-items-center justify-content-between">
         <div>
             <p class="title mb-2">{{ transaction.title }}</p>
@@ -53,13 +53,13 @@
                         <td>{{ value.value_formatted }}</td>
                         <td>
                             {% if value.status == "PENDING" %}
-                            <span class="badge-custom bg-pendente">Pendente</span>
+                            <span class="card-status card-status-pendente">Pendente</span>
                             {% elif value.status == "OK" %}
-                            <span class="badge-custom bg-pago">Pago</span>
+                            <span class="card-status card-status-pago">Pago</span>
                             {% elif value.status == "ACCOUNTED" %}
-                            <span class="badge-custom bg-pendente">Contabilizado</span>
+                            <span class="card-status card-status-pendente">Contabilizado</span>
                             {% elif value.status == "LATE" %}
-                            <span class="badge-custom bg-atrasado">Atrasado</span>
+                            <span class="card-status card-status-atrasado">Atrasado</span>
                             {% else %}
                             <span>?</span>
                             {% endif %}

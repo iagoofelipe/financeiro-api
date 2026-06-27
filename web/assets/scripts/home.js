@@ -1,5 +1,5 @@
-import RegistryView from "./registries/view.js";
-// import DashboardView from "./dashboards.js";
+import RegistryView from "./nav-regs/view.js";
+import DashboardView from "./nav-dash/view.js";
 // import CreditCardView from "./cards.js";
 
 $(async () => {
@@ -34,13 +34,14 @@ class HomeView
 
         // atualizando conteúdo
         let new_widget;
+
         switch (title) {
-        // case 'Dashboards':
-        //     let dashview = await DashboardView.create(parent);
-        //     break;
+        case 'Dashboards':
+            new_widget = await DashboardView.create();
+            break;
 
         case 'Registros':
-            let regview = new_widget = await RegistryView.create();
+            new_widget = await RegistryView.create();
             break;
 
         // case 'Cartões e Faturas':
@@ -65,8 +66,9 @@ class HomeView
         this.#update_nav_button(jbtn); // atualizando botão selecionado
         
         // atualizando conteúdo
-        let home_content = $('#home-content').html('');
-        new_widget.jquery().appendTo(home_content);
+        // let home_content = $('#home-content').html('');
+        // new_widget.jquery().appendTo(home_content);
+        $('#home-content').html(new_widget.jquery())
     }
 
     #set_animations() {

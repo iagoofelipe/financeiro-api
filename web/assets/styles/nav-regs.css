@@ -1,0 +1,16 @@
+.card-transaction-desc {
+    color: var(--subtitle-color);
+}
+
+.reg-transactions {
+    width: stretch;
+}
+
+.reg-transactions .content {
+    display: grid;
+    row-gap: 1rem;
+}
+
+.reg-details {
+    min-width: 430px;
+}

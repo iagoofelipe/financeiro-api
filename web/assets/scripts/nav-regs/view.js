@@ -4,7 +4,7 @@ import { delete_registry, has_registries } from "../tools/api/registries.js";
 import RegistryForm from "./form.js";
 import { set_modal } from "../tools/utils.js";
 
-export default class RegistryView extends EventTarget {
+export default class RegistryView {
     static templates = {};
 
     #jquery;
@@ -20,7 +20,6 @@ export default class RegistryView extends EventTarget {
     #current_date_ref = null;
 
     constructor(jquery) {
-        super();
         this.#jquery = jquery;
 
         // Template index

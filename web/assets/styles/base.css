@@ -106,3 +106,32 @@ body {
     border-color: #a70909;
     box-shadow: 0 0 0 .25rem rgba(255, 0, 0, .25);
 }
+
+.table {
+    border: var(--bs-card-border-width) solid var(--bs-card-border-color);
+    border-radius: var(--bs-card-border-radius);
+    overflow: hidden;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    font-weight: 500;
+    padding: 15px;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    padding: 15px;
+    color: #666;
+}
+
+.table tbody tr td:first-child {
+    font-weight: bold;
+    color: #000;
+}
+
+.table tbody tr:last-child td {
+    border: none;
+}

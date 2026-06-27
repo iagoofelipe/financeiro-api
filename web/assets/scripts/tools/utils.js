@@ -15,10 +15,10 @@ export function getCookie(name) {
 }
 
 export const REG_STATUS_HTML = {
-    PENDING: '<span class="badge-custom bg-pendente" title="o registro está dentro do prazo">Pendente</span>',
-    ACCOUNTED: '<span class="badge-custom bg-pendente" title="o registro foi contabilizado, porém não pago">Contabilizado</span>',
-    OK: '<span class="badge-custom bg-pago" title="o registro foi contabilizado e pago">Pago</span>',
-    LATE: '<span class="badge-custom bg-atrasado" title="o registro está fora do prazo previsto">Atrasado</span>',
+    PENDING: '<span class="card-status card-status-pendente" title="o registro está dentro do prazo">Pendente</span>',
+    ACCOUNTED: '<span class="card-status card-status-pendente" title="o registro foi contabilizado, porém não pago">Contabilizado</span>',
+    OK: '<span class="card-status card-status-pago" title="o registro foi contabilizado e pago">Pago</span>',
+    LATE: '<span class="card-status card-status-atrasado" title="o registro está fora do prazo previsto">Atrasado</span>',
 };
 
 export function getElementsByXPath(xpath, context = document) {
