@@ -8,8 +8,8 @@ if TYPE_CHECKING:
 
 from . import consts
 from apps.api import models
-from . import invoices
-from . import installments
+from . import invoice
+from . import installment
 
 
 # campos que necessitam da verificação de pertencimento do usuário
@@ -143,7 +143,7 @@ def validations(user, data:dict, required_fields:set=None, validate_installment=
             data.pop('category')
 
     if 'card' in data:
-        data['invoice'] = invoices.get_or_create(data.pop('card'), data['date_ref'])
+        data['invoice'] = invoice.get_or_create(data.pop('card'), data['date_ref'])
     elif 'card_id' in data and data['card_id'] is None:
         data['invoice'] = data.pop('card_id')
 
@@ -187,7 +187,7 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
                     data['occurrance'] += relativedelta(months=1)
 
                 if 'invoice' in data:
-                    data['invoice'] = invoices.get_or_create(data['invoice'].card, data['date_ref'])
+                    data['invoice'] = invoice.get_or_create(data['invoice'].card, data['date_ref'])
 
                 data['done'] = False
                 data['accounted'] = not reg.type_in
@@ -245,7 +245,7 @@ def update(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
     
     # atualizando parcelas, caso haja
     if installment_item := reg.installment_item.first():
-        installments.update_values(installment_item.installment)
+        installment.update_values(installment_item.installment)
 
     return HTTPStatus.OK, '', reg
 

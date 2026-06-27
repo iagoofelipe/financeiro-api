@@ -12,7 +12,7 @@
     </div>
     <div>
         <label for="inp-password" class="form-label">Senha</label>
-        <input type="password" class="form-control" id="inp-password">
+        <input type="password" class="form-control" id="inp-password" onkeydown="if (event.key === 'Enter') document.getElementById('btn-auth').click()">
     </div>
 </div>
 <div class="d-flex div-links">

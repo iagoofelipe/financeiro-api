@@ -57,7 +57,7 @@ export default class RegistryView extends EventTarget {
 
             case this.ID_CONTENT_TRANSACTIONS:
                 const data = this.#current_date_ref? {date_ref: this.#current_date_ref} : {};
-                jcontent = $(await $.get('/home/nav-regs', data));
+                jcontent = $(await $.get('/home/nav-reg', data));
                 this.#jquery.html(jcontent);
                 this.#reg_details = new RegistryDetails(jcontent.find('.reg-details'));
                 
@@ -95,7 +95,7 @@ export default class RegistryView extends EventTarget {
             card_id: this.#jquery.find('#filter-card').val(),
         };
 
-        const response = await $.get('/home/regs-trans-cards', data);
+        const response = await $.get('/home/nav-reg/trans-cards', data);
         let jquery = this.#jquery.find('#trans-cards').html(response);
         let sum_inputs = this.#jquery.find('#sum-inputs-hidden').val();
         let sum_outputs = this.#jquery.find('#sum-outputs-hidden').val();

@@ -28,6 +28,7 @@ urlpatterns = [
     # Invoice
     path('getInvoices', invoice.get_invoices),
     path('getInvoice/<int:id>', invoice.get_invoice),
+    path('getInvoiceByCard', invoice.get_invoice_by_card),
 
     # Installment
     path('deleteInstallment/<int:id>', installment.delete_installment),

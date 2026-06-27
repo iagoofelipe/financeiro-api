@@ -1,18 +1,13 @@
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from uuid import uuid4
 import datetime as dt
 
 from apps.api import models
-from services import registries
+from services import registry
 from services.tools import format_coin, months_with_current
 
-@login_required(login_url='/login')
 def index(request):
-    return render(request, 'home.html', {'user_name': f'{request.user.first_name} {request.user.last_name}'})
-
-def nav_regs(request):
     if not request.user.is_authenticated:
         return HttpResponseForbidden()
     
@@ -25,18 +20,18 @@ def nav_regs(request):
     else:
         date = dt.date.today()
     
-    return render(request, 'partials/home/regs/index.html', {
+    return render(request, 'partials/home/nav-regs/index.html', {
         'cards': models.Card.objects.filter(user=request.user),
         'current_year': date.year,
         'date_formatted': date.strftime('%B %Y'),
         'months': months_with_current(date),
     })
 
-def reg_trans_cards(request):
+def trans_cards(request):
     if not request.user.is_authenticated:
         return HttpResponseForbidden()
     
-    *_, regs = registries.get_by_filters(request.user, **request.GET.dict())
+    *_, regs = registry.get_by_filters(request.user, **request.GET.dict())
     transactions_by_responsable = {}
 
     for reg in regs:
@@ -79,7 +74,7 @@ def reg_trans_cards(request):
     transactions = sorted(transactions_by_responsable.values(), key=lambda t: (t['title'] != 'Pessoais', t['title']))
     
     total_inout = sum_inputs - sum_outputs
-    return render(request, 'partials/home/regs/trans-cards.html', {
+    return render(request, 'partials/home/nav-regs/trans-cards.html', {
         'transactions': transactions,
         'sum_inputs': format_coin(sum_inputs),
         'sum_outputs': format_coin(sum_outputs),
@@ -87,7 +82,7 @@ def reg_trans_cards(request):
         'positive_inout': total_inout >= 0,
     })
 
-def reg_form(request):
+def form(request):
     if not request.user.is_authenticated:
         return HttpResponseForbidden()
 
@@ -151,4 +146,4 @@ def reg_form(request):
         data['reg_occurrance'] = now.strftime('%d/%m/%Y %H:%M')
         data['reg_month_number'] = now.strftime('%m')
     
-    return render(request, 'partials/home/regs/form.html', data)
+    return render(request, 'partials/home/nav-regs/form.html', data)

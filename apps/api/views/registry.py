@@ -2,25 +2,25 @@ from django.http import HttpRequest
 from rest_framework.decorators import api_view
 import json
 
-from services import registries
+from services import registry
 from apps.api.models import Registry
 from services.tools import response_dto_or_error, response_obj_or_error, response_success_error
 
 @api_view(["GET"])
 def get_registries(request:HttpRequest):
-    return response_dto_or_error(*registries.get_by_filters(request.user, **request.GET.dict()), iterable=True, safe=False, complete=False)
+    return response_dto_or_error(*registry.get_by_filters(request.user, **request.GET.dict()), iterable=True, safe=False, complete=False)
 
 @api_view(["GET"])
 def get_registry(request:HttpRequest, regid:int):
-    return response_dto_or_error(*registries.get_by_id(request.user, regid))
+    return response_dto_or_error(*registry.get_by_id(request.user, regid))
 
 @api_view(["POST"])
 def add_registry(request:HttpRequest):
-    return response_dto_or_error(*registries.create(request.user, **json.loads(request.body)))
+    return response_dto_or_error(*registry.create(request.user, **json.loads(request.body)))
 
 @api_view(["GET"])
 def get_reg_date_references(request:HttpRequest):
-    return response_obj_or_error(obj=list(registries.get_date_references(request.user)), safe=False)
+    return response_obj_or_error(obj=list(registry.get_date_references(request.user)), safe=False)
 
 @api_view(["GET"])
 def has_registries(request:HttpRequest):
@@ -28,8 +28,8 @@ def has_registries(request:HttpRequest):
 
 @api_view(["POST"])
 def delete_registry(request:HttpRequest, regid:int):
-    return response_success_error(*registries.delete(request.user, regid))
+    return response_success_error(*registry.delete(request.user, regid))
 
 @api_view(["POST"])
 def update_registry(request:HttpRequest):
-    return response_success_error(*registries.update(request.user, **json.loads(request.body)))
+    return response_success_error(*registry.update(request.user, **json.loads(request.body)))

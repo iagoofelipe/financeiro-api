@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.db.models import Sum, Q
 import datetime as dt
 
 from services.tools import format_coin
@@ -42,6 +43,18 @@ class Invoice(models.Model):
     @property
     def date_ref_formatted(self):
         return self.date_ref.strftime('%b %y')
+    
+    @property
+    def sum_registred(self):
+        """ soma dos registros de saída com status OK ou ACCOUNTED """
+        r = self.registries.filter(Q(type_in=False) & (Q(done=True) | Q(accounted=True))).aggregate(result=Sum('value'))['result']
+        return r if r else 0
+
+    @property
+    def sum_pending(self):
+        """ soma dos registros de saída com status PENDING ou LATE """
+        r = self.registries.filter(type_in=False, done=False, accounted=False).aggregate(result=Sum('value'))['result']
+        return r if r else 0
 
     def to_dto(self):
         return {
@@ -53,6 +66,8 @@ class Invoice(models.Model):
             'limit': self.limit,
             'card_id': self.card.id,
             'card_name': self.card.name,
+            'sum_registred': self.sum_registred,
+            'sum_pending': self.sum_pending,
         }
     
 class Category(models.Model):
@@ -69,7 +84,7 @@ class Registry(models.Model):
     done = models.BooleanField(default=False)
     accounted = models.BooleanField(default=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, null=True, default=None)
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, null=True, default=None, related_name='registries')
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, default=None)
     responsable = models.ForeignKey(Responsable, on_delete=models.CASCADE, null=True, default=None)
 

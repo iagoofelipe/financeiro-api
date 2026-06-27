@@ -29,7 +29,7 @@
         </div>
         <div>
             <label for="inp-last-name" class="form-label">Último Nome</label>
-            <input type="text" class="form-control" name="last_name" id="inp-last-name">
+            <input type="text" class="form-control" name="last_name" id="inp-last-name" onkeydown="if (event.key === 'Enter') document.getElementById('btn-create').click()">
         </div>
     </div>
 </div>

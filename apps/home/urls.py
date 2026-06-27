@@ -1,11 +1,12 @@
 from django.urls import path
 
-from . import views
+from .views import home
+from .views import navregs
 
 urlpatterns = [
-    path('', views.index),
-    path('nav-regs', views.nav_regs),
-    path('reg-form', views.reg_form),
-    path('regs-trans-cards', views.reg_trans_cards),
+    path('', home.index),
+    path('nav-reg', navregs.index),
+    path('nav-reg/form', navregs.form),
+    path('nav-reg/trans-cards', navregs.trans_cards),
     
 ]

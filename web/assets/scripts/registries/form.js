@@ -29,7 +29,7 @@ export default class RegistryForm extends EventTarget {
     }
 
     static async create(jquery_container, params) {
-        let jquery = $(await $.get('/home/reg-form', params));
+        let jquery = $(await $.get('/home/nav-reg/form', params));
         jquery_container.html(jquery);
         return new RegistryForm(jquery);
     }
