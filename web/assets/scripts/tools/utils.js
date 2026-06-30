@@ -1,3 +1,5 @@
+export const DEFAULT_ERROR = 'Não foi possível realizar a operação';
+
 export function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {

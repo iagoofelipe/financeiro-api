@@ -135,12 +135,12 @@ def validations(user, data:dict, required_fields:set=None, validate_installment=
             case 'ACCOUNTED':   data['accounted'] = True
             case 'OK':          data['done'] = True
 
-    if 'category' in data:
-        if data['category']:
-            data['category'], created = models.Category.objects.get_or_create(title=data['category'], user=user)
+    # if 'category' in data:
+    #     if data['category']:
+    #         data['category'], created = models.Category.objects.get_or_create(title=data['category'], user=user)
         
-        elif remove_if_empty:
-            data.pop('category')
+    #     elif remove_if_empty:
+    #         data.pop('category')
 
     if 'card' in data:
         data['invoice'] = invoice.get_or_create(data.pop('card'), data['date_ref'])

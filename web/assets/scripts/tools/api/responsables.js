@@ -1,8 +1,7 @@
-import { getCookie } from "../utils.js";
+import { getCookie, DEFAULT_ERROR } from "../utils.js";
 
 export async function add_responsable(data) {
     let response = {success: false, error: '', data: null};
-    let default_error = 'Não foi possível adicionar o novo responsável';
 
     try {
         await $.ajax({
@@ -18,7 +17,7 @@ export async function add_responsable(data) {
         response.success = true;
     } catch (e) {
         console.log('error while creating responsable', e);
-        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : default_error;
+        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : DEFAULT_ERROR;
     }
 
     return response;
@@ -26,7 +25,6 @@ export async function add_responsable(data) {
 
 export async function get_responsables() {
     let response = {success: false, error: '', data: null};
-    let default_error = 'Não foi possível consultar os responsáveis';
 
     try {
         response.data = await $.ajax({
@@ -40,7 +38,7 @@ export async function get_responsables() {
         response.success = true;
     } catch (e) {
         console.log('error while querying responsables', e);
-        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : default_error;
+        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : DEFAULT_ERROR;
     }
     
     return response;

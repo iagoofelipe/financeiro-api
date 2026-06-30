@@ -127,7 +127,7 @@ def form(request):
         'num_installments': '',
         'hide_installment_quantity_alert': True,
         'show_installment_updates_alert': False,
-        'categories': models.Category.objects.filter(user=request.user),
+        'categories': request.user.registry_set.filter(category__isnull=False).values_list('category', flat=True).distinct(),
     }
 
     if reg:

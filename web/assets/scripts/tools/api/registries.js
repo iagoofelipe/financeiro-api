@@ -1,4 +1,4 @@
-import { getCookie } from "../utils.js";
+import { getCookie, DEFAULT_ERROR } from "../utils.js";
 
 export async function has_registries() {
     let response = await $.get({
@@ -13,7 +13,6 @@ export async function has_registries() {
 
 export async function add_registry(data) {
     let response = {success: false, error: '', data: null};
-    let default_error = 'Não foi possível adicionar o novo registro';
 
     try {
         await $.ajax({
@@ -29,7 +28,7 @@ export async function add_registry(data) {
         response.success = true;
     } catch (e) {
         console.log('error while creating registry', e);
-        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : default_error;
+        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : DEFAULT_ERROR;
     }
 
     return response;
@@ -37,7 +36,6 @@ export async function add_registry(data) {
 
 export async function update_registry(data) {
     let response = {success: false, error: '', data: null};
-    let default_error = 'Não foi possível atualizar o registro';
 
     try {
         await $.ajax({
@@ -53,7 +51,7 @@ export async function update_registry(data) {
         response.success = true;
     } catch (e) {
         console.log('error while updating registry', e);
-        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : default_error;
+        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : DEFAULT_ERROR;
     }
 
     return response;
@@ -61,7 +59,6 @@ export async function update_registry(data) {
 
 export async function delete_registry(id) {
     let response = {success: false, error: '', data: null};
-    let default_error = 'Não foi possível atualizar o registro';
 
     try {
         await $.ajax({
@@ -76,7 +73,7 @@ export async function delete_registry(id) {
         response.success = true;
     } catch (e) {
         console.log('error while updating registry', e);
-        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : default_error;
+        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : DEFAULT_ERROR;
     }
 
     return response;

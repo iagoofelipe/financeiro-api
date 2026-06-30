@@ -59,7 +59,7 @@
         <input class="form-control" list="datalist-category" id="inp-category" placeholder="Outros" {% if reg.category %}value="{{ reg.category.title }}"{% endif %}>
         <datalist id="datalist-category">
             {% for category in categories %}
-            <option value="{{ category.title }}">
+            <option value="{{ category }}">
             {% endfor %}
         </datalist>
     </div>

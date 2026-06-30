@@ -1,8 +1,7 @@
-import { getCookie } from "../utils.js";
+import { getCookie, DEFAULT_ERROR } from "../utils.js";
 
 export async function add_card(data) {
     let response = {success: false, error: '', data: null};
-    let default_error = 'Não foi possível adicionar o novo cartão';
 
     try {
         await $.ajax({
@@ -18,7 +17,7 @@ export async function add_card(data) {
         response.success = true;
     } catch (e) {
         console.log('error while creating card', e);
-        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : default_error;
+        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : DEFAULT_ERROR;
     }
 
     return response;
@@ -26,7 +25,6 @@ export async function add_card(data) {
 
 export async function get_cards() {
     let response = {success: false, error: '', data: null};
-    let default_error = 'Não foi possível consultar os cartões';
 
     try {
         response.data = await $.ajax({
@@ -40,7 +38,7 @@ export async function get_cards() {
         response.success = true;
     } catch (e) {
         console.log('error while querying cards', e);
-        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : default_error;
+        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : DEFAULT_ERROR;
     }
     
     return response;
@@ -48,7 +46,6 @@ export async function get_cards() {
 
 export async function get_invoice_by_card(params) {
     let response = {success: false, error: '', data: null};
-    let default_error = 'Não foi possível realizar a operação';
 
     try {
         response.data = await $.ajax({
@@ -62,8 +59,8 @@ export async function get_invoice_by_card(params) {
 
         response.success = true;
     } catch (e) {
-        console.log('error while querying invoice by card', e);
-        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : default_error;
+        // console.log('error while querying invoice by card', e);
+        response.error = (e.responseJSON && e.responseJSON.detail)? e.responseJSON.detail : DEFAULT_ERROR;
     }
     
     return response;

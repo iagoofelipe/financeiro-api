@@ -1,6 +1,6 @@
 import CategoryChart from "../components/category-chart.js";
 import { get_invoice_by_card } from "../tools/api/cards.js";
-import { values_by_category } from "../tools/api/statistics.js";
+import { balance, values_by_category } from "../tools/api/statistics.js";
 
 export default class DashboardView {
     #jquery;
@@ -24,15 +24,12 @@ export default class DashboardView {
     static async create() {
         let jquery = $(await $.get('/home/nav-dash'));
         let parent = jquery.find('#chart-category');
-        const response = await values_by_category({
-            data_ref: jquery.find('#filter-month-year').val() + '-01',
-        });
 
         let category_chart = new CategoryChart({
-            data: response.data,
+            data: {in: [], out: []},
             filterOptions: [
-                {value: 'in', text: 'Entradas'},
                 {value:'out', text: 'Saídas'},
+                {value: 'in', text: 'Entradas'},
             ],
             fieldLabel: 'title',
             fieldData: 'total',
@@ -41,7 +38,9 @@ export default class DashboardView {
         });
 
         let obj = new DashboardView(jquery, category_chart);
+        
         await obj.updateCard();
+        await obj.updateCategories();
 
         return obj;
     }
@@ -70,18 +69,37 @@ export default class DashboardView {
         }
     }
 
+    async updateBalance() {
+        const response = await balance({date_ref: this.#date_ref});
+        
+        if (response.success) {
+            this.#jquery.find('.top-cards .value-in').text(response.data.total_in_formatted);
+            this.#jquery.find('.top-cards .value-out').text(response.data.total_out_formatted);
+            this.#jquery.find('.top-cards .value-balance').text(response.data.total_balance_formatted);
+        } else {
+            this.#jquery.find('.top-cards .value-in').text('0');
+            this.#jquery.find('.top-cards .value-out').text('0');
+            this.#jquery.find('.top-cards .value-balance').text('0');
+        }
+    }
+
+    async updateCategories() {
+        let response = await values_by_category({
+            date_ref: this.#date_ref,
+            limit: 5,
+        });
+
+        this.#category_chart.setValues(response.success? response.data : {in: [], out: []});
+    }
+
     //-----------------------------------------------------------------------------
     // Eventos
     async #on_filterMonthYear_changed(evt) {
         this.#date_ref = evt.currentTarget.value + '-01';
 
-        let response = await values_by_category({
-            date_ref: this.#date_ref,
-        });
-        if (response.success)
-            this.#category_chart.setValues(response.data);
-
+       await this.updateCategories();
        await this.updateCard();
+       await this.updateBalance();
     }
 
     //-----------------------------------------------------------------------------

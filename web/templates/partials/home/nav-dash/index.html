@@ -5,25 +5,25 @@
         <div class="ms-auto me-auto w-80 d-flex column-gap-4 justify-content-between" style="min-width: 80%;">
             <div class="d-flex">
                 <img src="{% static 'imgs/money-in.svg' %}">
-                <div class="ms-2 d-flex flex-column">
+                <div class="ms-2 d-flex flex-column justify-content-center">
                     <span class="title-3-bold">Entradas</span>
                     <div>
                         <span class="title-3-bold">R$</span>
-                        <span class="title">{{ value_in }}</span>
+                        <span class="title value-in">{{ value_in }}</span>
                     </div>
-                    <!-- <div>
-                        <img src="{% static 'imgs/icons/progress.svg' %}" class="icon-progress">
-                        <span class="title-3-bold">+10% mês anterior</span>
-                    </div> -->
+                    <div>
+                        <img src="{% static 'imgs/icons/progress.svg' %}" class="icon-progress value-in-note-icon">
+                        <span class="title-3-bold value-in-note">+10% mês anterior</span>
+                    </div>
                 </div>
             </div>
             <div class="d-flex">
                 <img src="{% static 'imgs/money-out.svg' %}">
-                <div class="ms-2 d-flex flex-column">
+                <div class="ms-2 d-flex flex-column justify-content-center">
                     <span class="title-3-bold">Saídas</span>
                     <div>
                         <span class="title-3-bold">R$</span>
-                        <span class="title">{{ value_out }}</span>
+                        <span class="title value-out">{{ value_out }}</span>
                     </div>
                     <!-- <div>
                         <img src="{% static 'imgs/icons/not-progress.svg' %}" class="icon-not-progress">
@@ -33,11 +33,11 @@
             </div>
             <div class="d-flex">
                 <img src="{% static 'imgs/balance.svg' %}">
-                <div class="ms-2 d-flex flex-column">
+                <div class="ms-2 d-flex flex-column justify-content-center">
                     <span class="title-3-bold">Saldo</span>
                     <div>
                         <span class="title-3-bold">R$</span>
-                        <span class="title">{{ value_balance }}</span>
+                        <span class="title value-balance">{{ value_balance }}</span>
                     </div>
                     <!-- <div>
                         <img src="{% static 'imgs/icons/not-progress.svg' %}" class="icon-not-progress">
@@ -79,19 +79,19 @@
             </div> -->
             <div class="field-card-accounted">
                 <p class="m-0 fw-semibold">Valores Contabilizados</p>
-                <span class="text">R$ 1.900</span>
+                <span class="text">-</span>
             </div>
             <div class="field-card-pending">
                 <p class="m-0 fw-semibold">Lançamentos Pendentes</p>
-                <span class="text">R$ 150</span>
+                <span class="text">-</span>
             </div>
             <div class="field-card-closing-date">
                 <p class="m-0 fw-semibold">Fechamento</p>
-                <span class="text">03 Jan 26</span>
+                <span class="text">-</span>
             </div>
             <div class="field-card-due-date">
                 <p class="m-0 fw-semibold">Vencimento</p>
-                <span class="text">11 Jan 26</span>
+                <span class="text">-</span>
             </div>
         </div>
         <!-- <div class="card p-3 shadow-sm"></div> -->

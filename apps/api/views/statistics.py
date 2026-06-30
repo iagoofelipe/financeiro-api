@@ -5,7 +5,7 @@ from services import statistics
 
 @api_view(["GET"])
 def get_values_by_category(request):
-    return response_obj_or_error(200, '', statistics.values_by_category(request.user, **request.GET.dict()), safe=False)
+    return response_obj_or_error(*statistics.values_by_category(request.user, **request.GET.dict()), safe=False)
 
 @api_view(["GET"])
 def get_balance(r):
