@@ -1,3 +1,9 @@
 .container-dash {
-    background-color: #D1E4D2;
+    .top-cards {
+        background-color: #D1E4D2;
+        
+        img {
+            width: 50px;
+        }
+    }
 }

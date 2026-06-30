@@ -1,4 +1,4 @@
-import { add_responsable } from "../../tools/api.js";
+import { add_responsable } from "../../tools/api/responsables.js";
 import { set_modal } from "../../tools/utils.js";
 
 export default class ModalNewResponsable extends EventTarget {

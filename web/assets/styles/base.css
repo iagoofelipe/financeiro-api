@@ -135,3 +135,7 @@ body {
 .table tbody tr:last-child td {
     border: none;
 }
+
+.icon-progress, .icon-not-progress {
+    width: 20px !important;
+}

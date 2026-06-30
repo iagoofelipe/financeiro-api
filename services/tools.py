@@ -31,8 +31,10 @@ def response_success_error(statuscode:int, msg:str, success:object=None):
         d['detail'] = msg
     return JsonResponse(d, status=statuscode)
 
-def format_coin(val:float):
-    return f"R$ {val:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+def format_coin(val:float, prefix:str|None='R$', show_decimal:Literal['always', 'if_value']='always'):
+    _str = (prefix+' ') if prefix is not None else ''
+    _str += f'{val:,.2f}' if show_decimal == 'always' or (show_decimal == 'if_value' and not val.is_integer()) else f'{val:,.0f}'
+    return _str.replace(",", "X").replace(".", ",").replace("X", ".")
 
 def months_with_current(today:dt.date=None):
     months = [

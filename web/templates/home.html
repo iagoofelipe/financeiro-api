@@ -63,8 +63,9 @@
 <main class="ms-3 d-flex flex-column">
     <div class="card d-flex flex-row p-3 mb-3 shadow-sm home-card-top justify-content-between">
         <p class="title m-0" id="home-title"></p>
-        <div class="d-flex flex-row">
-            <button class="btn btn-outline border-0 ms-2 p-0"><i class="bi bi-bell-fill"></i></button>
+        <div class="d-flex flex-row column-gap-3">
+            <div id="home-navtop"></div>
+            <button class="btn btn-outline border-0 p-0"><i class="bi bi-bell-fill"></i></button>
         </div>
     </div>
     <div id="home-content" class="h-100 overflow-auto"></div>
@@ -74,8 +75,11 @@
 
 {% block script %}
 <script type="module" src="{% static 'scripts/home.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block style %}
 <link rel="stylesheet" href="{% static 'styles/home.css' %}">
+<link rel="stylesheet" href="{% static 'styles/nav-dash.css' %}">
+<link rel="stylesheet" href="{% static 'styles/nav-regs.css' %}">
 {% endblock %}

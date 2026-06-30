@@ -1,7 +1,8 @@
 import ModalNewCard from "./modal/new-card.js";
 import ModalNewResponsable from "./modal/new-responsable.js";
 import { MODAL_FLAGS, set_modal } from "../tools/utils.js";
-import { get_cards, get_responsables } from "../tools/api.js";
+import { get_responsables } from "../tools/api/responsables.js";
+import { get_cards } from "../tools/api/cards.js";
 import { add_registry, update_registry } from "../tools/api/registries.js";
 
 export default class RegistryForm extends EventTarget {

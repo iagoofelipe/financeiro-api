@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block body %}
+{% endblock %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+class CategoryChart extends EventTarget {
+    #chart;
+    #jquery;
+
+    constructor(params) {
+        super();
+
+        const select_form = `
+        <select class="form-select w-auto">
+            <option value="in">Entradas</option>
+            <option value="out">Saídas</option>
+        </select>`;
+
+        this.#jquery = $(
+            `<div class="card p-3 shadow-sm">
+                <div class="d-flex flex-row align-items-center justify-content-between">
+                <p class="title m-0">Categoria</p>
+                ${params.in_out_filter? select_form : ''}
+                </div>
+                <canvas id="canvas-chart" class="p-3"></canvas>
+            </div>`
+        );
+
+        this.#jquery.appendTo(params.appendTo ?? 'body')
+        
+        this.#chart = new Chart(this.#jquery.find('#canvas-chart')[0], {
+            type: 'doughnut',
+            data: {
+                labels: params.labels,
+                datasets: [{
+                    data: params.data,
+                    backgroundColor: [
+                        'rgb(22, 51, 74)',
+                        'rgb(47, 86, 117)',
+                        'rgb(60, 115, 158)',
+                        'rgb(89, 139, 179)',
+                        'rgb(112, 159, 196)',
+                        'rgb(135, 185, 224)',
+                        'rgb(131, 199, 252)',
+                        'rgb(171, 213, 245)',
+                        'rgb(200, 227, 247)',
+                        
+                    ],
+                }]
+            },
+            options: {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: CategoryChart.#cb_label
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    setValues(data, labels=undefined) {
+        this.#chart.data.datasets[0].data = data;
+        if (labels != undefined) {
+            this.#chart.data.labels = labels;
+        }
+        this.#chart.update();
+    }
+
+    static #cb_label(context) {
+        // Formata o número como moeda Real (R$)
+        return context.parsed.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+}
+
+const chart = new CategoryChart({
+    data: [300, 400, 400],
+    labels: ['Algo 1', 'Algo 2', 'Outros'],
+    // select_options: ['Entradas', 'Saídas'],
+});
+
+</script>
+
+{% endblock %}

@@ -1,4 +1,4 @@
-import { add_card } from "../../tools/api.js";
+import { add_card } from "../../tools/api/cards.js";
 import { set_modal } from "../../tools/utils.js";
 
 export default class ModalNewCard extends EventTarget {

@@ -4,7 +4,7 @@ from rest_framework.permissions import AllowAny
 import json
 
 from services import user
-from services.tools import response_success_error
+from services.tools import response_success_error, response_obj_or_error
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -14,3 +14,12 @@ def create_account(request:HttpRequest):
 @api_view(["POST"])
 def delete_account(request:HttpRequest):
     return response_success_error(*user.delete(request.user))
+
+@api_view(["GET"])
+def get_user(request):
+    return response_obj_or_error(obj={
+        'id': request.user.id,
+        'email': request.user.email,
+        'first_name': request.user.first_name,
+        'last_name': request.user.last_name,
+    })

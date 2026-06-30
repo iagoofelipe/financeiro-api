@@ -19,7 +19,7 @@ class HomeView
             $(nav_btns[i]).on('click', async (evt) => await this.#on_navBtn_clicked(evt));
         }
 
-        this.#initialNavBtn = nav_btns[1];
+        this.#initialNavBtn = nav_btns[0];
         this.#set_animations();
 
         $(this.#initialNavBtn).click();
@@ -66,9 +66,9 @@ class HomeView
         this.#update_nav_button(jbtn); // atualizando botão selecionado
         
         // atualizando conteúdo
-        // let home_content = $('#home-content').html('');
-        // new_widget.jquery().appendTo(home_content);
-        $('#home-content').html(new_widget.jquery())
+        let jquery = new_widget.jquery();
+        $('#home-content').html(jquery);
+        $('#home-navtop').html(jquery.find('#home-navtop-content'));
     }
 
     #set_animations() {

@@ -1,24 +1,26 @@
 from django.urls import path
+from django.http import HttpResponseBadRequest
+from django.shortcuts import render
 from rest_framework.authtoken.views import obtain_auth_token
-from rest_framework.decorators import api_view
 
-from .views import account, card, invoice, installment, registry, responsable
+from .views import account, card, invoice, installment, registry, responsable, statistics
 
-from django.http import HttpResponse
-from . import models
-
-@api_view(['GET'])
-def test(r):
-    print(models.Registry._meta.get_field('done').get_default())
-    return HttpResponse()
+def tests(r):
+    template_name = r.GET.get('template')
+    if template_name is None:
+        return HttpResponseBadRequest('"template" parameter must be provided')
+    
+    return render(r, f'tests/{template_name}.html')
 
 urlpatterns = [
-    path('test', test),
+    # Tests Templates
+    path('test', tests),
 
     # Account
     path('auth', obtain_auth_token),
     path('createAccount', account.create_account),
     path('deleteAccount', account.delete_account),
+    path('user', account.get_user),
 
     # Card
     path('getCards', card.get_cards),
@@ -47,4 +49,8 @@ urlpatterns = [
     path('getResponsables', responsable.get_responsables),
     path('getResponsable/<int:id>', responsable.get_responsable),
     path('addResponsable', responsable.add_responsable),
+
+    # Statistics
+    path('valuesByCategory', statistics.get_values_by_category),
+    path('balance', statistics.get_balance),
 ]

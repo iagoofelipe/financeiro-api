@@ -41,20 +41,40 @@ class Invoice(models.Model):
     card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='invoices')
 
     @property
+    def limit_formatted(self):
+        return format_coin(self.limit, show_decimal='if_value')
+
+    @property
     def date_ref_formatted(self):
         return self.date_ref.strftime('%b %y')
+    
+    @property
+    def closing_date_formatted(self):
+        return self.closing_date.strftime('%d %b %y')
+    
+    @property
+    def due_date_formatted(self):
+        return self.due_date.strftime('%d %b %y')
     
     @property
     def sum_registred(self):
         """ soma dos registros de saída com status OK ou ACCOUNTED """
         r = self.registries.filter(Q(type_in=False) & (Q(done=True) | Q(accounted=True))).aggregate(result=Sum('value'))['result']
         return r if r else 0
+    
+    @property
+    def sum_registred_formatted(self):
+        return format_coin(self.sum_registred, show_decimal='if_value')
 
     @property
     def sum_pending(self):
         """ soma dos registros de saída com status PENDING ou LATE """
         r = self.registries.filter(type_in=False, done=False, accounted=False).aggregate(result=Sum('value'))['result']
         return r if r else 0
+    
+    @property
+    def sum_pending_formatted(self):
+        return format_coin(self.sum_pending, show_decimal='if_value')
 
     def to_dto(self):
         return {
@@ -62,12 +82,17 @@ class Invoice(models.Model):
             'date_ref': self.date_ref,
             'date_ref_formatted': self.date_ref_formatted,
             'closing_date': self.closing_date,
+            'closing_date_formatted': self.closing_date_formatted,
             'due_date': self.due_date,
+            'due_date_formatted': self.due_date_formatted,
             'limit': self.limit,
+            'limit_formatted': self.limit_formatted,
             'card_id': self.card.id,
             'card_name': self.card.name,
             'sum_registred': self.sum_registred,
+            'sum_registred_formatted': self.sum_registred_formatted,
             'sum_pending': self.sum_pending,
+            'sum_pending_formatted': self.sum_pending_formatted,
         }
     
 class Category(models.Model):
