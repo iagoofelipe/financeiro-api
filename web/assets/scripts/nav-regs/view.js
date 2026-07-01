@@ -19,22 +19,24 @@ export default class RegistryView {
     ID_CONTENT_REG_FORM = 1;
     #current_date_ref = null;
 
-    constructor(jquery) {
+    constructor(jquery, jfilter_month_year) {
         this.#jquery = jquery;
+        this.#current_date_ref = jfilter_month_year.val() + '-01';
 
         // Template index
         jquery.on('click', '.reg-transactions #btn-trans-expand', () => this.expandAllCards());
         jquery.on('click', '.reg-transactions #btn-trans-collapse', () => this.collapseAllCards());
         jquery.on('click', '.reg-transactions #btn-trans-reload', async () => await this.updateTransactionCards());
         jquery.on('click', '.reg-transactions #btn-new-reg', async () => await this.setContentById(this.ID_CONTENT_REG_FORM, {mode: 'NEW'}));
+        jfilter_month_year.on('change', async (e) => await this.#on_filterMonthYear_changed(e));
         jquery.on('change', '#modal-trans-filter .form', async () => await this.updateTransactionCards());
     }
 
     //-----------------------------------------------------------------------------
     // Métodos Públicos - Estáticos
-    static async create() {
+    static async create(jfilter_month_year) {
         let jquery = $('<div class="h-100">'); // div é necessário para armazenar os eventos e a troca do conteúdo interno
-        let obj = new RegistryView(jquery);
+        let obj = new RegistryView(jquery, jfilter_month_year);
         
         await obj.setContentById(await has_registries()? obj.ID_CONTENT_TRANSACTIONS : obj.ID_CONTENT_REG_FORM);
         return obj;
@@ -45,7 +47,6 @@ export default class RegistryView {
     jquery() { return this.#jquery; }
 
     async setContentById(id, params) {
-        let jcontent;
 
         switch(id)
         {
@@ -55,8 +56,7 @@ export default class RegistryView {
                 break;
 
             case this.ID_CONTENT_TRANSACTIONS:
-                const data = this.#current_date_ref? {date_ref: this.#current_date_ref} : {};
-                jcontent = $(await $.get('/home/nav-reg', data));
+                let jcontent = $(await $.get('/home/nav-reg'));
                 this.#jquery.html(jcontent);
                 this.#reg_details = new RegistryDetails(jcontent.find('.reg-details'));
                 
@@ -86,9 +86,7 @@ export default class RegistryView {
         
         // limpando cache
         this.#cache.regs_by_id = {};
-        
-        let ref_year = this.#jquery.find('#filter-ref-year').val();
-        this.#current_date_ref = ref_year + '-' + this.#jquery.find('#filter-ref-month').val() + '-01';
+
         let data = {
             date_ref: this.#current_date_ref,
             card_id: this.#jquery.find('#filter-card').val(),
@@ -124,15 +122,11 @@ export default class RegistryView {
         }
 
         // atualizando informações dos filtros
-        let month_year = `${this.#jquery.find('#filter-ref-month option:selected').text()} ${ref_year}`;
         let card = this.#jquery.find('#filter-card option:selected').text();
-        let msg = 'Referência: ' + month_year;
 
         if (card != '(Todos)') {
-            msg += ', Cartão: ' + card;
+            this.#jquery.find('#filter-info').text(`Cartão: ${card}`);
         }
-
-        this.#jquery.find('#filter-info').text(msg);
     }
 
     collapseAllCards() {
@@ -174,5 +168,11 @@ export default class RegistryView {
         else
             set_modal('Erro de Requisição', response.error);
     };
+
+    async #on_filterMonthYear_changed(evt) {
+        this.#current_date_ref = evt.currentTarget.value + '-01';
+        
+        await this.updateTransactionCards();
+    }
     //-----------------------------------------------------------------------------
 }

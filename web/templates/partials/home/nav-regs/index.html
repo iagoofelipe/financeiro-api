@@ -16,7 +16,7 @@
                     <div class="icon-money-bag-success">{% include 'icons/money-bag-success.svg' %}</div>
                     <span id="total-inout" class="total-inout title-3-bold ms-1" title="saldo final">R$ 0,00</span>
                 </div>
-                <span id="filter-info" class="title-3-bold" title="período de referência">Referência: {{ date_formatted }}</span>
+                <span id="filter-info" class="title-3-bold" title="período de referência"></span>
                 <div class="v-line m-0"></div>
                 <button title="novo registro" id="btn-new-reg" class="btn btn-outline">{% include 'icons/plus.svg' %}</button>
                 <button title="recarregar" id="btn-trans-reload" class="btn btn-outline">{% include 'icons/refresh.svg' %}</button>
@@ -30,6 +30,7 @@
     
     {% include 'partials/home/nav-regs/details.html' %}
 
+
     <!-- MODAL - Filtros -->
     <div class="modal fade" id="modal-trans-filter" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -41,27 +42,7 @@
                 <div class="modal-body">
                     <div class="container p-0">
                         <div class="row align-items-center">
-                            <div class="col-md-4">
-                                <label for="filter-ref-month" class="col-form-label">Mês de Referência</label>
-                            </div>
-                            <div class="col">
-                                <select class="form form-select" id="filter-ref-month">
-                                    {% for month in months %}
-                                    <option value="{{ month.number }}" {% if month.is_current %}selected{% endif %}>{{ month.text }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row align-items-center mt-3">
-                            <div class="col-md-4">
-                                <label for="filter-ref-year" class="col-form-label">Ano de Referência</label>
-                            </div>
-                            <div class="col">
-                                <input type="number" class="form form-control col" min="2000" step="1" maxlength="4" value="{{ current_year }}" id="filter-ref-year">
-                            </div>
-                        </div>
-                        <div class="row align-items-center mt-3">
-                            <div class="col-md-4">
+                            <div class="col-md-auto">
                                 <label for="filter-card" class="col-form-label">Cartão</label>
                             </div>
                             <div class="col">

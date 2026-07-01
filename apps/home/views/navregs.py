@@ -11,20 +11,8 @@ def index(request):
     if not request.user.is_authenticated:
         return HttpResponseForbidden()
     
-    if 'date_ref' in request.GET:
-        try:
-            date = dt.date.strptime(request.GET['date_ref'], '%Y-%m-01')
-        except ValueError:
-            return HttpResponseBadRequest('o parâmetro date_ref deve seguir o padrão AAAA-MM-01')
-    
-    else:
-        date = dt.date.today()
-    
     return render(request, 'partials/home/nav-regs/index.html', {
         'cards': models.Card.objects.filter(user=request.user),
-        'current_year': date.year,
-        'date_formatted': date.strftime('%B %Y'),
-        'months': months_with_current(date),
     })
 
 def trans_cards(request):

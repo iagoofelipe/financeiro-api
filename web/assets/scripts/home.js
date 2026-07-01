@@ -31,17 +31,18 @@ class HomeView
 
         let jbtn = $(evt.currentTarget);
         let title = jbtn.prop('name');
+        let jfilter_month_year = $('#filter-month-year');
 
         // atualizando conteúdo
         let new_widget;
 
         switch (title) {
         case 'Dashboards':
-            new_widget = await DashboardView.create();
+            new_widget = await DashboardView.create(jfilter_month_year);
             break;
 
         case 'Registros':
-            new_widget = await RegistryView.create();
+            new_widget = await RegistryView.create(jfilter_month_year);
             break;
 
         // case 'Cartões e Faturas':

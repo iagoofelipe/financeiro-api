@@ -53,30 +53,36 @@ def values_by_category(user, **params) -> tuple[HTTPStatus, str, dict | None]:
     return 200, '', results
 
 def balance(user, **params) -> tuple[HTTPStatus, str, None | dict]:
-    date_ref = params.get('date_ref', dt.date.today().strftime('%Y-%m-01'))
-    
-    # prev_date = date_ref - relativedelta(months=1)
+    date_ref = dt.date.strptime(params['date_ref'] if 'date_ref' in params else dt.date.today().strftime('%Y-%m-01'), '%Y-%m-%d')
+    prev_date = date_ref - relativedelta(months=1)
     total_in = models.Registry.objects.filter(user=user, date_ref=date_ref, type_in=True).aggregate(sum=Sum('value'))['sum']
     total_out = models.Registry.objects.filter(user=user, date_ref=date_ref, type_in=False).aggregate(sum=Sum('value'))['sum']
-    # prev_total_in = models.Registry.objects.filter(user=user, date_ref=prev_date, type_in=True).aggregate(sum=Sum('value'))['sum']
-    # prev_total_out = models.Registry.objects.filter(user=user, date_ref=prev_date, type_in=False).aggregate(sum=Sum('value'))['sum']
+    prev_total_in = models.Registry.objects.filter(user=user, date_ref=prev_date, type_in=True).aggregate(sum=Sum('value'))['sum']
+    prev_total_out = models.Registry.objects.filter(user=user, date_ref=prev_date, type_in=False).aggregate(sum=Sum('value'))['sum']
     
     if total_in is None: total_in = 0
     if total_out is None: total_out = 0
+    if prev_total_in is None: prev_total_in = 0
+    if prev_total_out is None: prev_total_out = 0
 
     total_balance = round(total_in - total_out, 2)
+    total_in_progress = total_in >= prev_total_in
 
     result = {
-        # 'reference': date_ref.strftime('%Y-%m-%d'),
-        # 'previous_reference': prev_date.strftime('%Y-%m-%d'),
         'total_in': total_in,
         'total_in_formatted': format_coin(total_in, prefix=None, show_decimal='if_value'),
+        'total_in_progress': total_in_progress,
+        'total_in_progress_description': f'{'+' if total_in_progress else '-'}{(100 * abs(total_in - prev_total_in) / prev_total_in):.2f}% comparado ao anterior' if prev_total_in > 0 else '',
         'total_out': total_out,
         'total_out_formatted': format_coin(total_out, prefix=None, show_decimal='if_value'),
+        'total_out_progress': total_out <= prev_total_out,
+        'total_out_progress_description': f'{'+' if total_out >= prev_total_out else '-'}{(100 * abs(total_out - prev_total_out) / prev_total_out):.2f}% comparado ao anterior' if prev_total_out > 0 else '',
         'total_balance': total_balance,
         'total_balance_formatted': format_coin(total_balance, prefix=None, show_decimal='if_value'),
-        # 'prev_total_in': prev_total_in,
-        # 'prev_total_out': prev_total_out,
+        'prev_total_in': prev_total_in,
+        'prev_total_out': prev_total_out,
     }
+
+    
 
     return 200, '', result

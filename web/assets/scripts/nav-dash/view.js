@@ -7,21 +7,19 @@ export default class DashboardView {
     #category_chart;
     #date_ref;
 
-    constructor(jquery, category_chart) {
+    constructor(jquery, category_chart, jfilter_month_year) {
         this.#jquery = jquery;
         this.#category_chart = category_chart;
-
-        let filter_month_year = jquery.find('#filter-month-year');
-        this.#date_ref = filter_month_year.val() + '-01';
+        this.#date_ref = jfilter_month_year.val() + '-01';
         
         // jquery.on não deve ser utilizado pelo conteúdo ser movido
-        filter_month_year.on('change', async (e) => await this.#on_filterMonthYear_changed(e));
+        jfilter_month_year.on('change', async (e) => await this.#on_filterMonthYear_changed(e));
         this.#jquery.on('change', '.select-card', async (e) => await this.updateCard());
     }
 
     //-----------------------------------------------------------------------------
     // Métodos Públicos - Estáticos
-    static async create() {
+    static async create(jfilter_month_year) {
         let jquery = $(await $.get('/home/nav-dash'));
         let parent = jquery.find('#chart-category');
 
@@ -37,10 +35,11 @@ export default class DashboardView {
             dataAsObject: true,
         });
 
-        let obj = new DashboardView(jquery, category_chart);
+        let obj = new DashboardView(jquery, category_chart, jfilter_month_year);
         
         await obj.updateCard();
         await obj.updateCategories();
+        await obj.updateBalance();
 
         return obj;
     }
@@ -73,13 +72,30 @@ export default class DashboardView {
         const response = await balance({date_ref: this.#date_ref});
         
         if (response.success) {
-            this.#jquery.find('.top-cards .value-in').text(response.data.total_in_formatted);
-            this.#jquery.find('.top-cards .value-out').text(response.data.total_out_formatted);
-            this.#jquery.find('.top-cards .value-balance').text(response.data.total_balance_formatted);
+            this.#jquery.find('.value-in').text(response.data.total_in_formatted);
+            this.#jquery.find('.value-out').text(response.data.total_out_formatted);
+            this.#jquery.find('.value-balance').text(response.data.total_balance_formatted);
+
+            if (response.data.total_in_progress_description) {
+                this.#jquery.find('.value-in-note').show();
+                this.#jquery.find('.value-in-note .icon-progress').prop('hidden', !response.data.total_in_progress);
+                this.#jquery.find('.value-in-note .icon-not-progress').prop('hidden', response.data.total_in_progress);
+                this.#jquery.find('.value-in-note .text').text(response.data.total_in_progress_description);
+            }
+            else this.#jquery.find('.value-in-note').hide();
+
+            if (response.data.total_out_progress_description) {
+                this.#jquery.find('.value-out-note').show();
+                this.#jquery.find('.value-out-note .icon-progress').prop('hidden', !response.data.total_out_progress);
+                this.#jquery.find('.value-out-note .icon-not-progress').prop('hidden', response.data.total_out_progress);
+                this.#jquery.find('.value-out-note .text').text(response.data.total_out_progress_description);
+            }
+            else this.#jquery.find('.value-out-note').hide();
+
         } else {
-            this.#jquery.find('.top-cards .value-in').text('0');
-            this.#jquery.find('.top-cards .value-out').text('0');
-            this.#jquery.find('.top-cards .value-balance').text('0');
+            this.#jquery.find('.value-in').text('0');
+            this.#jquery.find('.value-out').text('0');
+            this.#jquery.find('.value-balance').text('0');
         }
     }
 
