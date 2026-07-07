@@ -7,6 +7,9 @@ import { set_modal } from "../tools/utils.js";
 export default class RegistryView {
     static templates = {};
 
+    ID_CONTENT_TRANSACTIONS = 0;
+    ID_CONTENT_REG_FORM = 1;
+
     #jquery;
     #reg_details;
     #reg_form;
@@ -15,8 +18,6 @@ export default class RegistryView {
         regs_by_id: {},
     };
     #table_selected = null;
-    ID_CONTENT_TRANSACTIONS = 0;
-    ID_CONTENT_REG_FORM = 1;
     #current_date_ref = null;
 
     constructor(jquery, jfilter_month_year) {

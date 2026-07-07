@@ -1,26 +1,10 @@
-from apps.api import models
 from http import HTTPStatus
 import datetime as dt
 from dateutil.relativedelta import relativedelta
 
-from typing import TYPE_CHECKING, Literal
-if TYPE_CHECKING:
-    from django.db.models import BaseManager
+from typing import Literal
 
-from . import consts
-
-def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[models.Invoice] | None]:
-    """ consulta os cartões aplicando os filtros fornecidos. A filtragem segue o padrão de `key__condition` do django """
-    
-    # adicionando filtros
-    invalid_filters = set(filters) - consts.INVOICE_FILTERS
-    if invalid_filters:
-        return  HTTPStatus.BAD_REQUEST, f'parâmetros {invalid_filters} inválidos', None
-
-    filters = { k: filters[k] for k in set(filters) & consts.INVOICE_FILTERS }
-
-    # TODO: adicionar filtragem por usuário em Card.user
-    return HTTPStatus.OK, '', models.Invoice.objects.filter(**filters).all()
+from apps.api import models
 
 def get_by_id(user, id:int) -> tuple[HTTPStatus, str, models.Invoice | None]:
     obj = models.Invoice.objects.filter(id=id).first()
@@ -51,7 +35,7 @@ def get_by_card(user, condition:Literal['id', 'name'], key:int|str, date_ref:dt.
             if key_is_str and not key.isdigit():
                 return HTTPStatus.BAD_REQUEST, 'o id deve ser um inteiro', None
 
-            filters['card__id'] = int(key) if key_is_str else key
+            filters['card__id'] = int(key)
 
         case 'name': filters['card__name'] = key
         case _: return HTTPStatus.BAD_REQUEST, 'condition deve ser id ou name', None

@@ -1,17 +1,7 @@
-from apps.api import models
-from http import HTTPStatus
 from django.db.models import Sum
+from http import HTTPStatus
 
-def delete(user, id) -> tuple[HTTPStatus, str]:
-    installment = models.Installment.objects.filter(id=id).first()
-    if not installment:
-        return HTTPStatus.NOT_FOUND, 'nenhum valor encontrado para o id fornecido'
-    
-    if installment.user != user:
-        return HTTPStatus.FORBIDDEN, 'permissão de acesso negada'
-    
-    installment.delete()
-    return HTTPStatus.OK, ''
+from apps.api import models
 
 def update_values(installment:models.Installment):
     value = installment.items.aggregate(value=Sum('registry__value'))['value']
@@ -21,11 +11,16 @@ def update_values(installment:models.Installment):
         paid = 0
 
     models.Installment.objects.filter(id=installment.id).update(
-        value=value,
-        paid=paid,
-        pending=value - paid
+        value=round(value, 2),
+        paid=round(paid, 2),
+        pending=round(value - paid, 2),
     )
 
-def update_all_values(user):
-    for installment in models.Installment.objects.filter(user=user).all():
+def update_values_by_registry(reg:models.Registry):
+    installment_item = reg.installment_item.first()
+    if installment_item:
+        update_values(installment_item.installment)
+
+def update_values_by_user(user):
+    for installment in user.installment_set.all():
         update_values(installment)

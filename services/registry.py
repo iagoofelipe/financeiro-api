@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from django.db.models import BaseManager
 
-from . import consts
+from .tools import make_param_filters
 from apps.api import models
 from . import invoice
 from . import installment
@@ -19,16 +19,18 @@ REGISTRY_IS_OWNER_VALIDATION = {
     'card_id': { 'model': models.Card, 'name': 'card' },
 }
 SET_REGISTRY_IS_OWNER_VALIDATION = set(REGISTRY_IS_OWNER_VALIDATION)
+REGISTRY_FILTERS = make_param_filters('int', 'value') | make_param_filters('str', 'title') | {'type_in', 'occurrance_init', 'occurrance_end', 'date_ref', 'card_id'}
+
 
 
 def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[models.Registry] | None]:
     """ consulta os registros aplicando os filtros fornecidos. A filtragem segue o padrão de `key__condition` do django """
     # adicionando filtros
-    invalid_filters = set(filters) - consts.REGISTRY_FILTERS
+    invalid_filters = set(filters) - REGISTRY_FILTERS
     if invalid_filters:
         return  HTTPStatus.BAD_REQUEST, f'parâmetros {invalid_filters} inválidos', None
 
-    filters = { k: filters[k] for k in set(filters) & consts.REGISTRY_FILTERS }
+    filters = { k: filters[k] for k in set(filters) & REGISTRY_FILTERS }
 
     occurrance_init = ''
     occurrance_end = ''
@@ -46,10 +48,7 @@ def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[mode
     if occurrance_init or occurrance_end:
         filters['occurrance__range'] = (occurrance_init, occurrance_end)
 
-    regs = models.Registry.objects \
-        .filter(user=user, **filters) \
-        .order_by('-occurrance') \
-        .all()
+    regs = user.registry_set.filter(**filters).order_by('-occurrance').all()
 
     return HTTPStatus.OK, '', regs
 
@@ -59,7 +58,7 @@ def get_by_id(user, regid:int) -> tuple[HTTPStatus, str, models.Registry | None]
         return HTTPStatus.NOT_FOUND, 'nenhum dado encontrado para o ID fornecido', None
     
     if reg.user != user:
-        return HTTPStatus.METHOD_NOT_ALLOWED, 'permissão de acesso negada', None
+        return HTTPStatus.FORBIDDEN, 'permissão de acesso negada', None
     
     return HTTPStatus.OK, '', reg
 
@@ -72,7 +71,7 @@ def validations(user, data:dict, required_fields:set=None, validate_installment=
         data[k] = None
 
     # verificando campos obrigatórios
-    if required_fields and isinstance(required_fields, set):
+    if required_fields:
         missing_fields = required_fields - set_data
         if missing_fields:
             return HTTPStatus.BAD_REQUEST, f'campos obrigatórios ausentes {missing_fields}'
@@ -123,27 +122,21 @@ def validations(user, data:dict, required_fields:set=None, validate_installment=
         return HTTPStatus.BAD_REQUEST, e.__str__()
     
     if 'status' in data:
-        data['done'] = False
-        data['accounted'] = False
         status = data.pop('status')
 
         if status not in ('PENDING', 'ACCOUNTED', 'OK'):
             return HTTPStatus.BAD_REQUEST, 'o parâmetro status deve ser PENDING, ACCOUNTED ou OK'
         
+        data['done'] = False
+        data['accounted'] = False
         match status:
             # case 'PENDING':     done e accounted False
             case 'ACCOUNTED':   data['accounted'] = True
             case 'OK':          data['done'] = True
 
-    # if 'category' in data:
-    #     if data['category']:
-    #         data['category'], created = models.Category.objects.get_or_create(title=data['category'], user=user)
-        
-    #     elif remove_if_empty:
-    #         data.pop('category')
-
     if 'card' in data:
         data['invoice'] = invoice.get_or_create(data.pop('card'), data['date_ref'])
+        
     elif 'card_id' in data and data['card_id'] is None:
         data['invoice'] = data.pop('card_id')
 
@@ -244,8 +237,7 @@ def update(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
         return HTTPStatus.BAD_REQUEST, e.__str__(), None
     
     # atualizando parcelas, caso haja
-    if installment_item := reg.installment_item.first():
-        installment.update_values(installment_item.installment)
+    installment.update_values_by_registry(reg)
 
     return HTTPStatus.OK, '', reg
 

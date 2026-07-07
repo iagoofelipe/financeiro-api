@@ -20,7 +20,7 @@ urlpatterns = [
     path('auth', obtain_auth_token),
     path('createAccount', account.create_account),
     path('deleteAccount', account.delete_account),
-    path('user', account.get_user),
+    path('getUser', account.get_user),
 
     # Card
     path('getCards', card.get_cards),
@@ -32,15 +32,10 @@ urlpatterns = [
     path('getInvoice/<int:id>', invoice.get_invoice),
     path('getInvoiceByCard', invoice.get_invoice_by_card),
 
-    # Installment
-    path('deleteInstallment/<int:id>', installment.delete_installment),
-    path('updateInstallments', installment.update_installments),
-
     # Registry
     path('getRegistries', registry.get_registries),
     path('getRegistry/<int:regid>', registry.get_registry),
     path('addRegistry', registry.add_registry),
-    path('getRegistryDateReferences', registry.get_reg_date_references),
     path('hasRegistries', registry.has_registries),
     path('deleteRegistry/<int:regid>', registry.delete_registry),
     path('updateRegistry', registry.update_registry),

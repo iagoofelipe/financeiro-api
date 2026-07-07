@@ -104,13 +104,13 @@ class Registry(models.Model):
     value = models.FloatField()
     occurrance = models.DateTimeField()
     description = models.CharField(max_length=100, null=True, default=None)
+    category = models.CharField(max_length=100, null=True, default=None)
     date_ref = models.DateField()
     type_in = models.BooleanField(default=False)
     done = models.BooleanField(default=False)
     accounted = models.BooleanField(default=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, null=True, default=None, related_name='registries')
-    category = models.CharField(max_length=100, null=True, default=None)
     responsable = models.ForeignKey(Responsable, on_delete=models.CASCADE, null=True, default=None)
 
     @property
@@ -156,8 +156,8 @@ class Registry(models.Model):
             'category': self.category if self.category else 'Outros',
             'date_ref': self.date_ref.strftime('%Y-%m'),
             'type_in': self.type_in,
-            'done': self.done,
-            'accounted': self.accounted,
+            # 'done': self.done,
+            # 'accounted': self.accounted,
             'card_name': self.invoice.card.name if self.invoice else '',
             'responsable_name': self.responsable.name if self.responsable else '',
             'responsable_id': self.responsable.id if self.responsable else None,

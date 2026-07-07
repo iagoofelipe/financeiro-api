@@ -19,10 +19,6 @@ def add_registry(request:HttpRequest):
     return response_dto_or_error(*registry.create(request.user, **json.loads(request.body)))
 
 @api_view(["GET"])
-def get_reg_date_references(request:HttpRequest):
-    return response_obj_or_error(obj=list(registry.get_date_references(request.user)), safe=False)
-
-@api_view(["GET"])
 def has_registries(request:HttpRequest):
     return response_obj_or_error(obj={'found': bool(Registry.objects.filter(user=request.user).count())})
 
