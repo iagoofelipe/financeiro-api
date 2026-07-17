@@ -5,7 +5,7 @@
 {% block body %}
 {% csrf_token %}
 
-<nav class="card d-flex home-nav flex-column p-3 shadow-sm">
+<nav class="card d-flex home-nav flex-column p-3 shadow-sm me-3">
     <div class="d-flex align-items-center justify-content-center">
         <a href="/" class="home-nav-logo d-flex align-items-center text-decoration-none text-black">
             <img src="{% static 'imgs/logo.svg' %}" alt="logo" class="me-2">
@@ -60,7 +60,7 @@
     </ul>
 </nav>
 
-<main class="ms-3 d-flex flex-column">
+<main class="d-flex flex-column">
     <div class="card d-flex flex-row p-3 mb-3 shadow-sm home-card-top justify-content-between">
         <p class="title m-0" id="home-title"></p>
         <div class="d-flex flex-row column-gap-3">
