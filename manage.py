@@ -10,7 +10,10 @@ def main():
     try:
         locale.setlocale(locale.LC_TIME, "pt_BR.utf8")
     except locale.Error:
-        locale.setlocale(locale.LC_TIME, "portuguese_brazil")
+        try:
+            locale.setlocale(locale.LC_TIME, "portuguese_brazil")
+        except locale.Error:
+            locale.setlocale(locale.LC_TIME, "")
 
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
     try:
