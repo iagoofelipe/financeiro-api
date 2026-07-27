@@ -62,7 +62,10 @@
 
 <main class="d-flex flex-column">
     <div class="card d-flex flex-row p-3 mb-3 shadow-sm home-card-top justify-content-between">
-        <p class="title m-0" id="home-title"></p>
+        <div class="d-flex flex-row column-gap-3 align-items-center">
+            <button class="btn btn-outline border-0 p-0" id="btn-home-menu" type="button" data-bs-toggle="offcanvas" data-bs-target="#nav-aside" aria-controls="nav-aside"><i class="bi bi-list"></i></button>
+            <p class="title m-0" id="home-title"></p>
+        </div>
         <div class="d-flex flex-row column-gap-3">
             <div id="home-navtop"></div>
             <input type="month" class="form-control w-auto" id="filter-month-year" value="{{ month_year }}" title="período de referência">
@@ -71,6 +74,62 @@
     </div>
     <div id="home-content" class="h-100 overflow-auto"></div>
 </main>
+
+<div class="offcanvas offcanvas-start home-nav" tabindex="-1" id="nav-aside">
+    <div class="offcanvas-body d-flex flex-column">
+        <div class="d-flex align-items-center justify-content-center">
+            <a href="/" class="home-nav-logo d-flex align-items-center text-decoration-none text-black">
+                <img src="{% static 'imgs/logo.svg' %}" alt="logo" class="me-2">
+                <p class="mb-0 home-nav-title">Financeiro</p>
+            </a>
+            <button class="btn close" type="button" data-bs-dismiss="offcanvas" aria-label="Close">
+                <img src="{% static 'imgs/icons/panel-left-filled.svg' %}" title="recolher painel" width="20" height="20">
+            </button>
+        </div>
+        <hr class="h-line-ignore-parent-padding">
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="mb-1">
+                <a class="nav-link d-flex align-items-center" name="Dashboards">
+                    {% include 'icons/dashboard.svg' %}
+                    <span class="ms-2">Dashboards</span>
+                </a>
+            </li>
+            <li class="mb-1">
+                <a class="nav-link d-flex align-items-center" name="Registros">
+                    {% include 'icons/table.svg' %}
+                    <span class="ms-2">Registros</span>
+                </a>
+            </li>
+            <li class="mb-1">
+                <a class="nav-link d-flex align-items-center" name="Cartões e Faturas">
+                    {% include 'icons/credit-card.svg' %}
+                    <span class="ms-2">Cartões e Faturas</span>
+                </a>
+            </li>
+        </ul>
+        <hr class="h-line-ignore-parent-padding">
+        <ul class="nav nav-pills flex-column">
+            <li class="mb-1">
+                <a class="nav-link d-flex align-items-center" name="Configurações">
+                    {% include 'icons/gear-fill.svg' %}
+                    <span class="ms-2">Configurações</span>
+                </a>
+            </li>
+            <li class="mb-1">
+                <a class="nav-link d-flex align-items-center" name="Usuário e Conta">
+                    {% include 'icons/person-fill.svg' %}
+                    <span class="ms-2">{{ user_name }}</span>
+                </a>
+            </li>
+            <li>
+                <a class="nav-link d-flex align-items-center" name="Sair">
+                    {% include 'icons/logout.svg' %}
+                    <span class="ms-2">Sair</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
 
 {% endblock %}
 

@@ -8,22 +8,15 @@ $(async () => {
 
 class HomeView
 {
-    #currentNavBtn;
-    #initialNavBtn;
-
     constructor() {
         // configurando nav-btns
         let nav_btns = $('.home-nav .nav-link');
-
-        for(let i=0; i<nav_btns.length; i++) {
-            $(nav_btns[i]).on('click', async (evt) => await this.#on_navBtn_clicked(evt));
-        }
-
-        this.#initialNavBtn = nav_btns[0];
-        this.#set_animations();
-
-        $(this.#initialNavBtn).click();
+        
+        nav_btns.on('click', async (evt) => await this.#on_navBtn_clicked(evt));
+        $(nav_btns[0]).click();
         $('#btn-nav-collapse').click(this.#on_btnNavCollapse_clicked);
+
+        $('.home-nav.offcanvas .nav-link').click(() => { $('.home-nav.offcanvas .close').click() });
     }
 
     async #on_navBtn_clicked(evt) {
@@ -64,7 +57,7 @@ class HomeView
         }
         
         $('#home-title').text(title); // atualizando título
-        this.#update_nav_button(jbtn); // atualizando botão selecionado
+        this.#update_nav_button(title); // atualizando botão selecionado
         
         // atualizando conteúdo
         let jquery = new_widget.jquery();
@@ -72,19 +65,9 @@ class HomeView
         $('#home-navtop').html(jquery.find('#home-navtop-content'));
     }
 
-    #set_animations() {
-        // TODO: tornar em singleton
-        $(document).on('click', '.btn-rotate', (evt) => $(evt.currentTarget).toggleClass('btn-rotated'));
-        // $(document).on('click', '.btn-rotate-full', (evt) => $(evt.currentTarget).toggleClass('btn-rotated-full'));
-    }
-
-    #update_nav_button(jbtn) {
-        if (this.#currentNavBtn) {
-            this.#currentNavBtn.removeClass('nav-link-active');
-        }
-
-        this.#currentNavBtn = jbtn;
-        this.#currentNavBtn.addClass('nav-link-active');
+    #update_nav_button(name) {
+        $('.home-nav .nav-link-active').removeClass('nav-link-active');
+        $(`.home-nav .nav-link[name="${name}"]`).addClass('nav-link-active');
     }
 
     #on_btnNavCollapse_clicked(evt) {

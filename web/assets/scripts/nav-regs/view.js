@@ -30,7 +30,37 @@ export default class RegistryView {
         jquery.on('click', '.reg-transactions #btn-trans-reload', async () => await this.updateTransactionCards());
         jquery.on('click', '.reg-transactions #btn-new-reg', async () => await this.setContentById(this.ID_CONTENT_REG_FORM, {mode: 'NEW'}));
         jfilter_month_year.on('change', async (e) => await this.#on_filterMonthYear_changed(e));
-        jquery.on('change', '#modal-trans-filter .form', async () => await this.updateTransactionCards());
+        // jquery.on('change', '.trans-filter', async () => await this.updateTransactionCards());
+        jquery.on('change', '#filter-card', async (e) => await this.#on_filterCard_change(e));
+        jquery.on('change', '#filter-card-group .form', async (e) => await this.#on_filterCardGroup_change(e));
+        jquery.on('click', '#btn-filter-card-reset', async (e) => await this.#on_btnFilterCardReset_click(e));
+    }
+
+    async #on_filterCardGroup_change(evt) {
+        let parent = this.#jquery.find('#filter-card');
+        let val = evt.currentTarget.value;
+        console.log('card-group', val);
+        
+        if (parent.val() != val)
+            parent.val(val);
+
+        await this.updateTransactionCards();
+    }
+
+    async #on_filterCard_change(evt) {
+        let parent = this.#jquery.find('#filter-card-group .form');
+        let val = evt.currentTarget.value;
+        console.log('card', val);
+
+        if (parent.val() != val)
+            parent.val(val);
+
+        await this.updateTransactionCards();
+    }
+
+    async #on_btnFilterCardReset_click(evt) {
+        this.#jquery.find('#filter-card').val('');
+        await this.updateTransactionCards();
     }
 
     //-----------------------------------------------------------------------------
@@ -93,6 +123,10 @@ export default class RegistryView {
             card_id: this.#jquery.find('#filter-card').val(),
         };
 
+        this.#jquery.find('#filter-card' + (data.card_id? '-group' : '')).show();
+        this.#jquery.find('#filter-card' + (data.card_id? '' : '-group')).hide();
+        console.log(data)
+
         const response = await $.get('/home/nav-reg/trans-cards', data);
         let jquery = this.#jquery.find('#trans-cards').html(response);
         let sum_inputs = this.#jquery.find('#sum-inputs-hidden').val();
@@ -121,21 +155,6 @@ export default class RegistryView {
             this.#tables.push(table);
             table.addEventListener(Table.EVENTS.ROW_CLICKED, async (e) => await this.#on_tableTransaction_rowClicked(e));
         }
-
-        // atualizando informações dos filtros
-        let card = this.#jquery.find('#filter-card option:selected').text();
-
-        if (card != '(Todos)') {
-            this.#jquery.find('#filter-info').text(`Cartão: ${card}`);
-        }
-    }
-
-    collapseAllCards() {
-        $('#trans-cards button[aria-expanded="true"]').click();
-    }
-
-    expandAllCards() {
-        $('#trans-cards button[aria-expanded="false"]').click();
     }
 
     //-----------------------------------------------------------------------------

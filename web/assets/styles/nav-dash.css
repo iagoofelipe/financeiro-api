@@ -7,3 +7,36 @@
         }
     }
 }
+
+/* Desktop */
+@media screen and (min-width: 1024px) {
+    .container-dash .top-cards .content {
+        column-gap: 1.5rem;
+    }
+}
+
+/* Tablet e Desktop */
+@media screen and (min-width: 768px) {
+    .container-dash .top-cards .content {
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+
+/* Tablet */
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+}
+
+/* Mobile e Tablet */
+@media screen and (max-width: 1023px) {
+    
+}
+
+/* Mobile */
+@media screen and (max-width: 767px) {
+    .container-dash .top-cards .content {
+        row-gap: 1.5rem;
+        flex-direction: column;
+    }
+}
