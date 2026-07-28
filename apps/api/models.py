@@ -94,10 +94,7 @@ class Invoice(models.Model):
             'sum_pending': self.sum_pending,
             'sum_pending_formatted': self.sum_pending_formatted,
         }
-    
-class Category(models.Model):
-    title = models.CharField(max_length=100)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
 
 class Registry(models.Model):
     title = models.CharField(max_length=100)
