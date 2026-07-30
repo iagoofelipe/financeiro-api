@@ -32,6 +32,9 @@ urlpatterns = [
     path('getInvoice/<int:id>', invoice.get_invoice),
     path('getInvoiceByCard', invoice.get_invoice_by_card),
 
+    # Installment
+    path('updateInstallmentsAll', installment.update_all),
+
     # Registry
     path('getRegistries', registry.get_registries),
     path('getRegistry/<int:regid>', registry.get_registry),

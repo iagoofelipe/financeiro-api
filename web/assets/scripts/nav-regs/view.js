@@ -39,7 +39,6 @@ export default class RegistryView {
     async #on_filterCardGroup_change(evt) {
         let parent = this.#jquery.find('#filter-card');
         let val = evt.currentTarget.value;
-        console.log('card-group', val);
         
         if (parent.val() != val)
             parent.val(val);
@@ -50,7 +49,6 @@ export default class RegistryView {
     async #on_filterCard_change(evt) {
         let parent = this.#jquery.find('#filter-card-group .form');
         let val = evt.currentTarget.value;
-        console.log('card', val);
 
         if (parent.val() != val)
             parent.val(val);
@@ -125,7 +123,6 @@ export default class RegistryView {
 
         this.#jquery.find('#filter-card' + (data.card_id? '-group' : '')).show();
         this.#jquery.find('#filter-card' + (data.card_id? '' : '-group')).hide();
-        console.log(data)
 
         const response = await $.get('/home/nav-reg/trans-cards', data);
         let jquery = this.#jquery.find('#trans-cards').html(response);
