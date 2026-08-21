@@ -29,10 +29,12 @@ SECRET_KEY = 'django-insecure-i5=iryh3pjq9a6&*(4e^-&n&)x$7o&o65-qt!*prs=s0-i0k6&
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '192.168.1.23', # PC Iago
-    '192.168.1.10', # PC Iago (Server Linux VM)
     '127.0.0.1',
 ]
+
+host = os.getenv('HOST')
+if host:
+    ALLOWED_HOSTS.append(host)
 
 
 # Application definition
