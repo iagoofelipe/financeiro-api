@@ -19,6 +19,7 @@ def delete_account(request:HttpRequest):
 def get_user(request):
     return response_obj_or_error(obj={
         'id': request.user.id,
+        'username': request.user.username,
         'email': request.user.email,
         'first_name': request.user.first_name,
         'last_name': request.user.last_name,
