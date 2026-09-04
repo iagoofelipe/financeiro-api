@@ -1,9 +1,10 @@
-from apps.api import models
 from http import HTTPStatus
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from django.db.models import BaseManager
+
+from apps.api import models
 
 def get_all(user) -> tuple[HTTPStatus, str, "BaseManager"[models.Card] | None]:
     """ consulta todos os cartões """
@@ -25,12 +26,18 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Card | None]:
             name=data['name'],
             closing_day=data['closing_day'],
             due_day=data['due_day'],
-            closing_previous_month=data.get('closing_previous_month'),
             limit=data['limit'],
             user=user,
         )
+        closing = data.get('closing_previous_month')
+        if closing is not None:
+            card.closing_previous_month = closing
+
+        card.save()
     except KeyError as e:
         return HTTPStatus.BAD_REQUEST, f'missing required param {e}', None
+    except Exception as e:
+        return HTTPStatus.BAD_REQUEST, str(e), None
 
-    card.save()
+
     return HTTPStatus.OK, '', card
