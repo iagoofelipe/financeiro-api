@@ -39,6 +39,8 @@ class Invoice(models.Model):
     due_date = models.DateField()
     limit = models.FloatField()
     card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='invoices')
+    used = models.FloatField(default=0)
+    available = models.FloatField(default=0)
 
     @property
     def limit_formatted(self):
@@ -76,6 +78,14 @@ class Invoice(models.Model):
     def sum_pending_formatted(self):
         return format_coin(self.sum_pending, show_decimal='if_value')
 
+    @property
+    def available_formatted(self):
+        return format_coin(self.available, show_decimal='if_value')
+
+    @property
+    def used_formatted(self):
+        return format_coin(self.used, show_decimal='if_value')
+
     def to_dto(self):
         return {
             'id': self.id,
@@ -93,6 +103,10 @@ class Invoice(models.Model):
             'sum_registred_formatted': self.sum_registred_formatted,
             'sum_pending': self.sum_pending,
             'sum_pending_formatted': self.sum_pending_formatted,
+            'available': self.available,
+            'available_formatted': self.available_formatted,
+            'used': self.used,
+            'used_formatted': self.used_formatted,
         }
 
 

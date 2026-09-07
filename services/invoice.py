@@ -1,6 +1,7 @@
 from http import HTTPStatus
 import datetime as dt
 from dateutil.relativedelta import relativedelta
+from django.db.models import Sum
 
 from typing import Literal
 
@@ -66,3 +67,19 @@ def get_or_create(card:models.Card, date_ref:dt.date):
     obj.save()
 
     return obj
+
+def update_values_by_id(user, invoice_id:int) -> tuple[HTTPStatus, str, models.Invoice | None]:
+    r = get_by_id(user, invoice_id)
+    invoice = r[2]
+
+    if invoice is None:
+        return r
+
+    sum_inputs = invoice.registries.filter(type_in=True).aggregate(value=Sum('value'))['value']
+    sum_outputs = invoice.registries.filter(type_in=False).aggregate(value=Sum('value'))['value']
+
+    invoice.used = (sum_outputs if sum_outputs else 0) - (sum_inputs if sum_inputs else 0)
+    invoice.available = invoice.limit - invoice.used
+    invoice.save()
+
+    return 200, '', invoice

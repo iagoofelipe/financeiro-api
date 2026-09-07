@@ -27,3 +27,7 @@ def get_invoice_by_card(request:HttpRequest):
         date_ref = dt.date(today.year, today.month, 1)
     
     return response_dto_or_error(*invoice.get_by_card(request.user, field, q, date_ref))
+
+@api_view(['GET'])
+def update_by_id(request:HttpRequest, id:int):
+    return response_dto_or_error(*invoice.update_values_by_id(request.user, id))
