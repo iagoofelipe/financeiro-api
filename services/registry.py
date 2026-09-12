@@ -19,7 +19,7 @@ REGISTRY_IS_OWNER_VALIDATION = {
     'card_id': { 'model': models.Card, 'name': 'card' },
 }
 SET_REGISTRY_IS_OWNER_VALIDATION = set(REGISTRY_IS_OWNER_VALIDATION)
-REGISTRY_FILTERS = make_param_filters('int', 'value') | make_param_filters('str', 'title') | {'type_in', 'occurrance_init', 'occurrance_end', 'date_ref', 'card_id'}
+REGISTRY_FILTERS = make_param_filters('int', 'value') | make_param_filters('str', 'title') | {'type_in', 'occurrence_init', 'occurrence_end', 'date_ref', 'card_id'}
 
 
 
@@ -32,23 +32,23 @@ def get_by_filters(user, **filters) -> tuple[HTTPStatus, str, "BaseManager"[mode
 
     filters = { k: filters[k] for k in set(filters) & REGISTRY_FILTERS }
 
-    occurrance_init = ''
-    occurrance_end = ''
-    if 'occurrance_init' in filters:
-        occurrance_init = filters.pop('occurrance_init')
+    occurrence_init = ''
+    occurrence_end = ''
+    if 'occurrence_init' in filters:
+        occurrence_init = filters.pop('occurrence_init')
 
     if 'ocurrance_end' in filters:
-        occurrance_end = filters.pop('occurrance_end')
+        occurrence_end = filters.pop('occurrence_end')
     
     if 'card_id' in filters:
         v = filters.pop('card_id')
         if v:
             filters['invoice__card__id'] = v
 
-    if occurrance_init or occurrance_end:
-        filters['occurrance__range'] = (occurrance_init, occurrance_end)
+    if occurrence_init or occurrence_end:
+        filters['occurrence__range'] = (occurrence_init, occurrence_end)
 
-    regs = user.registry_set.filter(**filters).order_by('-occurrance').all()
+    regs = user.registry_set.filter(**filters).order_by('-occurrence').all()
 
     return HTTPStatus.OK, '', regs
 
@@ -112,8 +112,8 @@ def validations(user, data:dict, required_fields:set=None, validate_installment=
     
     # tratando dados de entrada
     try:
-        if 'occurrance' in data:
-            data['occurrance'] = dt.datetime.strptime(data['occurrance'], '%d/%m/%Y %H:%M')
+        if 'occurrence' in data:
+            data['occurrence'] = dt.datetime.strptime(data['occurrence'], '%d/%m/%Y %H:%M')
         
         if 'date_ref' in data:
             data['date_ref'] = dt.date.strptime(data['date_ref'], '%Y-%m')
@@ -144,7 +144,7 @@ def validations(user, data:dict, required_fields:set=None, validate_installment=
 def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
     """ cria um novo registro, retorna statuscode, error, object """
 
-    validation_result = validations(user, data, {'title', 'value', 'occurrance', 'date_ref'}, validate_installment=True)
+    validation_result = validations(user, data, {'title', 'value', 'occurrence', 'date_ref'}, validate_installment=True)
 
     # em caso de erro na validação
     if validation_result:
@@ -177,7 +177,7 @@ def create(user, **data) -> tuple[HTTPStatus, str, models.Registry | None]:
                 data['date_ref'] += relativedelta(months=1)
                 
                 if reg.type_in: # caso seja uma saída, a data de ocorrência é fixa
-                    data['occurrance'] += relativedelta(months=1)
+                    data['occurrence'] += relativedelta(months=1)
 
                 if 'invoice' in data:
                     data['invoice'] = invoice.get_or_create(data['invoice'].card, data['date_ref'])

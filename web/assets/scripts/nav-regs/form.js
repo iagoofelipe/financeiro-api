@@ -50,7 +50,7 @@ export default class RegistryForm extends EventTarget {
         let data = {
             title: this.#jquery.find('#inp-title').val(),
             value: value? parseFloat(value) : 0,
-            occurrance: this.#jquery.find('#inp-occurrance').val(),
+            occurrence: this.#jquery.find('#inp-occurrence').val(),
             description: this.#jquery.find('#inp-desc').val(),
             date_ref: `${ref_year}-${this.#jquery.find('#inp-ref-month').val()}`,
             type_in: this.#jquery.find('#inp-radio-type-in').prop('checked'),
@@ -70,7 +70,7 @@ export default class RegistryForm extends EventTarget {
         // verificando campos obrigatórios
         let required_fields = {
             title: '#inp-title',
-            occurrance: '#inp-occurrance',
+            occurrence: '#inp-occurrence',
         };
         
         // validando entradas

@@ -7,7 +7,7 @@ engine = create_engine('sqlite:///db.sqlite3')
 filename = '.temp/base.xlsx'
 cols_to_cast = {
     'date': {'date_ref', 'closing_date', 'due_date'},
-    'datetime': {'occurrance'},
+    'datetime': {'occurrence'},
 }
 all_sheets = '*' in sys.argv
 

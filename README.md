@@ -196,8 +196,8 @@ A API conta com o modelo de token para a utilização dos serviços. Todos os en
 | title | body | opcional | string | - | valor exato do título |
 | title__icontains | body | opcional | string | - | o título contém (case-insensitive) |
 | type_in | body | opcional | int | `0` \| `1` | registro do tipo entrada ou saída, sendo 1 para entradas e 0 para saídas |
-| occurrance_init | body | opcional | datetime (AAAA-MM-DD HH:MM:SS) | - | data/hora inicial da ocorrência |
-| occurrance_end | body | opcional | datetime (AAAA-MM-DD HH:MM:SS) | - | data/hora limite da ocorrência |
+| occurrence_init | body | opcional | datetime (AAAA-MM-DD HH:MM:SS) | - | data/hora inicial da ocorrência |
+| occurrence_end | body | opcional | datetime (AAAA-MM-DD HH:MM:SS) | - | data/hora limite da ocorrência |
 | date_ref | body | opcional | date (AAAA-MM-DD) | - | data de referência |
 | card_id | body | opcional | int | - | id do cartão |
 
@@ -218,7 +218,7 @@ A API conta com o modelo de token para a utilização dos serviços. Todos os en
 | Authorization | header | obrigatório | string | - | token de autenticação no formato `token <token-api>` |
 | id | path | obrigatório | int | - | id para consulta |
 
-O retorno é ordenado por `occurrance`, do mais recente para o mais antigo.
+O retorno é ordenado por `occurrence`, do mais recente para o mais antigo.
 
 #### Responses
 | http code | response | descrição |
@@ -245,7 +245,7 @@ A API permite a criação de um registro dividivo em parcelas, ideal para compra
 | Authorization | header | obrigatório | string | - | - | token de autenticação no formato `token <token-api>` |
 | title | body | obrigatório | string |
 | value | body | obrigatório | float |
-| occurrance | body | obrigatório | string | - | - | formato DD/MM/AAAA HH:MM |
+| occurrence | body | obrigatório | string | - | - | formato DD/MM/AAAA HH:MM |
 | date_ref | body | obrigatório | string | - | - | formato AAAA-MM |
 | status | body | opcional | string | PENDING \| OK \| ACCOUNTED | PENDING |
 | type_in | body | opcional | boolean | - | false |
@@ -312,8 +312,8 @@ Aceita qualquer parâmetro de [POST /api/addRegistry](#add-registry-post) de for
 | `value` | float |
 | `value_formatted` | string | `value` no formato R$ 0,00 |
 | `status` | string |
-| `occurrance` | string | formato AAAA-MM-DD HH:MM |
-| `occurrance_formatted` | string | `occurrance` no formato DD MMM AA, HhMM, sendo o mês em texto |
+| `occurrence` | string | formato AAAA-MM-DD HH:MM |
+| `occurrence_formatted` | string | `occurrence` no formato DD MMM AA, HhMM, sendo o mês em texto |
 | `description` | string \| null |
 | `category` | string |
 | `date_ref` | string | formato AAAA-MM |

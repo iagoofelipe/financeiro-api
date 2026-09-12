@@ -120,7 +120,7 @@ def form(request):
 
     if reg:
         data['status'][reg.status_without_late]['selected'] = True
-        data['reg_occurrance'] = reg.occurrance.strftime('%d/%m/%Y %H:%M')
+        data['reg_occurrence'] = reg.occurrence.strftime('%d/%m/%Y %H:%M')
         data['reg_month_number'] = reg.date_ref.strftime('%m')
         
         if installment_item := reg.installment_item.first():
@@ -131,7 +131,7 @@ def form(request):
 
     else:
         data['status']['PENDING']['selected'] = True
-        data['reg_occurrance'] = now.strftime('%d/%m/%Y %H:%M')
+        data['reg_occurrence'] = now.strftime('%d/%m/%Y %H:%M')
         data['reg_month_number'] = now.strftime('%m')
     
     return render(request, 'partials/home/nav-regs/form.html', data)

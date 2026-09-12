@@ -113,7 +113,7 @@ class Invoice(models.Model):
 class Registry(models.Model):
     title = models.CharField(max_length=100)
     value = models.FloatField()
-    occurrance = models.DateTimeField()
+    occurrence = models.DateTimeField()
     description = models.CharField(max_length=100, null=True, default=None)
     category = models.CharField(max_length=100, null=True, default=None)
     date_ref = models.DateField()
@@ -130,7 +130,7 @@ class Registry(models.Model):
             return 'OK'
         if self.accounted:
             return 'ACCOUNTED'
-        return 'LATE' if  dt.datetime.now() > self.occurrance else 'PENDING'
+        return 'LATE' if  dt.datetime.now() > self.occurrence else 'PENDING'
     
     @property
     def status_without_late(self):
@@ -144,8 +144,8 @@ class Registry(models.Model):
         return f'{item.index+1} de {item.installment.num_items}' if item else ''
     
     @property
-    def occurrance_formatted(self):
-        d = self.occurrance
+    def occurrence_formatted(self):
+        d = self.occurrence
         return d.strftime(f'%d %b %y{f', %Hh{'%M' if d.minute else ''}' if d.hour or d.minute else ''}')
     
     def __repr__(self):
@@ -161,8 +161,8 @@ class Registry(models.Model):
             'value': self.value,
             'value_formatted': format_coin(self.value),
             'status': self.status,
-            'occurrance': self.occurrance.strftime('%d/%m/%Y %H:%M'),
-            'occurrance_formatted': self.occurrance_formatted,
+            'occurrence': self.occurrence.strftime('%d/%m/%Y %H:%M'),
+            'occurrence_formatted': self.occurrence_formatted,
             'description': self.description,
             'category': self.category if self.category else 'Outros',
             'date_ref': self.date_ref.strftime('%Y-%m'),
