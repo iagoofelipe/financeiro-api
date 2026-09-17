@@ -195,7 +195,6 @@ class Registry(models.Model):
         
         return data
 
-
 class Installment(models.Model):
     num_items = models.IntegerField(default=0)
     value = models.FloatField(default=0)

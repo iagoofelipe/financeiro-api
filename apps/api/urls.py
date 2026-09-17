@@ -33,6 +33,7 @@ urlpatterns = [
     path('getInvoice/<int:id>', invoice.get_invoice),
     path('getInvoiceByCard', invoice.get_invoice_by_card),
     path('updateInvoice/<int:id>', invoice.update_by_id),
+    path('updateInvoicesByUser', invoice.update_all),
 
     # Installment
     path('updateInstallmentsAll', installment.update_all),

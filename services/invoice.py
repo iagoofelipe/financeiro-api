@@ -83,3 +83,17 @@ def update_values_by_id(user, invoice_id:int) -> tuple[HTTPStatus, str, models.I
     invoice.save()
 
     return 200, '', invoice
+
+def update_all_by_user(user):
+    invoices = models.Invoice.objects.filter(card__user=user)
+
+    for invoice in invoices:
+        sum_inputs = invoice.registries.filter(type_in=True).aggregate(value=Sum('value'))['value']
+        sum_outputs = invoice.registries.filter(type_in=False).aggregate(value=Sum('value'))['value']
+
+        invoice.used = (sum_outputs if sum_outputs else 0) - (sum_inputs if sum_inputs else 0)
+        invoice.available = invoice.limit - invoice.used
+
+    models.Invoice.objects.bulk_update(invoices, ['used', 'available'])
+
+    return 200, ''

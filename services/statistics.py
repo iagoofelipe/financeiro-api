@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from django.db.models import Sum
+from django.db.models import Sum, Q
 import datetime as dt
 from dateutil.relativedelta import relativedelta
 
@@ -22,7 +22,7 @@ def values_by_category(user, **params) -> tuple[HTTPStatus, str, dict | None]:
         limit = int(params.get('limit', -1))
     except ValueError:
         return HTTPStatus.BAD_REQUEST, 'o parâmetro limit deve ser do tipo inteiro', None
-    
+
     query_in = models.Registry.objects.filter(user=user, date_ref=date_ref, type_in=True).values('category').annotate(sum=Sum('value')).order_by('-sum')
     query_out = models.Registry.objects.filter(user=user, date_ref=date_ref, type_in=False).values('category').annotate(sum=Sum('value')).order_by('-sum')
 
@@ -55,18 +55,24 @@ def values_by_category(user, **params) -> tuple[HTTPStatus, str, dict | None]:
 def balance(user, **params) -> tuple[HTTPStatus, str, None | dict]:
     date_ref = dt.date.strptime(params['date_ref'] if 'date_ref' in params else dt.date.today().strftime('%Y-%m-01'), '%Y-%m-%d')
     prev_date = date_ref - relativedelta(months=1)
-    total_in = models.Registry.objects.filter(user=user, date_ref=date_ref, type_in=True).aggregate(sum=Sum('value'))['sum']
-    total_out = models.Registry.objects.filter(user=user, date_ref=date_ref, type_in=False).aggregate(sum=Sum('value'))['sum']
-    prev_total_in = models.Registry.objects.filter(user=user, date_ref=prev_date, type_in=True).aggregate(sum=Sum('value'))['sum']
-    prev_total_out = models.Registry.objects.filter(user=user, date_ref=prev_date, type_in=False).aggregate(sum=Sum('value'))['sum']
-    
-    if total_in is None: total_in = 0
-    if total_out is None: total_out = 0
-    if prev_total_in is None: prev_total_in = 0
-    if prev_total_out is None: prev_total_out = 0
+    results = models.Registry.objects.filter(user=user).aggregate(
+        total_in=Sum('value', filter=Q(date_ref=date_ref, type_in=True)),
+        total_out=Sum('value', filter=Q(date_ref=date_ref, type_in=False)),
+        prev_total_in=Sum('value', filter=Q(date_ref=prev_date, done=True, type_in=True)),
+        prev_total_out=Sum('value', filter=Q(date_ref=prev_date, done=True, type_in=False)),
+        amount_in=Sum('value', filter=Q(date_ref__lte=prev_date, done=True, type_in=True)),
+        amount_out=Sum('value', filter=Q(date_ref__lte=prev_date, done=True, type_in=False)),
+    )
 
-    total_balance = round(total_in - total_out, 2)
-    total_in_progress = total_in >= prev_total_in
+
+    total_in            = results['total_in'] if results['total_in'] else 0
+    total_out           = results['total_out'] if results['total_out'] else 0
+    prev_total_in       = results['prev_total_in'] if results['prev_total_in'] else 0
+    prev_total_out      = results['prev_total_out'] if results['prev_total_out'] else 0
+    total_balance       = round(total_in - total_out, 2)
+    total_in_progress   = total_in >= prev_total_in
+    prev_amount         = round((results['amount_in'] if results['amount_in'] else 0) - (results['amount_out'] if results['amount_out'] else 0), 2)
+    total_amount        = prev_amount + total_balance
 
     result = {
         'total_in': total_in,
@@ -81,8 +87,7 @@ def balance(user, **params) -> tuple[HTTPStatus, str, None | dict]:
         'total_balance_formatted': format_coin(total_balance, prefix=None, show_decimal='if_value'),
         'prev_total_in': prev_total_in,
         'prev_total_out': prev_total_out,
+        'total_amount': total_amount,
     }
-
-    
 
     return 200, '', result

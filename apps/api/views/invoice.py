@@ -28,6 +28,10 @@ def get_invoice_by_card(request:HttpRequest):
     
     return response_dto_or_error(*invoice.get_by_card(request.user, field, q, date_ref))
 
-@api_view(['GET'])
+@api_view(['POST'])
 def update_by_id(request:HttpRequest, id:int):
     return response_dto_or_error(*invoice.update_values_by_id(request.user, id))
+
+@api_view(['POST'])
+def update_all(request):
+    return response_success_error(*invoice.update_all_by_user(request.user))
