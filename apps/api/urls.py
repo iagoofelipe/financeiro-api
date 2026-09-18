@@ -45,6 +45,7 @@ urlpatterns = [
     path('hasRegistries', registry.has_registries),
     path('deleteRegistry/<int:regid>', registry.delete_registry),
     path('updateRegistry', registry.update_registry),
+    path('getSuggestionCategories', registry.get_suggestion_categories),
 
     # Responsable
     path('getResponsables', responsable.get_responsables),

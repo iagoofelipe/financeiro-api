@@ -29,3 +29,9 @@ def delete_registry(request:HttpRequest, regid:int):
 @api_view(["POST"])
 def update_registry(request:HttpRequest):
     return response_success_error(*registry.update(request.user, **json.loads(request.body)))
+
+@api_view(["GET"])
+def get_suggestion_categories(request:HttpRequest):
+    cats = list(request.user.registry_set.filter(category__isnull=False).values_list('category', flat=True).distinct())
+    cats.sort()
+    return response_obj_or_error(obj=cats, safe=False)
