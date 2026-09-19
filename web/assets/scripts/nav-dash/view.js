@@ -2,6 +2,8 @@ import CategoryChart from "../components/category-chart.js";
 import { get_invoice_by_card } from "../tools/api/cards.js";
 import { balance, values_by_category } from "../tools/api/statistics.js";
 
+const COIN_PROPS = {style: 'currency', currency: 'BRL'};
+
 export default class DashboardView {
     #jquery;
     #category_chart;
@@ -56,8 +58,8 @@ export default class DashboardView {
         });
 
         if (response.success) {
-            this.#jquery.find('.field-card-accounted .text').text(response.data.sum_registred_formatted);
-            this.#jquery.find('.field-card-pending .text').text(response.data.sum_pending_formatted);
+            this.#jquery.find('.field-card-accounted .text').text(response.data.sum_registred.toLocaleString('pt-br', COIN_PROPS));
+            this.#jquery.find('.field-card-pending .text').text(response.data.sum_pending.toLocaleString('pt-br', COIN_PROPS));
             this.#jquery.find('.field-card-closing-date .text').text(response.data.closing_date_formatted);
             this.#jquery.find('.field-card-due-date .text').text(response.data.due_date_formatted);
         } else {
@@ -72,9 +74,10 @@ export default class DashboardView {
         const response = await balance({date_ref: this.#date_ref});
         
         if (response.success) {
-            this.#jquery.find('.value-in').text(response.data.total_in_formatted);
-            this.#jquery.find('.value-out').text(response.data.total_out_formatted);
-            this.#jquery.find('.value-balance').text(response.data.total_balance_formatted);
+            this.#jquery.find('.value-in').text(response.data.total_in.toLocaleString('pt-br'));
+            this.#jquery.find('.value-out').text(response.data.total_out.toLocaleString('pt-br'));
+            // this.#jquery.find('.value-balance').text((response.data.total_in + response.data.total_out).toLocaleString('pt-br'));
+            this.#jquery.find('.value-balance').text(response.data.current_balance.toLocaleString('pt-br'));
 
             if (response.data.total_in_progress_description) {
                 this.#jquery.find('.value-in-note').show();

@@ -55,39 +55,42 @@ def values_by_category(user, **params) -> tuple[HTTPStatus, str, dict | None]:
 def balance(user, **params) -> tuple[HTTPStatus, str, None | dict]:
     date_ref = dt.date.strptime(params['date_ref'] if 'date_ref' in params else dt.date.today().strftime('%Y-%m-01'), '%Y-%m-%d')
     prev_date = date_ref - relativedelta(months=1)
+    condition_filter = Q(done=True) | Q(accounted=True)
     results = models.Registry.objects.filter(user=user).aggregate(
         total_in=Sum('value', filter=Q(date_ref=date_ref, type_in=True)),
         total_out=Sum('value', filter=Q(date_ref=date_ref, type_in=False)),
-        prev_total_in=Sum('value', filter=Q(date_ref=prev_date, done=True, type_in=True)),
-        prev_total_out=Sum('value', filter=Q(date_ref=prev_date, done=True, type_in=False)),
-        amount_in=Sum('value', filter=Q(date_ref__lte=prev_date, done=True, type_in=True)),
-        amount_out=Sum('value', filter=Q(date_ref__lte=prev_date, done=True, type_in=False)),
+        prev_month_in=Sum('value', filter=Q(date_ref=prev_date, type_in=True) & condition_filter),
+        prev_month_out=Sum('value', filter=Q(date_ref=prev_date, type_in=False) & condition_filter),
+        current_balance_in=Sum('value', filter=Q(date_ref__lte=date_ref, type_in=True) & condition_filter),
+        current_balance_out=Sum('value', filter=Q(date_ref__lte=date_ref, type_in=False) & condition_filter),
     )
 
 
     total_in            = results['total_in'] if results['total_in'] else 0
     total_out           = results['total_out'] if results['total_out'] else 0
-    prev_total_in       = results['prev_total_in'] if results['prev_total_in'] else 0
-    prev_total_out      = results['prev_total_out'] if results['prev_total_out'] else 0
-    total_balance       = round(total_in - total_out, 2)
-    total_in_progress   = total_in >= prev_total_in
-    prev_amount         = round((results['amount_in'] if results['amount_in'] else 0) - (results['amount_out'] if results['amount_out'] else 0), 2)
-    total_amount        = prev_amount + total_balance
+    prev_month_in       = results['prev_month_in'] if results['prev_month_in'] else 0
+    prev_month_out      = results['prev_month_out'] if results['prev_month_out'] else 0
+    # total_balance       = round(total_in - total_out, 2)
+    total_in_progress   = total_in >= prev_month_in
+    # prev_amount         = round((results['amount_in'] if results['amount_in'] else 0) - (results['amount_out'] if results['amount_out'] else 0), 2)
+    # total_amount        = prev_amount + total_balance
+    current_balance = (results['current_balance_in'] if results['current_balance_in'] else 0) - (results['current_balance_out'] if results['current_balance_out'] else 0)
 
     result = {
         'total_in': total_in,
-        'total_in_formatted': format_coin(total_in, prefix=None, show_decimal='if_value'),
+        # 'total_in_formatted': format_coin(total_in, prefix=None, show_decimal='if_value'),
         'total_in_progress': total_in_progress,
-        'total_in_progress_description': f'{'+' if total_in_progress else '-'}{(100 * abs(total_in - prev_total_in) / prev_total_in):.2f}% comparado ao anterior' if prev_total_in > 0 else '',
+        'total_in_progress_description': f'{'+' if total_in_progress else '-'}{(100 * abs(total_in - prev_month_in) / prev_month_in):.2f}% comparado ao anterior' if prev_month_in > 0 else '',
         'total_out': total_out,
-        'total_out_formatted': format_coin(total_out, prefix=None, show_decimal='if_value'),
-        'total_out_progress': total_out <= prev_total_out,
-        'total_out_progress_description': f'{'+' if total_out >= prev_total_out else '-'}{(100 * abs(total_out - prev_total_out) / prev_total_out):.2f}% comparado ao anterior' if prev_total_out > 0 else '',
-        'total_balance': total_balance,
-        'total_balance_formatted': format_coin(total_balance, prefix=None, show_decimal='if_value'),
-        'prev_total_in': prev_total_in,
-        'prev_total_out': prev_total_out,
-        'total_amount': total_amount,
+        # 'total_out_formatted': format_coin(total_out, prefix=None, show_decimal='if_value'),
+        'total_out_progress': total_out <= prev_month_out,
+        'total_out_progress_description': f'{'+' if total_out >= prev_month_out else '-'}{(100 * abs(total_out - prev_month_out) / prev_month_out):.2f}% comparado ao anterior' if prev_month_out > 0 else '',
+        # 'total_balance': total_balance,
+        # 'total_balance_formatted': format_coin(total_balance, prefix=None, show_decimal='if_value'),
+        'prev_month_in': prev_month_in,
+        'prev_month_out': prev_month_out,
+        'current_balance': current_balance,
+        # 'total_amount': total_amount,
     }
 
     return 200, '', result

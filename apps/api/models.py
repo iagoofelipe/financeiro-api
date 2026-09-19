@@ -42,9 +42,9 @@ class Invoice(models.Model):
     used = models.FloatField(default=0)
     available = models.FloatField(default=0)
 
-    @property
-    def limit_formatted(self):
-        return format_coin(self.limit, show_decimal='if_value')
+    # @property
+    # def limit_formatted(self):
+    #     return format_coin(self.limit, show_decimal='if_value')
 
     @property
     def date_ref_formatted(self):
@@ -64,9 +64,9 @@ class Invoice(models.Model):
         r = self.registries.filter(Q(type_in=False) & (Q(done=True) | Q(accounted=True))).aggregate(result=Sum('value'))['result']
         return r if r else 0
     
-    @property
-    def sum_registred_formatted(self):
-        return format_coin(self.sum_registred, show_decimal='if_value')
+    # @property
+    # def sum_registred_formatted(self):
+    #     return format_coin(self.sum_registred, show_decimal='if_value')
 
     @property
     def sum_pending(self):
@@ -74,17 +74,17 @@ class Invoice(models.Model):
         r = self.registries.filter(type_in=False, done=False, accounted=False).aggregate(result=Sum('value'))['result']
         return r if r else 0
     
-    @property
-    def sum_pending_formatted(self):
-        return format_coin(self.sum_pending, show_decimal='if_value')
+    # @property
+    # def sum_pending_formatted(self):
+    #     return format_coin(self.sum_pending, show_decimal='if_value')
 
-    @property
-    def available_formatted(self):
-        return format_coin(self.available, show_decimal='if_value')
+    # @property
+    # def available_formatted(self):
+    #     return format_coin(self.available, show_decimal='if_value')
 
-    @property
-    def used_formatted(self):
-        return format_coin(self.used, show_decimal='if_value')
+    # @property
+    # def used_formatted(self):
+    #     return format_coin(self.used, show_decimal='if_value')
 
     def to_dto(self):
         return {
@@ -96,17 +96,17 @@ class Invoice(models.Model):
             'due_date': self.due_date,
             'due_date_formatted': self.due_date_formatted,
             'limit': self.limit,
-            'limit_formatted': self.limit_formatted,
+            # 'limit_formatted': self.limit_formatted,
             'card_id': self.card.id,
             'card_name': self.card.name,
             'sum_registred': self.sum_registred,
-            'sum_registred_formatted': self.sum_registred_formatted,
+            # 'sum_registred_formatted': self.sum_registred_formatted,
             'sum_pending': self.sum_pending,
-            'sum_pending_formatted': self.sum_pending_formatted,
+            # 'sum_pending_formatted': self.sum_pending_formatted,
             'available': self.available,
-            'available_formatted': self.available_formatted,
+            # 'available_formatted': self.available_formatted,
             'used': self.used,
-            'used_formatted': self.used_formatted,
+            # 'used_formatted': self.used_formatted,
         }
 
 
