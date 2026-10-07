@@ -113,7 +113,7 @@ def validations(user, data:dict, required_fields:set=None, validate_installment=
     # tratando dados de entrada
     try:
         if 'occurrence' in data:
-            data['occurrence'] = dt.datetime.strptime(data['occurrence'], '%d/%m/%Y %H:%M')
+            data['occurrence'] = dt.datetime.strptime(data['occurrence'], '%Y-%m-%dT%H:%M')
         
         if 'date_ref' in data:
             data['date_ref'] = dt.date.strptime(data['date_ref'], '%Y-%m')
