@@ -86,6 +86,10 @@ class Invoice(models.Model):
     # def used_formatted(self):
     #     return format_coin(self.used, show_decimal='if_value')
 
+    @property
+    def available(self):
+        return 
+
     def to_dto(self):
         return {
             'id': self.id,
@@ -96,6 +100,7 @@ class Invoice(models.Model):
             'due_date': self.due_date,
             'due_date_formatted': self.due_date_formatted,
             'limit': self.limit,
+            'available': self.available,
             'card_id': self.card.id,
             'card_name': self.card.name,
             'sum_registred': self.sum_registred,
