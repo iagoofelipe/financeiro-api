@@ -9,7 +9,7 @@ SUFFIX_FILTERS_BY_TYPE = {
 class DtoParser(Protocol):
     def to_dto(self, **kwargs) -> dict: ...
 
-def response_dto_or_error(statuscode:int, msg:str, obj:DtoParser|Iterable[DtoParser], iterable=False, dto_params={}):
+def response_dto_or_error(statuscode:int, msg:str, obj:DtoParser|Iterable[DtoParser]|None, iterable=False, dto_params={}):
     if statuscode == 200:
         data = [o.to_dto(**dto_params) for o in obj] if iterable else obj.to_dto(**dto_params)
     else:
