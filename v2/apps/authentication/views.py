@@ -93,12 +93,12 @@ def generate_token(request:HttpRequest):
     password = data.get('password')
 
     if not username or not password:
-        return response_success_error(statuscode=HTTPStatus.BAD_REQUEST, msg='Parâmetros username e password necessários!')
+        return response_success_error(HTTPStatus.BAD_REQUEST, 'Parâmetros username e password necessários!')
     
     user = django_auth.authenticate(request, username=username, password=password)
     
     if user is None:
-        return response_success_error(statuscode=HTTPStatus.BAD_REQUEST, msg='Usuário ou senha incorretos!')
+        return response_success_error(HTTPStatus.BAD_REQUEST, 'Usuário ou senha incorretos!')
 
     django_auth.login(request, user) 
     token, created = Token.objects.get_or_create(user=user)

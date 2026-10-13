@@ -111,16 +111,24 @@
 ### Carteira
 
 <details id="create-wallet">
- <summary><code>POST</code> <code><b>/wallet/create</b></code> <code>()</code>
+ <summary><code>POST</code> <code><b>/wallet/create</b></code> <code>(gera uma nova carteira)</code>
 </summary>
 
+Uma carteira representa um conjunto de [registros](#registry). Combinado com a opção `cardType`, pode ser utilizado para representar um cartão com histórico de transações pela ocorrência do registro (fatura) e outras funcionalidades.
+
 #### Parâmetros
-| nome | localização | tipo | tipo de dado | descrição |
-| --- | --- | --- | --- | --- |
+| nome | localização | tipo | tipo de dado | padrão | descrição |
+| --- | --- | --- | --- | --- | --- |
+| name | body | obrigatório | string |
+| cardType | body | opcional | boolean | true |
+| limit | body | obrigatório se cardType fornecido | decimal |
+| date | body | obrigatório se cardType fornecido | date | | formato `AAAA-MM` |
 
 #### Responses
 | http code | response |
 | --- | --- |
+| `400 Bad Request` | [SuccessError](#successerror) |
+| `400 Bad Request` | [SuccessError](#successerror) |
 
 </details>
 
@@ -130,7 +138,6 @@
 ### SuccessError
 | nome | tipo de dado | descrição |
 | --- | --- | --- |
-| `success` | boolean | operação realizada com sucesso |
 | `detail` | string \| undefined | detalhamento da mensagem |
 
 ### User
@@ -141,3 +148,12 @@
 | `email` | string |
 | `firstName` | string |
 | `lastName` | string |
+
+### Registry
+| nome | tipo de dado | descrição |
+| --- | --- | --- |
+
+### Wallet
+| nome | tipo de dado | descrição |
+| --- | --- | --- |
+|
