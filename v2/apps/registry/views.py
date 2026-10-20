@@ -1,64 +1,38 @@
-from rest_framework.decorators import api_view
-from django.http import HttpRequest
-from django.core.exceptions import ValidationError
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
+from rest_framework.request import Request
 from http import HTTPStatus
 import json
 
-from .models import Registry
-from ..wallet.models import Wallet
-from ..utils import response_success_error, response_dto_or_error, SUFFIX_FILTERS_BY_TYPE, params_validator
+from .models import RegistrySerializer, Registry
 
-GET_ALL_VALID_FILTERS = {
-    'title': SUFFIX_FILTERS_BY_TYPE['string'],
-    'value': SUFFIX_FILTERS_BY_TYPE['number'],
-    'occurrence': SUFFIX_FILTERS_BY_TYPE['number'],
-    'status': [],
-}
+class RegistryViewSet(ModelViewSet):
+    queryset = Registry.objects.all()
+    serializer_class = RegistrySerializer
 
-CREATE_FIELDS = { 'title', 'value', 'occurrence', 'reference', 'typeIn', 'status', 'description', 'category', 'wallet', 'user' }
+    def list(self, request:Request):
+        params = request.query_params.dict()
+        if {'user', 'user_id', 'user__id'} & set(params):
+            return Response({'detail': 'parâmetro user não permitido'}, HTTPStatus.BAD_REQUEST)
 
-
-@api_view(['POST'])
-def create(request:HttpRequest):
-    data = json.loads(request.body)
-    data['user'] = request.user
-
-    if 'walletId' in data:
-        data['wallet'] = Wallet.objects.filter(id=data['walletId']).first()
-        if data['wallet'] is None:
-            return response_success_error(HTTPStatus.NOT_FOUND, 'não foi possível localizar a carteira fornecida')
-        if data['wallet'].user != request.user:
-            return response_success_error(HTTPStatus.FORBIDDEN, 'a carteira fonecida não pertence ao usuário conectado')
-        
-    try:
-        params = { k: data[k] for k in CREATE_FIELDS if (k in data and data[k] is not None) }
-        params['reference'] += '-01'
-        reg = Registry(**params)
-        reg.save()
-    except KeyError:
-        return response_success_error(HTTPStatus.BAD_REQUEST, 'preencha todos os campos obrigatórios!')
-    except ValidationError as e:
-        return response_success_error(HTTPStatus.BAD_REQUEST, e.__str__())
+        try:
+            values = Registry.objects.filter(user=request.user, **params)
+        except Exception as e:
+            return Response({'detail': e.__str__()}, HTTPStatus.BAD_REQUEST)
+        return Response(self.serializer_class(values, many=True).data)
     
-    return response_dto_or_error(200, '', Registry.objects.filter(id=reg.id).first())
+    def create(self, request:Request):
+        serializer = self.serializer_class(data=json.loads(request.body), context={'user_id': request.user.id})
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            status = HTTPStatus.OK
+            data = serializer.data
+        else:
+            status = HTTPStatus.BAD_REQUEST
+            data = serializer.errors
+        return Response(data, status)
 
-@api_view(['GET'])
-def get_all(request:HttpRequest):
-    params = request.GET.dict()
-    invalid = params_validator(params, GET_ALL_VALID_FILTERS)
-    if invalid:
-        return response_success_error(HTTPStatus.BAD_REQUEST, f'invalid param "{invalid}"')
-
-    params['user'] = request.user
-    return response_dto_or_error(200, '', Registry.objects.filter(**params), True)
-
-@api_view(['GET'])
-def get_by_id(request:HttpRequest, id):
-    obj = Registry.objects.filter(id=id, user=request.user).first()
-    if obj:
-        status = 200
-        msg = ''
-    else:
-        status = 404
-        msg = 'dados não encontrados'
-    return response_dto_or_error(status, msg, obj)
+    def retrieve(self, request, pk):
+        if not self.queryset.filter(pk=pk, user=request.user).count():
+            return Response({'detail': 'dados não encontrados'}, HTTPStatus.NOT_FOUND)
+        return super().retrieve(request, pk)

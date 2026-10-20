@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from django.conf import settings
 from django.db import models
 from uuid import uuid4
@@ -32,6 +33,12 @@ class Wallet(models.Model):
             #TODO: adicionar limite utilizado (registro com status ACCOUNTED)
 
         return data
+
+class WalletSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wallet
+        read_only_fields = ['id']
+        fields = ['id', 'name', 'cardType']
 
 class WalletLimitChange(models.Model):
     id = models.CharField(default=uuid4, primary_key=True)
