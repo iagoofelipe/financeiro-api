@@ -14,10 +14,10 @@ class Registry(models.Model):
     reference = models.CharField(max_length=7)
     typeIn = models.BooleanField(default=False)
     status = models.CharField(max_length=100, default='PENDING')
-    description = models.CharField(max_length=100, null=True, default=None)
-    category = models.CharField(max_length=100, null=True, default=None)
+    description = models.CharField(max_length=100, null=True)
+    category = models.CharField(max_length=100, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, null=True)
+    wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
 
 class RegistrySerializer(serializers.ModelSerializer):
     occurrence = serializers.DateTimeField(format='%Y-%m-%d %H:%M')

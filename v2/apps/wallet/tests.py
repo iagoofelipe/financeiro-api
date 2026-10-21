@@ -58,7 +58,7 @@ class WalletCreateTests(TestCase):
 		)
 
 		self.assertEqual(response.status_code, 400)
-		self.assertIn('date', response.json())
-		self.assertIn('limit', response.json())
+		self.assertIn('cardDateReference', response.json())
+		self.assertIn('cardLimit', response.json())
 		self.assertEqual(Wallet.objects.count(), 0)
 		self.assertEqual(WalletLimitChange.objects.count(), 0)

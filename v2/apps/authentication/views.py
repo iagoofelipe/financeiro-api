@@ -9,6 +9,9 @@ from django.http import HttpRequest, JsonResponse, HttpResponse
 from django.contrib import auth as django_auth
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.db import transaction
+
+from ..wallet.models import Wallet
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -19,13 +22,16 @@ def create(request:HttpRequest):
         if User.objects.filter(Q(username=data['username']) | Q(email=data['email'])).count():
             return JsonResponse({'detail':'já existe um usuário cadastrado com os dados fornecidos'}, status=HTTPStatus.BAD_REQUEST)
 
-        User.objects.create_user(
-            username=data['username'],
-            password=data['password'],
-            email=data['email'],
-            first_name=data['firstName'],
-            last_name=data['lastName'],
-        ).save()
+        with transaction.atomic():
+            user = User.objects.create_user(
+                username=data['username'],
+                password=data['password'],
+                email=data['email'],
+                first_name=data['firstName'],
+                last_name=data['lastName'],
+            )
+            user.save()
+            Wallet(name='Padrão', user=user).save()
     except KeyError:
         return JsonResponse({'detail':'preencha todos os campos obrigatórios'}, status=HTTPStatus.BAD_REQUEST)
     return HttpResponse()

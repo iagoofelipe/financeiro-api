@@ -2,9 +2,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.request import Request
 from http import HTTPStatus
-import json
 
-from .models import Wallet, WalletSerializer, WalletLimitChangeSerializer
+from .models import Wallet, WalletSerializer
 
 class WalletViewSet(ModelViewSet):
     queryset = Wallet.objects.all()
@@ -23,33 +22,10 @@ class WalletViewSet(ModelViewSet):
         return Response(self.serializer_class(values, many=True, context=context).data)
 
     def create(self, request:Request):
-        data = json.loads(request.body)
-        
-        card_type = data.get('cardType', False)
-        if card_type and ('cardDateReference' not in data or 'cardLimit' not in data):
-            return Response(
-                {'detail': 'cardDateReference and cardLimit required when cardType'},
-                HTTPStatus.BAD_REQUEST,
-            )
-
-        serializer = self.serializer_class(data=data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, HTTPStatus.BAD_REQUEST)
-
-        limit_serializer = None
-        if card_type:
-            limit_serializer = WalletLimitChangeSerializer(data={
-                'date': data['cardDateReference'],
-                'limit': data['cardLimit'],
-            })
-            if not limit_serializer.is_valid():
-                return Response(limit_serializer.errors, HTTPStatus.BAD_REQUEST)
-        
-        wallet = serializer.save(user=request.user)
-        if limit_serializer:
-            limit_serializer.save(wallet=wallet)        
-
-        return Response(self.serializer_class(wallet).data, HTTPStatus.CREATED)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user)
+        return Response(serializer.data, HTTPStatus.CREATED)
 
     def retrieve(self, request:Request, pk):
         obj = self.queryset.filter(pk=pk).first()
