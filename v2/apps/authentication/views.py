@@ -5,12 +5,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
 
+from django.http import HttpRequest, JsonResponse, HttpResponse
 from django.contrib import auth as django_auth
 from django.contrib.auth.models import User
-from django.http import HttpRequest
 from django.db.models import Q
-
-from ..utils import response_success_error, response_obj_or_error
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -19,7 +17,7 @@ def create(request:HttpRequest):
 
     try:
         if User.objects.filter(Q(username=data['username']) | Q(email=data['email'])).count():
-            return response_success_error(HTTPStatus.BAD_REQUEST, 'já existe um usuário cadastrado com os dados fornecidos')
+            return JsonResponse({'detail':'já existe um usuário cadastrado com os dados fornecidos'}, status=HTTPStatus.BAD_REQUEST)
 
         User.objects.create_user(
             username=data['username'],
@@ -29,15 +27,15 @@ def create(request:HttpRequest):
             last_name=data['lastName'],
         ).save()
     except KeyError:
-        return response_success_error(HTTPStatus.BAD_REQUEST, 'preencha todos os campos obrigatórios')
-    return response_success_error()
+        return JsonResponse({'detail':'preencha todos os campos obrigatórios'}, status=HTTPStatus.BAD_REQUEST)
+    return HttpResponse()
 
 @api_view(["GET"])
 def get(request:HttpRequest):
     if not request.user.is_authenticated:
-        response = response_success_error(HTTPStatus.UNAUTHORIZED, 'usuário não autenticado')
+        response = JsonResponse({'detail':'usuário não autenticado'}, status=HTTPStatus.UNAUTHORIZED)
     else:
-        response = response_obj_or_error(obj={
+        response = JsonResponse({
             'id': request.user.id,
             'username': request.user.username,
             'email': request.user.email,
@@ -53,7 +51,7 @@ def update(request:HttpRequest):
     user = User.objects.filter(id=request.user.id).first()
 
     if user is None:
-        return response_success_error(HTTPStatus.UNAUTHORIZED, 'usuário não autenticado')
+        return JsonResponse({'detail':'usuário não autenticado'}, status=HTTPStatus.UNAUTHORIZED)
 
     data = {}
     for request_field, model_field in (
@@ -74,16 +72,16 @@ def update(request:HttpRequest):
     if data or 'password' in params:
         user.save()
 
-    return response_success_error()
+    return HttpResponse()
 
 @api_view(["POST"])
 def delete(request:HttpRequest):
     try:
         User.objects.get(id=request.user.id).delete()
-        return response_success_error()
+        return HttpResponse()
     
     except User.DoesNotExist:
-        return response_success_error(HTTPStatus.NOT_FOUND, 'usuário não encontrado')
+        return JsonResponse({'detail':'usuário não encontrado'}, status=HTTPStatus.NOT_FOUND)
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -93,19 +91,19 @@ def generate_token(request:HttpRequest):
     password = data.get('password')
 
     if not username or not password:
-        return response_success_error(HTTPStatus.BAD_REQUEST, 'Parâmetros username e password necessários!')
+        return JsonResponse({'detail':'Parâmetros username e password necessários!'}, status=HTTPStatus.BAD_REQUEST)
     
     user = django_auth.authenticate(request, username=username, password=password)
     
     if user is None:
-        return response_success_error(HTTPStatus.BAD_REQUEST, 'Usuário ou senha incorretos!')
+        return JsonResponse({'detail':'Usuário ou senha incorretos!'}, status=HTTPStatus.BAD_REQUEST)
 
     django_auth.login(request, user) 
     token, created = Token.objects.get_or_create(user=user)
 
-    return response_obj_or_error(obj={'token': token.key})
+    return JsonResponse({'token': token.key})
 
 @api_view(['GET'])
 def logout(request):
     django_auth.logout(request)
-    return response_success_error()
+    return HttpResponse()
